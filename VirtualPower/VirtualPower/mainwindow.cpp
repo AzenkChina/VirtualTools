@@ -4,13 +4,30 @@
 #include "QtCore"
 
 #include "comm_socket.h"
-#include <windows.h>
 #include <string>
 #include <math.h>
 
+#include "comm_socket.h"
+#if defined ( __linux )
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <unistd.h>
+#include <signal.h>
+#include <time.h>
+#include <fcntl.h>
+#else
+#include <windows.h>
+#endif
+
 static uint8_t Running = 0;
 static int32_t OutData[42] = {0};
+#if defined ( __linux )
+static timer_t TimerID = 0;
+static struct sigevent ent;
+static struct itimerspec value;
+#else
 static MMRESULT TimerID = 0;
+#endif
 
 enum __metering_mode
 {
@@ -19,7 +36,7 @@ enum __metering_mode
     THREE_PHASE_FOUR,
 };
 
-struct
+static struct
 {
     double_t VoltagePhaseA;
     double_t VoltagePhaseB;
@@ -41,7 +58,7 @@ struct
 
 }Configs;
 
-struct
+static struct
 {
     double_t PositiveA;
     double_t PositiveB;
@@ -61,18 +78,30 @@ struct
 }Energy;
 
 const static double PI = 3.14159265358;
-static HANDLE hMutex;
-static CommEmitter *Emitter;
 
+static CommEmitter *Emitter;
+#if defined ( __linux )
+static int fd;
+#else
+static HANDLE hMutex;
+#endif
+#if defined ( __linux )
+static void onTimeFunc(union sigval val)
+#else
 static void WINAPI onTimeFunc(UINT wTimerID, UINT msg,DWORD dwUser,DWORD dwl,DWORD dw2)
+#endif
 {
     static uint32_t timing = 5;
-
+#if defined ( __linux )
+    (void)val;
+#else
     (void)wTimerID;
     (void)msg;
     (void)dwUser;
     (void)dwl;
     (void)dw2;
+#endif
+
 
     timing += 1;
 
@@ -213,7 +242,14 @@ MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow)
 {
+#if defined ( __linux )
+    const char *lock = "/tmp/virtual_power.pid";
+    struct flock fl;
+    char mypid[16];
+#else
     LPCWSTR mutexname = L"VirtualMeter::Power";
+#endif
+
     Emitter = new CommEmitter(50002);
     memset(OutData, 0, sizeof(OutData));
     memset(&Energy, 0, sizeof(Energy));
@@ -221,6 +257,28 @@ MainWindow::MainWindow(QWidget *parent) :
     Configs.mode = THREE_PHASE_FOUR;
     Running = 0;
 
+#if defined ( __linux )
+    fd = open(lock, O_RDWR|O_CREAT, S_IRUSR|S_IWUSR|S_IRGRP|S_IROTH);
+    if(fd < 0)
+    {
+        printf("can't create a lock.\n");
+        exit(1);
+    }
+
+    fl.l_type = F_WRLCK;
+    fl.l_start = 0;
+    fl.l_whence = SEEK_SET;
+    fl.l_len = 0;
+    if(fcntl(fd, F_SETLK, &fl) != 0)
+    {
+        printf("Multi-instance is not allowed!\n");
+        exit(0);
+    }
+
+    ftruncate(fd, 0);
+    sprintf(mypid, "%ld", (long)getpid());
+    write(fd, mypid, strlen(mypid) + 1);
+#else
     hMutex = CreateMutex(NULL, TRUE, mutexname);
     DWORD Ret = GetLastError();
 
@@ -237,22 +295,43 @@ MainWindow::MainWindow(QWidget *parent) :
         CloseHandle(hMutex);
         return;
     }
+#endif
+
 
     ui->setupUi(this);
 
+#if defined ( __linux )
+    ent.sigev_notify = SIGEV_THREAD;
+    ent.sigev_notify_function = onTimeFunc;
+    timer_create(CLOCK_MONOTONIC, &ent, &TimerID);
+    value.it_value.tv_sec = 0;
+    value.it_value.tv_nsec = 100*1000*1000;
+    value.it_interval.tv_sec = 0;
+    value.it_interval.tv_nsec = 100*1000*1000;
+    timer_settime(TimerID, 0, &value, NULL);
+#else
     TimerID = timeSetEvent(100, 1, (LPTIMECALLBACK)onTimeFunc, (DWORD)NULL, TIME_PERIODIC);
+#endif
 }
 
 MainWindow::~MainWindow()
 {
+#if defined ( __linux )
+
+#else
     if(hMutex != INVALID_HANDLE_VALUE)
     {
         CloseHandle(hMutex);
     }
+#endif
 
     if(TimerID != 0)
     {
+#if defined ( __linux )
+        timer_delete(TimerID);
+#else
         timeKillEvent(TimerID);
+#endif
     }
 
     delete Emitter;

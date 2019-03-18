@@ -2,15 +2,27 @@
 #include "ui_mainwindow.h"
 #include "QtCore"
 #include "comm_socket.h"
-#include "windows.h"
-#include "math.h"
-#include "time.h"
+#if defined ( __linux )
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <unistd.h>
+#include <signal.h>
+#include <fcntl.h>
+#else
+#include <windows.h>
+#endif
+#include <math.h>
+#include <time.h>
 
 static struct __win_lcd_message lcd_message;
 static CommReceiver *Receiver = NULL;
 static uint8_t unit_changed = 0;
 static uint8_t recv_updated = 0;
+#if defined ( __linux )
+static int fd;
+#else
 static HANDLE hMutex;
+#endif
 
 #if defined ( __linux )
 static void *ThreadRecvMail(void *arg)
@@ -68,9 +80,37 @@ MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow)
 {
+#if defined ( __linux )
+    const char *lock = "/tmp/virtual_display.pid";
+    struct flock fl;
+    char mypid[16];
+#else
     LPCWSTR MutexName = L"VirtualMeter::Display";
+#endif
 
-    hMutex = CreateMutex(NULL, TRUE, MutexName);
+#if defined ( __linux )
+    fd = open(lock, O_RDWR|O_CREAT, S_IRUSR|S_IWUSR|S_IRGRP|S_IROTH);
+    if(fd < 0)
+    {
+        printf("can't create a lock.\n");
+        exit(1);
+    }
+
+    fl.l_type = F_WRLCK;
+    fl.l_start = 0;
+    fl.l_whence = SEEK_SET;
+    fl.l_len = 0;
+    if(fcntl(fd, F_SETLK, &fl) != 0)
+    {
+        printf("Multi-instance is not allowed!\n");
+        exit(0);
+    }
+
+    ftruncate(fd, 0);
+    sprintf(mypid, "%ld", (long)getpid());
+    write(fd, mypid, strlen(mypid) + 1);
+#else
+    hMutex = CreateMutex(NULL, TRUE, mutexname);
     DWORD Ret = GetLastError();
 
     if(hMutex)
@@ -86,6 +126,7 @@ MainWindow::MainWindow(QWidget *parent) :
         CloseHandle(hMutex);
         return;
     }
+#endif
 
     ui->setupUi(this);
 
@@ -180,7 +221,11 @@ MainWindow::MainWindow(QWidget *parent) :
 
 MainWindow::~MainWindow()
 {
+#if defined ( __linux )
+
+#else
     CloseHandle(hMutex);
+#endif
     delete ui;
 }
 
@@ -1312,7 +1357,7 @@ void MainWindow::TimerUpdate()
     }
 
 
-    Mul = (BYTE)lcd_message.windows[LCD_WINDOW_MAIN].dot;
+    Mul = (uint8_t)lcd_message.windows[LCD_WINDOW_MAIN].dot;
     ui->WindowCentral->setVisible(true);
     switch(lcd_message.windows[LCD_WINDOW_MAIN].type)
     {
@@ -1568,7 +1613,7 @@ void MainWindow::TimerUpdate()
             break;
     }
 
-    Mul = (BYTE)lcd_message.windows[LCD_WINDOW_SUB].dot;
+    Mul = (uint8_t)lcd_message.windows[LCD_WINDOW_SUB].dot;
     ui->WindowCorner->setVisible(true);
     switch(lcd_message.windows[LCD_WINDOW_SUB].type)
     {

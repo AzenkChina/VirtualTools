@@ -10,9 +10,12 @@ greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
 TARGET = VirtualDisplay
 TEMPLATE = app
-LIBS += -lws2_32
-LIBS += -lws2_32
-
+win32 {
+    LIBS += -lws2_32
+}
+unix {
+    LIBS += -lpthread
+}
 # The following define makes your compiler emit warnings if you use
 # any feature of Qt which has been marked as deprecated (the exact warnings
 # depend on your compiler). Please consult the documentation of the
@@ -37,4 +40,6 @@ HEADERS += \
 FORMS += \
         mainwindow.ui
 
-RC_ICONS=Paint.ico
+win32 {
+    RC_ICONS=Paint.ico
+}

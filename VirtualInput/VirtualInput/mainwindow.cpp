@@ -1,7 +1,16 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 #include "comm_socket.h"
+#if defined ( __linux )
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <unistd.h>
+#include <signal.h>
+#include <time.h>
+#include <fcntl.h>
+#else
 #include <windows.h>
+#endif
 #include "QtCore"
 
 
@@ -90,21 +99,53 @@ static CommEmitter *EmitterSesors;
 static CommEmitter *EmitterBattery;
 static CommEmitter *EmitterRelay;
 
+#if defined ( __linux )
+static int fd;
+#else
 static HANDLE hMutex;
+#endif
 
-static BYTE StartPress = 0;
-static DWORD PressTime = 0;
-struct __key_data KeyData;
-struct __battery_data BatteryData;
-struct __sensors_data SensorsData;
-struct __relay_data RelayData;
+static uint8_t StartPress = 0;
+static uint32_t PressTime = 0;
+static struct __key_data KeyData;
+static struct __battery_data BatteryData;
+static struct __sensors_data SensorsData;
+static struct __relay_data RelayData;
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow)
 {
+#if defined ( __linux )
+    const char *lock = "/tmp/virtual_input.pid";
+    struct flock fl;
+    char mypid[16];
+#else
     LPCWSTR mutexname = L"VirtualMeter::Input";
+#endif
 
+#if defined ( __linux )
+    fd = open(lock, O_RDWR|O_CREAT, S_IRUSR|S_IWUSR|S_IRGRP|S_IROTH);
+    if(fd < 0)
+    {
+        printf("can't create a lock.\n");
+        exit(1);
+    }
+
+    fl.l_type = F_WRLCK;
+    fl.l_start = 0;
+    fl.l_whence = SEEK_SET;
+    fl.l_len = 0;
+    if(fcntl(fd, F_SETLK, &fl) != 0)
+    {
+        printf("Multi-instance is not allowed!\n");
+        exit(0);
+    }
+
+    ftruncate(fd, 0);
+    sprintf(mypid, "%ld", (long)getpid());
+    write(fd, mypid, strlen(mypid) + 1);
+#else
     hMutex = CreateMutex(NULL, TRUE, mutexname);
     DWORD Ret = GetLastError();
 
@@ -121,6 +162,7 @@ MainWindow::MainWindow(QWidget *parent) :
         CloseHandle(hMutex);
         return;
     }
+#endif
 
     ui->setupUi(this);
 
