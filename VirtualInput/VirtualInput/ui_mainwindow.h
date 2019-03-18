@@ -1,7 +1,7 @@
 /********************************************************************************
 ** Form generated from reading UI file 'mainwindow.ui'
 **
-** Created by: Qt User Interface Compiler version 5.10.1
+** Created by: Qt User Interface Compiler version 5.12.2
 **
 ** WARNING! All changes made in this file will be lost when recompiling UI file!
 ********************************************************************************/
@@ -10,12 +10,9 @@
 #define UI_MAINWINDOW_H
 
 #include <QtCore/QVariant>
-#include <QtWidgets/QAction>
 #include <QtWidgets/QApplication>
-#include <QtWidgets/QButtonGroup>
 #include <QtWidgets/QCheckBox>
 #include <QtWidgets/QFrame>
-#include <QtWidgets/QHeaderView>
 #include <QtWidgets/QMainWindow>
 #include <QtWidgets/QPushButton>
 #include <QtWidgets/QWidget>
@@ -58,7 +55,7 @@ public:
     void setupUi(QMainWindow *MainWindow)
     {
         if (MainWindow->objectName().isEmpty())
-            MainWindow->setObjectName(QStringLiteral("MainWindow"));
+            MainWindow->setObjectName(QString::fromUtf8("MainWindow"));
         MainWindow->resize(480, 360);
         QSizePolicy sizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
         sizePolicy.setHorizontalStretch(0);
@@ -72,112 +69,112 @@ public:
         font.setPointSize(12);
         MainWindow->setFont(font);
         centralWidget = new QWidget(MainWindow);
-        centralWidget->setObjectName(QStringLiteral("centralWidget"));
+        centralWidget->setObjectName(QString::fromUtf8("centralWidget"));
         KEY_1 = new QPushButton(centralWidget);
-        KEY_1->setObjectName(QStringLiteral("KEY_1"));
+        KEY_1->setObjectName(QString::fromUtf8("KEY_1"));
         KEY_1->setGeometry(QRect(10, 15, 80, 40));
         KEY_2 = new QPushButton(centralWidget);
-        KEY_2->setObjectName(QStringLiteral("KEY_2"));
+        KEY_2->setObjectName(QString::fromUtf8("KEY_2"));
         KEY_2->setGeometry(QRect(130, 15, 80, 40));
         KEY_3 = new QPushButton(centralWidget);
-        KEY_3->setObjectName(QStringLiteral("KEY_3"));
+        KEY_3->setObjectName(QString::fromUtf8("KEY_3"));
         KEY_3->setGeometry(QRect(250, 15, 80, 40));
         KEY_6 = new QPushButton(centralWidget);
-        KEY_6->setObjectName(QStringLiteral("KEY_6"));
+        KEY_6->setObjectName(QString::fromUtf8("KEY_6"));
         KEY_6->setGeometry(QRect(250, 95, 80, 40));
         KEY_4 = new QPushButton(centralWidget);
-        KEY_4->setObjectName(QStringLiteral("KEY_4"));
+        KEY_4->setObjectName(QString::fromUtf8("KEY_4"));
         KEY_4->setGeometry(QRect(10, 95, 80, 40));
         KEY_5 = new QPushButton(centralWidget);
-        KEY_5->setObjectName(QStringLiteral("KEY_5"));
+        KEY_5->setObjectName(QString::fromUtf8("KEY_5"));
         KEY_5->setGeometry(QRect(130, 95, 80, 40));
         KEY_9 = new QPushButton(centralWidget);
-        KEY_9->setObjectName(QStringLiteral("KEY_9"));
+        KEY_9->setObjectName(QString::fromUtf8("KEY_9"));
         KEY_9->setGeometry(QRect(250, 175, 80, 40));
         KEY_7 = new QPushButton(centralWidget);
-        KEY_7->setObjectName(QStringLiteral("KEY_7"));
+        KEY_7->setObjectName(QString::fromUtf8("KEY_7"));
         KEY_7->setGeometry(QRect(10, 175, 80, 40));
         KEY_8 = new QPushButton(centralWidget);
-        KEY_8->setObjectName(QStringLiteral("KEY_8"));
+        KEY_8->setObjectName(QString::fromUtf8("KEY_8"));
         KEY_8->setGeometry(QRect(130, 175, 80, 40));
         KEY_ENTER = new QPushButton(centralWidget);
-        KEY_ENTER->setObjectName(QStringLiteral("KEY_ENTER"));
+        KEY_ENTER->setObjectName(QString::fromUtf8("KEY_ENTER"));
         KEY_ENTER->setGeometry(QRect(250, 255, 80, 40));
         KEY_0 = new QPushButton(centralWidget);
-        KEY_0->setObjectName(QStringLiteral("KEY_0"));
+        KEY_0->setObjectName(QString::fromUtf8("KEY_0"));
         KEY_0->setGeometry(QRect(10, 255, 80, 40));
         KEY_DEL = new QPushButton(centralWidget);
-        KEY_DEL->setObjectName(QStringLiteral("KEY_DEL"));
+        KEY_DEL->setObjectName(QString::fromUtf8("KEY_DEL"));
         KEY_DEL->setGeometry(QRect(130, 255, 80, 40));
         KEY_PROG = new QPushButton(centralWidget);
-        KEY_PROG->setObjectName(QStringLiteral("KEY_PROG"));
+        KEY_PROG->setObjectName(QString::fromUtf8("KEY_PROG"));
         KEY_PROG->setGeometry(QRect(370, 255, 90, 40));
         KEY_UP = new QPushButton(centralWidget);
-        KEY_UP->setObjectName(QStringLiteral("KEY_UP"));
+        KEY_UP->setObjectName(QString::fromUtf8("KEY_UP"));
         KEY_UP->setGeometry(QRect(370, 15, 90, 80));
         KEY_DOWN = new QPushButton(centralWidget);
-        KEY_DOWN->setObjectName(QStringLiteral("KEY_DOWN"));
+        KEY_DOWN->setObjectName(QString::fromUtf8("KEY_DOWN"));
         KEY_DOWN->setGeometry(QRect(370, 125, 90, 80));
         line = new QFrame(centralWidget);
-        line->setObjectName(QStringLiteral("line"));
+        line->setObjectName(QString::fromUtf8("line"));
         line->setGeometry(QRect(332, 0, 41, 311));
         line->setFrameShape(QFrame::VLine);
         line->setFrameShadow(QFrame::Sunken);
         line_2 = new QFrame(centralWidget);
-        line_2->setObjectName(QStringLiteral("line_2"));
+        line_2->setObjectName(QString::fromUtf8("line_2"));
         line_2->setGeometry(QRect(0, 65, 351, 20));
         line_2->setFrameShape(QFrame::HLine);
         line_2->setFrameShadow(QFrame::Sunken);
         line_3 = new QFrame(centralWidget);
-        line_3->setObjectName(QStringLiteral("line_3"));
+        line_3->setObjectName(QString::fromUtf8("line_3"));
         line_3->setGeometry(QRect(0, 145, 351, 20));
         line_3->setFrameShape(QFrame::HLine);
         line_3->setFrameShadow(QFrame::Sunken);
         line_4 = new QFrame(centralWidget);
-        line_4->setObjectName(QStringLiteral("line_4"));
+        line_4->setObjectName(QString::fromUtf8("line_4"));
         line_4->setGeometry(QRect(0, 225, 351, 20));
         line_4->setFrameShape(QFrame::HLine);
         line_4->setFrameShadow(QFrame::Sunken);
         line_5 = new QFrame(centralWidget);
-        line_5->setObjectName(QStringLiteral("line_5"));
+        line_5->setObjectName(QString::fromUtf8("line_5"));
         line_5->setGeometry(QRect(93, 0, 31, 311));
         line_5->setFrameShape(QFrame::VLine);
         line_5->setFrameShadow(QFrame::Sunken);
         line_6 = new QFrame(centralWidget);
-        line_6->setObjectName(QStringLiteral("line_6"));
+        line_6->setObjectName(QString::fromUtf8("line_6"));
         line_6->setGeometry(QRect(220, 0, 31, 311));
         line_6->setFrameShape(QFrame::VLine);
         line_6->setFrameShadow(QFrame::Sunken);
         B_MAIN_COVER = new QCheckBox(centralWidget);
-        B_MAIN_COVER->setObjectName(QStringLiteral("B_MAIN_COVER"));
+        B_MAIN_COVER->setObjectName(QString::fromUtf8("B_MAIN_COVER"));
         B_MAIN_COVER->setGeometry(QRect(130, 315, 80, 20));
         QFont font1;
         font1.setPointSize(10);
         B_MAIN_COVER->setFont(font1);
         B_SUB_COVER = new QCheckBox(centralWidget);
-        B_SUB_COVER->setObjectName(QStringLiteral("B_SUB_COVER"));
+        B_SUB_COVER->setObjectName(QString::fromUtf8("B_SUB_COVER"));
         B_SUB_COVER->setGeometry(QRect(130, 335, 80, 20));
         B_SUB_COVER->setFont(font1);
         B_BAT_RTC = new QCheckBox(centralWidget);
-        B_BAT_RTC->setObjectName(QStringLiteral("B_BAT_RTC"));
+        B_BAT_RTC->setObjectName(QString::fromUtf8("B_BAT_RTC"));
         B_BAT_RTC->setGeometry(QRect(10, 315, 101, 20));
         B_BAT_RTC->setFont(font1);
         line_7 = new QFrame(centralWidget);
-        line_7->setObjectName(QStringLiteral("line_7"));
+        line_7->setObjectName(QString::fromUtf8("line_7"));
         line_7->setGeometry(QRect(0, 300, 481, 20));
         line_7->setFrameShadow(QFrame::Raised);
         line_7->setLineWidth(2);
         line_7->setFrameShape(QFrame::HLine);
         B_BAT_BACKUP = new QCheckBox(centralWidget);
-        B_BAT_BACKUP->setObjectName(QStringLiteral("B_BAT_BACKUP"));
+        B_BAT_BACKUP->setObjectName(QString::fromUtf8("B_BAT_BACKUP"));
         B_BAT_BACKUP->setGeometry(QRect(10, 335, 101, 20));
         B_BAT_BACKUP->setFont(font1);
         B_MAGNETIC = new QCheckBox(centralWidget);
-        B_MAGNETIC->setObjectName(QStringLiteral("B_MAGNETIC"));
+        B_MAGNETIC->setObjectName(QString::fromUtf8("B_MAGNETIC"));
         B_MAGNETIC->setGeometry(QRect(250, 315, 101, 20));
         B_MAGNETIC->setFont(font1);
         B_RELAY = new QCheckBox(centralWidget);
-        B_RELAY->setObjectName(QStringLiteral("B_RELAY"));
+        B_RELAY->setObjectName(QString::fromUtf8("B_RELAY"));
         B_RELAY->setGeometry(QRect(250, 335, 101, 20));
         B_RELAY->setFont(font1);
         MainWindow->setCentralWidget(centralWidget);
