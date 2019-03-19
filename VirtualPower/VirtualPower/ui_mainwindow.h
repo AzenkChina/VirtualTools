@@ -10,6 +10,7 @@
 #define UI_MAINWINDOW_H
 
 #include <QtCore/QVariant>
+#include <QtGui/QIcon>
 #include <QtWidgets/QApplication>
 #include <QtWidgets/QCheckBox>
 #include <QtWidgets/QComboBox>
@@ -86,6 +87,9 @@ public:
         font.setFamily(QString::fromUtf8("\347\255\211\347\272\277"));
         font.setPointSize(12);
         MainWindow->setFont(font);
+        QIcon icon;
+        icon.addFile(QString::fromUtf8("Paint.ico"), QSize(), QIcon::Normal, QIcon::Off);
+        MainWindow->setWindowIcon(icon);
         centralWidget = new QWidget(MainWindow);
         centralWidget->setObjectName(QString::fromUtf8("centralWidget"));
         StartButton = new QPushButton(centralWidget);

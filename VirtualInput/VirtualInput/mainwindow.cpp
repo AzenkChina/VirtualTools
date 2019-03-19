@@ -143,7 +143,7 @@ MainWindow::MainWindow(QWidget *parent) :
     }
 
     ftruncate(fd, 0);
-    sprintf(mypid, "%ld", (long)getpid());
+    sprintf(mypid, "%ld", static_cast<long>(getpid()));
     write(fd, mypid, strlen(mypid) + 1);
 #else
     hMutex = CreateMutex(nullptr, TRUE, mutexname);

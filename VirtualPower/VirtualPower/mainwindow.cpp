@@ -22,7 +22,7 @@
 static uint8_t Running = 0;
 static int32_t OutData[42] = {0};
 #if defined ( __linux )
-static timer_t TimerID = 0;
+static timer_t TimerID = nullptr;
 static struct sigevent ent;
 static struct itimerspec value;
 #else
@@ -276,7 +276,7 @@ MainWindow::MainWindow(QWidget *parent) :
     }
 
     ftruncate(fd, 0);
-    sprintf(mypid, "%ld", (long)getpid());
+    sprintf(mypid, "%ld", static_cast<long>(getpid()));
     write(fd, mypid, strlen(mypid) + 1);
 #else
     hMutex = CreateMutex(nullptr, TRUE, mutexname);
@@ -308,7 +308,7 @@ MainWindow::MainWindow(QWidget *parent) :
     value.it_value.tv_nsec = 100*1000*1000;
     value.it_interval.tv_sec = 0;
     value.it_interval.tv_nsec = 100*1000*1000;
-    timer_settime(TimerID, 0, &value, NULL);
+    timer_settime(TimerID, 0, &value, nullptr);
 #else
     TimerID = timeSetEvent(100, 1, reinterpret_cast<LPTIMECALLBACK>(onTimeFunc), static_cast<DWORD>(NULL), TIME_PERIODIC);
 #endif
@@ -325,7 +325,7 @@ MainWindow::~MainWindow()
     }
 #endif
 
-    if(TimerID != 0)
+    if(TimerID != nullptr)
     {
 #if defined ( __linux )
         timer_delete(TimerID);

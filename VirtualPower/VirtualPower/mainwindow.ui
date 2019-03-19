@@ -37,6 +37,10 @@
   <property name="windowTitle">
    <string>Power Emulator</string>
   </property>
+  <property name="windowIcon">
+   <iconset>
+    <normaloff>Paint.ico</normaloff>Paint.ico</iconset>
+  </property>
   <widget class="QWidget" name="centralWidget">
    <widget class="QPushButton" name="StartButton">
     <property name="geometry">

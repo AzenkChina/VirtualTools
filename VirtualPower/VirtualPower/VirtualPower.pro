@@ -43,9 +43,3 @@ HEADERS += \
 
 FORMS += \
         mainwindow.ui
-
-win32 {
-    RC_ICONS=Paint.ico
-}
-
-

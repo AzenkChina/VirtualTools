@@ -103,7 +103,7 @@ MainWindow::MainWindow(QWidget *parent) :
     }
 
     ftruncate(fd, 0);
-    sprintf(mypid, "%ld", (long)getpid());
+    sprintf(mypid, "%ld", static_cast<long>(getpid()));
     write(fd, mypid, strlen(mypid) + 1);
 #else
     hMutex = CreateMutex(nullptr, TRUE, MutexName);
@@ -205,7 +205,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
     pthread_attr_init(&thread_attr);
     pthread_attr_setdetachstate(&thread_attr, PTHREAD_CREATE_DETACHED);
-    pthread_create(&thread, &thread_attr, ThreadRecvMail, NULL);
+    pthread_create(&thread, &thread_attr, ThreadRecvMail, nullptr);
     pthread_attr_destroy(&thread_attr);
 #else
     HANDLE hThread;
