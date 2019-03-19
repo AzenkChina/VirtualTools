@@ -107,8 +107,8 @@ static void WINAPI onTimeFunc(UINT wTimerID, UINT msg,DWORD dwUser,DWORD dwl,DWO
 
     if(Running)
     {
-        double_t IncreasePositive = ((double_t)1000000 / (double_t)Configs.HFPositive);
-        double_t IncreaseNegitive = ((double_t)1000000 / (double_t)Configs.HFNegitive);
+        double_t IncreasePositive = (static_cast<double_t>(1000000) / static_cast<double_t>(Configs.HFPositive));
+        double_t IncreaseNegitive = (static_cast<double_t>(1000000) / static_cast<double_t>(Configs.HFNegitive));
         uint16_t numb;
 
         //mWh
@@ -129,28 +129,28 @@ static void WINAPI onTimeFunc(UINT wTimerID, UINT msg,DWORD dwUser,DWORD dwl,DWO
 
         if(Energy.PositiveA > IncreasePositive)
         {
-            numb = Energy.PositiveA / IncreasePositive;
+            numb = static_cast<uint16_t>(Energy.PositiveA / IncreasePositive);
             Energy.PositiveA -= (IncreasePositive * numb);
             OutData[R_EPA - 1] += numb;
         }
 
         if(Energy.PositiveB > IncreasePositive)
         {
-            numb = Energy.PositiveB / IncreasePositive;
+            numb = static_cast<uint16_t>(Energy.PositiveB / IncreasePositive);
             Energy.PositiveB -= (IncreasePositive * numb);
             OutData[R_EPB - 1] += numb;
         }
 
         if(Energy.PositiveC > IncreasePositive)
         {
-            numb = Energy.PositiveC / IncreasePositive;
+            numb = static_cast<uint16_t>(Energy.PositiveC / IncreasePositive);
             Energy.PositiveC -= (IncreasePositive * numb);
             OutData[R_EPC - 1] += numb;
         }
 
         if(Energy.PositiveT > IncreasePositive)
         {
-            numb = Energy.PositiveT / IncreasePositive;
+            numb = static_cast<uint16_t>(Energy.PositiveT / IncreasePositive);
             Energy.PositiveT -= (IncreasePositive * numb);
             OutData[R_EPT - 1] += numb;
         }
@@ -158,64 +158,64 @@ static void WINAPI onTimeFunc(UINT wTimerID, UINT msg,DWORD dwUser,DWORD dwl,DWO
 
         if(Energy.NegitiveA > IncreaseNegitive)
         {
-            numb = Energy.NegitiveA / IncreaseNegitive;
+            numb = static_cast<uint16_t>(Energy.NegitiveA / IncreaseNegitive);
             Energy.NegitiveA -= (IncreaseNegitive * numb);
             OutData[R_EQA - 1] += numb;
         }
 
         if(Energy.NegitiveB > IncreaseNegitive)
         {
-            numb = Energy.NegitiveB / IncreaseNegitive;
+            numb = static_cast<uint16_t>(Energy.NegitiveB / IncreaseNegitive);
             Energy.NegitiveB -= (IncreaseNegitive * numb);
             OutData[R_EQB - 1] += numb;
         }
 
         if(Energy.NegitiveC > IncreaseNegitive)
         {
-            numb = Energy.NegitiveC / IncreaseNegitive;
+            numb = static_cast<uint16_t>(Energy.NegitiveC / IncreaseNegitive);
             Energy.NegitiveC -= (IncreaseNegitive * numb);
             OutData[R_EQC - 1] += numb;
         }
 
         if(Energy.NegitiveT > IncreaseNegitive)
         {
-            numb = Energy.NegitiveT / IncreaseNegitive;
+            numb = static_cast<uint16_t>(Energy.NegitiveT / IncreaseNegitive);
             Energy.NegitiveT -= (IncreaseNegitive * numb);
             OutData[R_EQT - 1] += numb;
         }
 
         if(Energy.ApparentA > IncreasePositive)
         {
-            numb = Energy.ApparentA / IncreasePositive;
+            numb = static_cast<uint16_t>(Energy.ApparentA / IncreasePositive);
             Energy.ApparentA -= (IncreasePositive * numb);
             OutData[R_ESA - 1] += numb;
         }
 
         if(Energy.ApparentB > IncreasePositive)
         {
-            numb = Energy.ApparentB / IncreasePositive;
+            numb = static_cast<uint16_t>(Energy.ApparentB / IncreasePositive);
             Energy.ApparentB -= (IncreasePositive * numb);
             OutData[R_ESB - 1] += numb;
         }
 
         if(Energy.ApparentC > IncreasePositive)
         {
-            numb = Energy.ApparentC / IncreasePositive;
+            numb = static_cast<uint16_t>(Energy.ApparentC / IncreasePositive);
             Energy.ApparentC -= (IncreasePositive * numb);
             OutData[R_ESC - 1] += numb;
         }
 
         if(Energy.ApparentT > IncreasePositive)
         {
-            numb = Energy.ApparentT / IncreasePositive;
+            numb = static_cast<uint16_t>(Energy.ApparentT / IncreasePositive);
             Energy.ApparentT -= (IncreasePositive * numb);
             OutData[R_EST - 1] += numb;
         }
     }
 
-    if(Emitter->Send((uint8_t *)OutData, sizeof(OutData)) == sizeof(OutData))
+    if(Emitter->Send(reinterpret_cast<uint8_t *>(OutData), sizeof(OutData)) == sizeof(OutData))
     {
-        for(uint16_t count=0; count<(uint16_t)R_ESC; count++)
+        for(uint16_t count=0; count<static_cast<uint16_t>(R_ESC); count++)
         {
             OutData[count] = 0;
         }
@@ -279,7 +279,7 @@ MainWindow::MainWindow(QWidget *parent) :
     sprintf(mypid, "%ld", (long)getpid());
     write(fd, mypid, strlen(mypid) + 1);
 #else
-    hMutex = CreateMutex(NULL, TRUE, mutexname);
+    hMutex = CreateMutex(nullptr, TRUE, mutexname);
     DWORD Ret = GetLastError();
 
     if(hMutex)
@@ -310,7 +310,7 @@ MainWindow::MainWindow(QWidget *parent) :
     value.it_interval.tv_nsec = 100*1000*1000;
     timer_settime(TimerID, 0, &value, NULL);
 #else
-    TimerID = timeSetEvent(100, 1, (LPTIMECALLBACK)onTimeFunc, (DWORD)NULL, TIME_PERIODIC);
+    TimerID = timeSetEvent(100, 1, reinterpret_cast<LPTIMECALLBACK>(onTimeFunc), static_cast<DWORD>(NULL), TIME_PERIODIC);
 #endif
 }
 
@@ -349,72 +349,72 @@ void MainWindow::CalcutePower()
         val[1] = Configs.VoltagePhaseB * Configs.CurrentPhaseB;
         val[2] = Configs.VoltagePhaseC * Configs.CurrentPhaseC;
 
-        OutData[R_SA - 1] = val[0] * 1000;
-        OutData[R_SB - 1] = val[1] * 1000;
-        OutData[R_SC - 1] = val[2] * 1000;
-        OutData[R_ST - 1] = (val[0] + val[1] + val[2]) * 1000;
+        OutData[R_SA - 1] = static_cast<int32_t>(val[0] * 1000);
+        OutData[R_SB - 1] = static_cast<int32_t>(val[1] * 1000);
+        OutData[R_SC - 1] = static_cast<int32_t>(val[2] * 1000);
+        OutData[R_ST - 1] = static_cast<int32_t>((val[0] + val[1] + val[2]) * 1000);
 
 
-        val[3] = val[0] * cos(2 * PI * Configs.AnglePhaseA / 360);
+        val[3] = val[0] * cos(static_cast<long double>(2 * PI * Configs.AnglePhaseA / 360));
         val[4] = val[3];
-        str = QString::number(val[3], 'f', 2);
+        str = QString::number(static_cast<long>(val[3]), 'f', 2);
         ui->PositivePowerPhaseA->setText(str);
-        OutData[R_PA - 1] = val[3] * 1000;
+        OutData[R_PA - 1] = static_cast<uint16_t>(val[3] * 1000);
 
-        val[3] = val[1] * cos(2 * PI * Configs.AnglePhaseB / 360);
+        val[3] = val[1] * cos(static_cast<long double>(2 * PI * Configs.AnglePhaseB / 360));
         val[4] += val[3];
-        str = QString::number(val[3], 'f', 2);
+        str = QString::number(static_cast<long>(val[3]), 'f', 2);
         ui->PositivePowerPhaseB->setText(str);
-        OutData[R_PB - 1] = val[3] * 1000;
+        OutData[R_PB - 1] = static_cast<uint16_t>(val[3] * 1000);
 
-        val[3] = val[2] * cos(2 * PI * Configs.AnglePhaseC / 360);
+        val[3] = val[2] * cos(static_cast<long double>(2 * PI * Configs.AnglePhaseC / 360));
         val[4] += val[3];
-        str = QString::number(val[3], 'f', 2);
+        str = QString::number(static_cast<long>(val[3]), 'f', 2);
         ui->PositivePowerPhaseC->setText(str);
-        OutData[R_PC - 1] = val[3] * 1000;
+        OutData[R_PC - 1] = static_cast<uint16_t>(val[3] * 1000);
 
-        str = QString::number(val[4], 'f', 2);
+        str = QString::number(static_cast<long>(val[4]), 'f', 2);
         ui->PositivePowerTotal->setText(str);
-        OutData[R_PT - 1] = val[4] * 1000;
+        OutData[R_PT - 1] = static_cast<uint16_t>(val[4] * 1000);
 
 
 
-        val[3] = val[0] * sin(2 * PI * Configs.AnglePhaseA / 360);
+        val[3] = val[0] * sin(static_cast<long double>(2 * PI * Configs.AnglePhaseA / 360));
         val[5] = val[3];
-        str = QString::number(val[3], 'f', 2);
+        str = QString::number(static_cast<long>(val[3]), 'f', 2);
         ui->NegitivePowerPhaseA->setText(str);
-        OutData[R_QA - 1] = val[3] * 1000;
+        OutData[R_QA - 1] = static_cast<uint16_t>(val[3] * 1000);
 
-        val[3] = val[1] * sin(2 * PI * Configs.AnglePhaseB / 360);
+        val[3] = val[1] * sin(static_cast<long double>(2 * PI * Configs.AnglePhaseB / 360));
         val[5] += val[3];
-        str = QString::number(val[3], 'f', 2);
+        str = QString::number(static_cast<long>(val[3]), 'f', 2);
         ui->NegitivePowerPhaseB->setText(str);
-        OutData[R_QB - 1] = val[3] * 1000;
+        OutData[R_QB - 1] = static_cast<uint16_t>(val[3] * 1000);
 
-        val[3] = val[2] * sin(2 * PI * Configs.AnglePhaseC / 360);
+        val[3] = val[2] * sin(static_cast<long double>(2 * PI * Configs.AnglePhaseC / 360));
         val[5] += val[3];
-        str = QString::number(val[3], 'f', 2);
+        str = QString::number(static_cast<long>(val[3]), 'f', 2);
         ui->NegitivePowerPhaseC->setText(str);
-        OutData[R_QC - 1] = val[3] * 1000;
+        OutData[R_QC - 1] = static_cast<uint16_t>(val[3] * 1000);
 
-        str = QString::number(val[5], 'f', 2);
+        str = QString::number(static_cast<long>(val[5]), 'f', 2);
         ui->NegitivePowerTotal->setText(str);
-        OutData[R_QT - 1] = val[5] * 1000;
+        OutData[R_QT - 1] = static_cast<uint16_t>(val[5] * 1000);
 
 
-        OutData[R_PFA - 1] = fabs(cos(2 * PI * Configs.AnglePhaseA / 360))  * 1000;
-        OutData[R_PFB - 1] = fabs(cos(2 * PI * Configs.AnglePhaseB / 360)) * 1000;
-        OutData[R_PFC - 1] = fabs(cos(2 * PI * Configs.AnglePhaseC / 360)) * 1000;
-        OutData[R_PFT - 1] = fabs(cos(atan(val[5]/val[4]))) * 1000;
+        OutData[R_PFA - 1] = static_cast<uint16_t>(fabs(cos(static_cast<long double>(2 * PI * Configs.AnglePhaseA / 360)))  * 1000);
+        OutData[R_PFB - 1] = static_cast<uint16_t>(fabs(cos(static_cast<long double>(2 * PI * Configs.AnglePhaseB / 360))) * 1000);
+        OutData[R_PFC - 1] = static_cast<uint16_t>(fabs(cos(static_cast<long double>(2 * PI * Configs.AnglePhaseC / 360))) * 1000);
+        OutData[R_PFT - 1] = static_cast<uint16_t>(fabs(cos(atan(static_cast<long double>(val[5]/val[4])))) * 1000);
 
-        OutData[R_UARMS - 1] = Configs.VoltagePhaseA * 1000;
-        OutData[R_UBRMS - 1] = Configs.VoltagePhaseB * 1000;
-        OutData[R_UCRMS - 1] = Configs.VoltagePhaseC * 1000;
+        OutData[R_UARMS - 1] = static_cast<uint16_t>(Configs.VoltagePhaseA * 1000);
+        OutData[R_UBRMS - 1] = static_cast<uint16_t>(Configs.VoltagePhaseB * 1000);
+        OutData[R_UCRMS - 1] = static_cast<uint16_t>(Configs.VoltagePhaseC * 1000);
 
-        OutData[R_IARMS - 1] = Configs.CurrentPhaseA * 1000;
-        OutData[R_IBRMS - 1] = Configs.CurrentPhaseB * 1000;
-        OutData[R_ICRMS - 1] = Configs.CurrentPhaseC * 1000;
-        OutData[R_ITRMS - 1] = Configs.CurrentPhaseN * 1000;
+        OutData[R_IARMS - 1] = static_cast<uint16_t>(Configs.CurrentPhaseA * 1000);
+        OutData[R_IBRMS - 1] = static_cast<uint16_t>(Configs.CurrentPhaseB * 1000);
+        OutData[R_ICRMS - 1] = static_cast<uint16_t>(Configs.CurrentPhaseC * 1000);
+        OutData[R_ITRMS - 1] = static_cast<uint16_t>(Configs.CurrentPhaseN * 1000);
 
         OutData[R_PGA - 1] = Configs.AnglePhaseA * 1000;
         OutData[R_PGB - 1] = Configs.AnglePhaseB * 1000;
@@ -517,7 +517,7 @@ void MainWindow::CalcutePower()
 
 void MainWindow::on_VoltagePhaseA_textChanged(const QString &arg1)
 {
-    double_t val = arg1.toDouble();
+    double_t val = static_cast<double_t>(arg1.toDouble());
     if(val < 0)
     {
         val = -val;
@@ -526,12 +526,12 @@ void MainWindow::on_VoltagePhaseA_textChanged(const QString &arg1)
 
     if(arg1.indexOf('.') != -1)
     {
-        QString str = QString::number(Configs.VoltagePhaseA, 'f', 3);
+        QString str = QString::number(static_cast<long>(Configs.VoltagePhaseA), 'f', 3);
         ui->VoltagePhaseA->setText(str);
     }
     else
     {
-        QString str = QString::number(Configs.VoltagePhaseA, 'f', 0);
+        QString str = QString::number(static_cast<long>(Configs.VoltagePhaseA), 'f', 0);
         ui->VoltagePhaseA->setText(str);
     }
 
@@ -540,7 +540,7 @@ void MainWindow::on_VoltagePhaseA_textChanged(const QString &arg1)
 
 void MainWindow::on_VoltagePhaseB_textChanged(const QString &arg1)
 {
-    double_t val = arg1.toDouble();
+    double_t val = static_cast<double_t>(arg1.toDouble());
     if(val < 0)
     {
         val = -val;
@@ -549,12 +549,12 @@ void MainWindow::on_VoltagePhaseB_textChanged(const QString &arg1)
 
     if(arg1.indexOf('.') != -1)
     {
-        QString str = QString::number(Configs.VoltagePhaseB, 'f', 3);
+        QString str = QString::number(static_cast<long>(Configs.VoltagePhaseB), 'f', 3);
         ui->VoltagePhaseB->setText(str);
     }
     else
     {
-        QString str = QString::number(Configs.VoltagePhaseB, 'f', 0);
+        QString str = QString::number(static_cast<long>(Configs.VoltagePhaseB), 'f', 0);
         ui->VoltagePhaseB->setText(str);
     }
 
@@ -563,7 +563,7 @@ void MainWindow::on_VoltagePhaseB_textChanged(const QString &arg1)
 
 void MainWindow::on_VoltagePhaseC_textChanged(const QString &arg1)
 {
-    double_t val = arg1.toDouble();
+    double_t val = static_cast<double_t>(arg1.toDouble());
     if(val < 0)
     {
         val = -val;
@@ -572,12 +572,12 @@ void MainWindow::on_VoltagePhaseC_textChanged(const QString &arg1)
 
     if(arg1.indexOf('.') != -1)
     {
-        QString str = QString::number(Configs.VoltagePhaseC, 'f', 3);
+        QString str = QString::number(static_cast<long>(Configs.VoltagePhaseC), 'f', 3);
         ui->VoltagePhaseC->setText(str);
     }
     else
     {
-        QString str = QString::number(Configs.VoltagePhaseC, 'f', 0);
+        QString str = QString::number(static_cast<long>(Configs.VoltagePhaseC), 'f', 0);
         ui->VoltagePhaseC->setText(str);
     }
 
@@ -586,7 +586,7 @@ void MainWindow::on_VoltagePhaseC_textChanged(const QString &arg1)
 
 void MainWindow::on_CurrentPhaseA_textChanged(const QString &arg1)
 {
-    double_t val = arg1.toDouble();
+    double_t val = static_cast<double_t>(arg1.toDouble());
     if(val < 0)
     {
         val = -val;
@@ -595,12 +595,12 @@ void MainWindow::on_CurrentPhaseA_textChanged(const QString &arg1)
 
     if(arg1.indexOf('.') != -1)
     {
-        QString str = QString::number(Configs.CurrentPhaseA, 'f', 3);
+        QString str = QString::number(static_cast<long>(Configs.CurrentPhaseA), 'f', 3);
         ui->CurrentPhaseA->setText(str);
     }
     else
     {
-        QString str = QString::number(Configs.CurrentPhaseA, 'f', 0);
+        QString str = QString::number(static_cast<long>(Configs.CurrentPhaseA), 'f', 0);
         ui->CurrentPhaseA->setText(str);
     }
 
@@ -609,7 +609,7 @@ void MainWindow::on_CurrentPhaseA_textChanged(const QString &arg1)
 
 void MainWindow::on_CurrentPhaseB_textChanged(const QString &arg1)
 {
-    double_t val = arg1.toDouble();
+    double_t val = static_cast<double_t>(arg1.toDouble());
     if(val < 0)
     {
         val = -val;
@@ -618,12 +618,12 @@ void MainWindow::on_CurrentPhaseB_textChanged(const QString &arg1)
 
     if(arg1.indexOf('.') != -1)
     {
-        QString str = QString::number(Configs.CurrentPhaseB, 'f', 3);
+        QString str = QString::number(static_cast<long>(Configs.CurrentPhaseB), 'f', 3);
         ui->CurrentPhaseB->setText(str);
     }
     else
     {
-        QString str = QString::number(Configs.CurrentPhaseB, 'f', 0);
+        QString str = QString::number(static_cast<long>(Configs.CurrentPhaseB), 'f', 0);
         ui->CurrentPhaseB->setText(str);
     }
 
@@ -632,7 +632,7 @@ void MainWindow::on_CurrentPhaseB_textChanged(const QString &arg1)
 
 void MainWindow::on_CurrentPhaseC_textChanged(const QString &arg1)
 {
-    double_t val = arg1.toDouble();
+    double_t val = static_cast<double_t>(arg1.toDouble());
     if(val < 0)
     {
         val = -val;
@@ -641,12 +641,12 @@ void MainWindow::on_CurrentPhaseC_textChanged(const QString &arg1)
 
     if(arg1.indexOf('.') != -1)
     {
-        QString str = QString::number(Configs.CurrentPhaseC, 'f', 3);
+        QString str = QString::number(static_cast<long>(Configs.CurrentPhaseC), 'f', 3);
         ui->CurrentPhaseC->setText(str);
     }
     else
     {
-        QString str = QString::number(Configs.CurrentPhaseC, 'f', 0);
+        QString str = QString::number(static_cast<long>(Configs.CurrentPhaseC), 'f', 0);
         ui->CurrentPhaseC->setText(str);
     }
 
@@ -655,7 +655,7 @@ void MainWindow::on_CurrentPhaseC_textChanged(const QString &arg1)
 
 void MainWindow::on_CurrentPhaseN_textChanged(const QString &arg1)
 {
-    double_t val = arg1.toDouble();
+    double_t val = static_cast<double_t>(arg1.toDouble());
     if(val < 0)
     {
         val = -val;
@@ -664,12 +664,12 @@ void MainWindow::on_CurrentPhaseN_textChanged(const QString &arg1)
 
     if(arg1.indexOf('.') != -1)
     {
-        QString str = QString::number(Configs.CurrentPhaseN, 'f', 3);
+        QString str = QString::number(static_cast<long>(Configs.CurrentPhaseN), 'f', 3);
         ui->CurrentPhaseN->setText(str);
     }
     else
     {
-        QString str = QString::number(Configs.CurrentPhaseN, 'f', 0);
+        QString str = QString::number(static_cast<long>(Configs.CurrentPhaseN), 'f', 0);
         ui->CurrentPhaseN->setText(str);
     }
 
@@ -678,16 +678,16 @@ void MainWindow::on_CurrentPhaseN_textChanged(const QString &arg1)
 
 void MainWindow::on_CurrenAngleA_textChanged(const QString &arg1)
 {
-    double_t val = arg1.toDouble();
+    double_t val = static_cast<double_t>(arg1.toDouble());
     if(val < 0)
     {
         val = -val;
     }
 
-    Configs.AnglePhaseA = val;
+    Configs.AnglePhaseA = static_cast<uint16_t>(val);
     Configs.AnglePhaseA %= 360;
 
-    QString str = QString::number(Configs.AnglePhaseA, 'f', 0);
+    QString str = QString::number(static_cast<long>(Configs.AnglePhaseA), 'f', 0);
     ui->CurrenAngleA->setText(str);
 
     CalcutePower();
@@ -695,16 +695,16 @@ void MainWindow::on_CurrenAngleA_textChanged(const QString &arg1)
 
 void MainWindow::on_CurrenAngleB_textChanged(const QString &arg1)
 {
-    double_t val = arg1.toDouble();
+    double_t val = static_cast<double_t>(arg1.toDouble());
     if(val < 0)
     {
         val = -val;
     }
 
-    Configs.AnglePhaseB = val;
+    Configs.AnglePhaseB = static_cast<uint16_t>(val);
     Configs.AnglePhaseB %= 360;
 
-    QString str = QString::number(Configs.AnglePhaseB, 'f', 0);
+    QString str = QString::number(static_cast<long>(Configs.AnglePhaseB), 'f', 0);
     ui->CurrenAngleB->setText(str);
 
     CalcutePower();
@@ -712,16 +712,16 @@ void MainWindow::on_CurrenAngleB_textChanged(const QString &arg1)
 
 void MainWindow::on_CurrenAngleC_textChanged(const QString &arg1)
 {
-    double_t val = arg1.toDouble();
+    double_t val = static_cast<double_t>(arg1.toDouble());
     if(val < 0)
     {
         val = -val;
     }
 
-    Configs.AnglePhaseC = val;
+    Configs.AnglePhaseC = static_cast<uint16_t>(val);
     Configs.AnglePhaseC %= 360;
 
-    QString str = QString::number(Configs.AnglePhaseC, 'f', 0);
+    QString str = QString::number(static_cast<long>(Configs.AnglePhaseC), 'f', 0);
     ui->CurrenAngleC->setText(str);
 
     CalcutePower();
@@ -729,29 +729,29 @@ void MainWindow::on_CurrenAngleC_textChanged(const QString &arg1)
 
 void MainWindow::on_HFPostive_textChanged(const QString &arg1)
 {
-    double_t val = arg1.toDouble();
+    double_t val = static_cast<double_t>(arg1.toDouble());
     if(val < 0)
     {
         val = -val;
     }
 
-    Configs.HFPositive = val;
+    Configs.HFPositive = static_cast<uint16_t>(val);
 
-    QString str = QString::number(Configs.HFPositive);
+    QString str = QString::number(static_cast<long>(Configs.HFPositive));
     ui->HFPostive->setText(str);
 }
 
 void MainWindow::on_HFNegitive_textChanged(const QString &arg1)
 {
-    double_t val = arg1.toDouble();
+    double_t val = static_cast<double_t>(arg1.toDouble());
     if(val < 0)
     {
         val = -val;
     }
 
-    Configs.HFNegitive = val;
+    Configs.HFNegitive = static_cast<uint16_t>(val);
 
-    QString str = QString::number(Configs.HFNegitive);
+    QString str = QString::number(static_cast<long>(Configs.HFNegitive));
     ui->HFNegitive->setText(str);
 }
 
@@ -763,7 +763,7 @@ void MainWindow::on_VoltageInverse_released()
 void MainWindow::on_MetringMode_currentIndexChanged(int index)
 {
     QString str = "0";
-    Configs.mode = (enum __metering_mode)index;
+    Configs.mode = static_cast<enum __metering_mode>(index);
 
     ui->VoltagePhaseA->setVisible(true);
     ui->VoltagePhaseB->setVisible(true);

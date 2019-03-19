@@ -1,6 +1,6 @@
 #include <windows.h>
 
-IDI_ICON1	ICON	DISCARDABLE	"F:/Works/Projects/2016_06_02_Test_STM32_uClibc/QT_SVN/trunk/VirtualDisplay/VirtualDisplay/Paint.ico"
+IDI_ICON1	ICON	DISCARDABLE	"F:/Works/Codes/GitHub/VirtualTools/VirtualDisplay/VirtualDisplay/Paint.ico"
 
 VS_VERSION_INFO VERSIONINFO
 	FILEVERSION 0,0,0,0

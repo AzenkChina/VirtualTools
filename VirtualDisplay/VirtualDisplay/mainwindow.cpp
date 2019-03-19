@@ -15,7 +15,7 @@
 #include <time.h>
 
 static struct __win_lcd_message lcd_message;
-static CommReceiver *Receiver = NULL;
+static CommReceiver *Receiver = nullptr;
 static uint8_t unit_changed = 0;
 static uint8_t recv_updated = 0;
 #if defined ( __linux )
@@ -47,7 +47,7 @@ static DWORD CALLBACK ThreadRecvMail(PVOID pvoid)
 #else
         Sleep(2);
 #endif
-        readcount = Receiver->Receive((uint8_t *)&lcd_message, sizeof(lcd_message));
+        readcount = Receiver->Receive(reinterpret_cast<uint8_t *>(&lcd_message), sizeof(lcd_message));
         if(readcount != sizeof(lcd_message))
         {
             if(recv_record < (3*500))
@@ -57,7 +57,7 @@ static DWORD CALLBACK ThreadRecvMail(PVOID pvoid)
             else if(recv_record == (3*500))
             {
                 recv_record += 1;
-                memset((void *)&lcd_message, 0, sizeof(lcd_message));
+                memset(reinterpret_cast<void *>(&lcd_message), 0, sizeof(lcd_message));
                 lcd_message.global = LCD_GLO_SHOW_NONE;
                 lcd_message.backlight = LCD_BKL_OFF;
                 recv_updated = 0xff;
@@ -70,10 +70,6 @@ static DWORD CALLBACK ThreadRecvMail(PVOID pvoid)
             recv_updated = 0xff;
         }
     }
-
-    delete Receiver;
-
-    return(0);
 }
 
 MainWindow::MainWindow(QWidget *parent) :
@@ -110,7 +106,7 @@ MainWindow::MainWindow(QWidget *parent) :
     sprintf(mypid, "%ld", (long)getpid());
     write(fd, mypid, strlen(mypid) + 1);
 #else
-    hMutex = CreateMutex(NULL, TRUE, mutexname);
+    hMutex = CreateMutex(nullptr, TRUE, MutexName);
     DWORD Ret = GetLastError();
 
     if(hMutex)
@@ -213,7 +209,7 @@ MainWindow::MainWindow(QWidget *parent) :
     pthread_attr_destroy(&thread_attr);
 #else
     HANDLE hThread;
-    hThread = CreateThread(NULL, 0, ThreadRecvMail, 0, 0, NULL);
+    hThread = CreateThread(nullptr, 0, ThreadRecvMail, nullptr, 0, nullptr);
     CloseHandle(hThread);
 #endif
 }
@@ -1357,7 +1353,7 @@ void MainWindow::TimerUpdate()
     }
 
 
-    Mul = (uint8_t)lcd_message.windows[LCD_WINDOW_MAIN].dot;
+    Mul = static_cast<uint8_t>(lcd_message.windows[LCD_WINDOW_MAIN].dot);
     ui->WindowCentral->setVisible(true);
     switch(lcd_message.windows[LCD_WINDOW_MAIN].type)
     {
@@ -1381,7 +1377,7 @@ void MainWindow::TimerUpdate()
 
                 if(!unit_changed)
                 {
-                    lcd_message.windows[LCD_WINDOW_MAIN].unit = (enum __lcd_unit)((uint8_t)(lcd_message.windows[LCD_WINDOW_MAIN].unit) + 1);
+                    lcd_message.windows[LCD_WINDOW_MAIN].unit = static_cast<enum __lcd_unit>(static_cast<uint8_t>(lcd_message.windows[LCD_WINDOW_MAIN].unit) + 1);
                     unit_changed = 0xff;
                 }
 
@@ -1393,7 +1389,7 @@ void MainWindow::TimerUpdate()
 
                 if(!unit_changed)
                 {
-                    lcd_message.windows[LCD_WINDOW_MAIN].unit = (enum __lcd_unit)((uint8_t)(lcd_message.windows[LCD_WINDOW_MAIN].unit) + 2);
+                    lcd_message.windows[LCD_WINDOW_MAIN].unit = static_cast<enum __lcd_unit>(static_cast<uint8_t>(lcd_message.windows[LCD_WINDOW_MAIN].unit) + 2);
                     unit_changed = 0xff;
                 }
 
@@ -1417,7 +1413,7 @@ void MainWindow::TimerUpdate()
         case LCD_WIN_SHOW_DATE:
         {
             struct tm *ptm;
-            const time_t date = lcd_message.windows[LCD_WINDOW_MAIN].value.date;
+            const time_t date = static_cast<const time_t>(lcd_message.windows[LCD_WINDOW_MAIN].value.date);
 
             ptm = localtime(&date);
             Val = 0;
@@ -1613,7 +1609,7 @@ void MainWindow::TimerUpdate()
             break;
     }
 
-    Mul = (uint8_t)lcd_message.windows[LCD_WINDOW_SUB].dot;
+    Mul = static_cast<uint8_t>(lcd_message.windows[LCD_WINDOW_SUB].dot);
     ui->WindowCorner->setVisible(true);
     switch(lcd_message.windows[LCD_WINDOW_SUB].type)
     {
@@ -1644,7 +1640,7 @@ void MainWindow::TimerUpdate()
         case LCD_WIN_SHOW_DATE:
         {
             struct tm *ptm;
-            const time_t date = lcd_message.windows[LCD_WINDOW_MAIN].value.date;
+            const time_t date = static_cast<const time_t>(lcd_message.windows[LCD_WINDOW_MAIN].value.date);
 
             ptm = localtime(&date);
             Val = 0;

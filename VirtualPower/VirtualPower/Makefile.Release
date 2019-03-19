@@ -227,7 +227,7 @@ release/moc_mainwindow.cpp: mainwindow.h \
 		D:/Temporary/Qt/Qt5.12.2/5.12.2/mingw73_32/include/QtGui/qicon.h \
 		release/moc_predefs.h \
 		D:/Temporary/Qt/Qt5.12.2/5.12.2/mingw73_32/bin/moc.exe
-	'D:\Temporary\Qt\Qt5.12.2\5.12.2\mingw73_32\bin\moc.exe' $(DEFINES) --include F:/Works/Projects/2016_06_02_Test_STM32_uClibc/QT_SVN/trunk/VirtualPower/VirtualPower/release/moc_predefs.h -ID:/Temporary/Qt/Qt5.12.2/5.12.2/mingw73_32/mkspecs/win32-g++ -IF:/Works/Projects/2016_06_02_Test_STM32_uClibc/QT_SVN/trunk/VirtualPower/VirtualPower -ID:/Temporary/Qt/Qt5.12.2/5.12.2/mingw73_32/include -ID:/Temporary/Qt/Qt5.12.2/5.12.2/mingw73_32/include/QtWidgets -ID:/Temporary/Qt/Qt5.12.2/5.12.2/mingw73_32/include/QtGui -ID:/Temporary/Qt/Qt5.12.2/5.12.2/mingw73_32/include/QtANGLE -ID:/Temporary/Qt/Qt5.12.2/5.12.2/mingw73_32/include/QtCore -ID:/Temporary/Qt/Qt5.10.1/Tools/mingw530_32/lib/gcc/i686-w64-mingw32/5.3.0/include -ID:/Temporary/Qt/Qt5.10.1/Tools/mingw530_32/lib/gcc/i686-w64-mingw32/5.3.0/include-fixed -ID:/Temporary/Qt/Qt5.10.1/Tools/mingw530_32/i686-w64-mingw32/include -ID:/Temporary/Qt/Qt5.10.1/Tools/mingw530_32/i686-w64-mingw32/include/c++ -ID:/Temporary/Qt/Qt5.10.1/Tools/mingw530_32/i686-w64-mingw32/include/c++/i686-w64-mingw32 -ID:/Temporary/Qt/Qt5.10.1/Tools/mingw530_32/i686-w64-mingw32/include/c++/backward mainwindow.h -o release/moc_mainwindow.cpp
+	'D:\Temporary\Qt\Qt5.12.2\5.12.2\mingw73_32\bin\moc.exe' $(DEFINES) --include F:/Works/Codes/GitHub/VirtualTools/VirtualPower/VirtualPower/release/moc_predefs.h -ID:/Temporary/Qt/Qt5.12.2/5.12.2/mingw73_32/mkspecs/win32-g++ -IF:/Works/Codes/GitHub/VirtualTools/VirtualPower/VirtualPower -ID:/Temporary/Qt/Qt5.12.2/5.12.2/mingw73_32/include -ID:/Temporary/Qt/Qt5.12.2/5.12.2/mingw73_32/include/QtWidgets -ID:/Temporary/Qt/Qt5.12.2/5.12.2/mingw73_32/include/QtGui -ID:/Temporary/Qt/Qt5.12.2/5.12.2/mingw73_32/include/QtANGLE -ID:/Temporary/Qt/Qt5.12.2/5.12.2/mingw73_32/include/QtCore -ID:/Temporary/Qt/Qt5.10.1/Tools/mingw530_32/lib/gcc/i686-w64-mingw32/5.3.0/include -ID:/Temporary/Qt/Qt5.10.1/Tools/mingw530_32/lib/gcc/i686-w64-mingw32/5.3.0/include-fixed -ID:/Temporary/Qt/Qt5.10.1/Tools/mingw530_32/i686-w64-mingw32/include -ID:/Temporary/Qt/Qt5.10.1/Tools/mingw530_32/i686-w64-mingw32/include/c++ -ID:/Temporary/Qt/Qt5.10.1/Tools/mingw530_32/i686-w64-mingw32/include/c++/i686-w64-mingw32 -ID:/Temporary/Qt/Qt5.10.1/Tools/mingw530_32/i686-w64-mingw32/include/c++/backward mainwindow.h -o release/moc_mainwindow.cpp
 
 compiler_moc_objc_header_make_all:
 compiler_moc_objc_header_clean:
@@ -477,9 +477,6 @@ release/mainwindow.o: mainwindow.cpp mainwindow.h \
 		D:/Temporary/Qt/Qt5.12.2/5.12.2/mingw73_32/include/QtGui/qicon.h \
 		ui_mainwindow.h \
 		D:/Temporary/Qt/Qt5.12.2/5.12.2/mingw73_32/include/QtCore/QVariant \
-		D:/Temporary/Qt/Qt5.12.2/5.12.2/mingw73_32/include/QtWidgets/QAction \
-		D:/Temporary/Qt/Qt5.12.2/5.12.2/mingw73_32/include/QtWidgets/qaction.h \
-		D:/Temporary/Qt/Qt5.12.2/5.12.2/mingw73_32/include/QtWidgets/qactiongroup.h \
 		D:/Temporary/Qt/Qt5.12.2/5.12.2/mingw73_32/include/QtWidgets/QApplication \
 		D:/Temporary/Qt/Qt5.12.2/5.12.2/mingw73_32/include/QtWidgets/qapplication.h \
 		D:/Temporary/Qt/Qt5.12.2/5.12.2/mingw73_32/include/QtCore/qcoreapplication.h \
@@ -487,8 +484,6 @@ release/mainwindow.o: mainwindow.cpp mainwindow.h \
 		D:/Temporary/Qt/Qt5.12.2/5.12.2/mingw73_32/include/QtWidgets/qdesktopwidget.h \
 		D:/Temporary/Qt/Qt5.12.2/5.12.2/mingw73_32/include/QtGui/qguiapplication.h \
 		D:/Temporary/Qt/Qt5.12.2/5.12.2/mingw73_32/include/QtGui/qinputmethod.h \
-		D:/Temporary/Qt/Qt5.12.2/5.12.2/mingw73_32/include/QtWidgets/QButtonGroup \
-		D:/Temporary/Qt/Qt5.12.2/5.12.2/mingw73_32/include/QtWidgets/qbuttongroup.h \
 		D:/Temporary/Qt/Qt5.12.2/5.12.2/mingw73_32/include/QtWidgets/QCheckBox \
 		D:/Temporary/Qt/Qt5.12.2/5.12.2/mingw73_32/include/QtWidgets/qcheckbox.h \
 		D:/Temporary/Qt/Qt5.12.2/5.12.2/mingw73_32/include/QtWidgets/qabstractbutton.h \
@@ -507,11 +502,6 @@ release/mainwindow.o: mainwindow.cpp mainwindow.h \
 		D:/Temporary/Qt/Qt5.12.2/5.12.2/mingw73_32/include/QtWidgets/qframe.h \
 		D:/Temporary/Qt/Qt5.12.2/5.12.2/mingw73_32/include/QtCore/qabstractitemmodel.h \
 		D:/Temporary/Qt/Qt5.12.2/5.12.2/mingw73_32/include/QtWidgets/QFrame \
-		D:/Temporary/Qt/Qt5.12.2/5.12.2/mingw73_32/include/QtWidgets/QHeaderView \
-		D:/Temporary/Qt/Qt5.12.2/5.12.2/mingw73_32/include/QtWidgets/qheaderview.h \
-		D:/Temporary/Qt/Qt5.12.2/5.12.2/mingw73_32/include/QtWidgets/qabstractitemview.h \
-		D:/Temporary/Qt/Qt5.12.2/5.12.2/mingw73_32/include/QtWidgets/qabstractscrollarea.h \
-		D:/Temporary/Qt/Qt5.12.2/5.12.2/mingw73_32/include/QtCore/qitemselectionmodel.h \
 		D:/Temporary/Qt/Qt5.12.2/5.12.2/mingw73_32/include/QtWidgets/QLabel \
 		D:/Temporary/Qt/Qt5.12.2/5.12.2/mingw73_32/include/QtWidgets/qlabel.h \
 		D:/Temporary/Qt/Qt5.12.2/5.12.2/mingw73_32/include/QtWidgets/QLineEdit \
@@ -575,6 +565,7 @@ release/mainwindow.o: mainwindow.cpp mainwindow.h \
 		D:/Temporary/Qt/Qt5.12.2/5.12.2/mingw73_32/include/QtCore/qhistorystate.h \
 		D:/Temporary/Qt/Qt5.12.2/5.12.2/mingw73_32/include/QtCore/qidentityproxymodel.h \
 		D:/Temporary/Qt/Qt5.12.2/5.12.2/mingw73_32/include/QtCore/qisenum.h \
+		D:/Temporary/Qt/Qt5.12.2/5.12.2/mingw73_32/include/QtCore/qitemselectionmodel.h \
 		D:/Temporary/Qt/Qt5.12.2/5.12.2/mingw73_32/include/QtCore/qjsonarray.h \
 		D:/Temporary/Qt/Qt5.12.2/5.12.2/mingw73_32/include/QtCore/qjsonvalue.h \
 		D:/Temporary/Qt/Qt5.12.2/5.12.2/mingw73_32/include/QtCore/qjsondocument.h \
