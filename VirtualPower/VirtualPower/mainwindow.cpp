@@ -325,11 +325,13 @@ MainWindow::~MainWindow()
     }
 #endif
 
+#if defined ( __linux )
     if(TimerID != nullptr)
     {
-#if defined ( __linux )
         timer_delete(TimerID);
 #else
+    if(TimerID != 0)
+    {
         timeKillEvent(TimerID);
 #endif
     }
