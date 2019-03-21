@@ -361,23 +361,23 @@ void MainWindow::CalcutePower()
         val[4] = val[3];
         str = QString::number(static_cast<long>(val[3]), 'f', 2);
         ui->PositivePowerPhaseA->setText(str);
-        OutData[R_PA - 1] = static_cast<uint16_t>(val[3] * 1000);
+        OutData[R_PA - 1] = static_cast<int32_t>(val[3] * 1000);
 
         val[3] = val[1] * cos(static_cast<long double>(2 * PI * Configs.AnglePhaseB / 360));
         val[4] += val[3];
         str = QString::number(static_cast<long>(val[3]), 'f', 2);
         ui->PositivePowerPhaseB->setText(str);
-        OutData[R_PB - 1] = static_cast<uint16_t>(val[3] * 1000);
+        OutData[R_PB - 1] = static_cast<int32_t>(val[3] * 1000);
 
         val[3] = val[2] * cos(static_cast<long double>(2 * PI * Configs.AnglePhaseC / 360));
         val[4] += val[3];
         str = QString::number(static_cast<long>(val[3]), 'f', 2);
         ui->PositivePowerPhaseC->setText(str);
-        OutData[R_PC - 1] = static_cast<uint16_t>(val[3] * 1000);
+        OutData[R_PC - 1] = static_cast<int32_t>(val[3] * 1000);
 
         str = QString::number(static_cast<long>(val[4]), 'f', 2);
         ui->PositivePowerTotal->setText(str);
-        OutData[R_PT - 1] = static_cast<uint16_t>(val[4] * 1000);
+        OutData[R_PT - 1] = static_cast<int32_t>(val[4] * 1000);
 
 
 
@@ -385,38 +385,38 @@ void MainWindow::CalcutePower()
         val[5] = val[3];
         str = QString::number(static_cast<long>(val[3]), 'f', 2);
         ui->NegitivePowerPhaseA->setText(str);
-        OutData[R_QA - 1] = static_cast<uint16_t>(val[3] * 1000);
+        OutData[R_QA - 1] = static_cast<int32_t>(val[3] * 1000);
 
         val[3] = val[1] * sin(static_cast<long double>(2 * PI * Configs.AnglePhaseB / 360));
         val[5] += val[3];
         str = QString::number(static_cast<long>(val[3]), 'f', 2);
         ui->NegitivePowerPhaseB->setText(str);
-        OutData[R_QB - 1] = static_cast<uint16_t>(val[3] * 1000);
+        OutData[R_QB - 1] = static_cast<int32_t>(val[3] * 1000);
 
         val[3] = val[2] * sin(static_cast<long double>(2 * PI * Configs.AnglePhaseC / 360));
         val[5] += val[3];
         str = QString::number(static_cast<long>(val[3]), 'f', 2);
         ui->NegitivePowerPhaseC->setText(str);
-        OutData[R_QC - 1] = static_cast<uint16_t>(val[3] * 1000);
+        OutData[R_QC - 1] = static_cast<int32_t>(val[3] * 1000);
 
         str = QString::number(static_cast<long>(val[5]), 'f', 2);
         ui->NegitivePowerTotal->setText(str);
-        OutData[R_QT - 1] = static_cast<uint16_t>(val[5] * 1000);
+        OutData[R_QT - 1] = static_cast<int32_t>(val[5] * 1000);
 
 
-        OutData[R_PFA - 1] = static_cast<uint16_t>(fabs(cos(static_cast<long double>(2 * PI * Configs.AnglePhaseA / 360)))  * 1000);
-        OutData[R_PFB - 1] = static_cast<uint16_t>(fabs(cos(static_cast<long double>(2 * PI * Configs.AnglePhaseB / 360))) * 1000);
-        OutData[R_PFC - 1] = static_cast<uint16_t>(fabs(cos(static_cast<long double>(2 * PI * Configs.AnglePhaseC / 360))) * 1000);
-        OutData[R_PFT - 1] = static_cast<uint16_t>(fabs(cos(atan(static_cast<long double>(val[5]/val[4])))) * 1000);
+        OutData[R_PFA - 1] = static_cast<int32_t>(fabs(cos(static_cast<long double>(2 * PI * Configs.AnglePhaseA / 360)))  * 1000);
+        OutData[R_PFB - 1] = static_cast<int32_t>(fabs(cos(static_cast<long double>(2 * PI * Configs.AnglePhaseB / 360))) * 1000);
+        OutData[R_PFC - 1] = static_cast<int32_t>(fabs(cos(static_cast<long double>(2 * PI * Configs.AnglePhaseC / 360))) * 1000);
+        OutData[R_PFT - 1] = static_cast<int32_t>(fabs(cos(atan(static_cast<long double>(val[5]/val[4])))) * 1000);
 
-        OutData[R_UARMS - 1] = static_cast<uint16_t>(Configs.VoltagePhaseA * 1000);
-        OutData[R_UBRMS - 1] = static_cast<uint16_t>(Configs.VoltagePhaseB * 1000);
-        OutData[R_UCRMS - 1] = static_cast<uint16_t>(Configs.VoltagePhaseC * 1000);
+        OutData[R_UARMS - 1] = static_cast<int32_t>(Configs.VoltagePhaseA * 1000);
+        OutData[R_UBRMS - 1] = static_cast<int32_t>(Configs.VoltagePhaseB * 1000);
+        OutData[R_UCRMS - 1] = static_cast<int32_t>(Configs.VoltagePhaseC * 1000);
 
-        OutData[R_IARMS - 1] = static_cast<uint16_t>(Configs.CurrentPhaseA * 1000);
-        OutData[R_IBRMS - 1] = static_cast<uint16_t>(Configs.CurrentPhaseB * 1000);
-        OutData[R_ICRMS - 1] = static_cast<uint16_t>(Configs.CurrentPhaseC * 1000);
-        OutData[R_ITRMS - 1] = static_cast<uint16_t>(Configs.CurrentPhaseN * 1000);
+        OutData[R_IARMS - 1] = static_cast<int32_t>(Configs.CurrentPhaseA * 1000);
+        OutData[R_IBRMS - 1] = static_cast<int32_t>(Configs.CurrentPhaseB * 1000);
+        OutData[R_ICRMS - 1] = static_cast<int32_t>(Configs.CurrentPhaseC * 1000);
+        OutData[R_ITRMS - 1] = static_cast<int32_t>(Configs.CurrentPhaseN * 1000);
 
         OutData[R_PGA - 1] = Configs.AnglePhaseA * 1000;
         OutData[R_PGB - 1] = Configs.AnglePhaseB * 1000;
