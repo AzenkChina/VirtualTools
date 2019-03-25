@@ -13,9 +13,11 @@ TEMPLATE = app
 win32 {
     LIBS += -lws2_32
 }
+
 unix {
-    LIBS += -lpthread
+    LIBS += -L./ -lQt5Widgets -lQt5Gui -lQt5Core -lpthread
 }
+
 # The following define makes your compiler emit warnings if you use
 # any feature of Qt which has been marked as deprecated (the exact warnings
 # depend on your compiler). Please consult the documentation of the

@@ -40,7 +40,7 @@ DISTNAME      = VirtualInput1.0.0
 DISTDIR = /home/azenk/Works/QT/Projects/VirtualTools/VirtualInput/VirtualInput/.tmp/VirtualInput1.0.0
 LINK          = g++
 LFLAGS        = -Wl,-O1 -Wl,-rpath,/home/azenk/Works/QT/Qt5.12.2/5.12.2/gcc_64/lib
-LIBS          = $(SUBLIBS) -L/home/azenk/Works/QT/Qt5.12.2/5.12.2/gcc_64/lib -lQt5Widgets -lQt5Gui -lQt5Core -lGL -lpthread   
+LIBS          = $(SUBLIBS) -L./ -L/home/azenk/Works/QT/Qt5.12.2/5.12.2/gcc_64/lib -lQt5Widgets -lQt5Gui -lQt5Core -lGL -lpthread   
 AR            = ar cqs
 RANLIB        = 
 SED           = sed
@@ -420,10 +420,7 @@ Makefile: VirtualInput.pro ../../../../Qt5.12.2/5.12.2/gcc_64/mkspecs/linux-g++/
 		../../../../Qt5.12.2/5.12.2/gcc_64/mkspecs/features/exceptions.prf \
 		../../../../Qt5.12.2/5.12.2/gcc_64/mkspecs/features/yacc.prf \
 		../../../../Qt5.12.2/5.12.2/gcc_64/mkspecs/features/lex.prf \
-		VirtualInput.pro \
-		../../../../Qt5.12.2/5.12.2/gcc_64/lib/libQt5Widgets.prl \
-		../../../../Qt5.12.2/5.12.2/gcc_64/lib/libQt5Gui.prl \
-		../../../../Qt5.12.2/5.12.2/gcc_64/lib/libQt5Core.prl
+		VirtualInput.pro
 	$(QMAKE) -o Makefile VirtualInput.pro -spec linux-g++ CONFIG+=qtquickcompiler
 ../../../../Qt5.12.2/5.12.2/gcc_64/mkspecs/features/spec_pre.prf:
 ../../../../Qt5.12.2/5.12.2/gcc_64/mkspecs/common/unix.conf:
@@ -599,9 +596,6 @@ Makefile: VirtualInput.pro ../../../../Qt5.12.2/5.12.2/gcc_64/mkspecs/linux-g++/
 ../../../../Qt5.12.2/5.12.2/gcc_64/mkspecs/features/yacc.prf:
 ../../../../Qt5.12.2/5.12.2/gcc_64/mkspecs/features/lex.prf:
 VirtualInput.pro:
-../../../../Qt5.12.2/5.12.2/gcc_64/lib/libQt5Widgets.prl:
-../../../../Qt5.12.2/5.12.2/gcc_64/lib/libQt5Gui.prl:
-../../../../Qt5.12.2/5.12.2/gcc_64/lib/libQt5Core.prl:
 qmake: FORCE
 	@$(QMAKE) -o Makefile VirtualInput.pro -spec linux-g++ CONFIG+=qtquickcompiler
 
@@ -1016,6 +1010,7 @@ mainwindow.o: mainwindow.cpp mainwindow.h \
 		../../../../Qt5.12.2/5.12.2/gcc_64/include/QtGui/qicon.h \
 		ui_mainwindow.h \
 		../../../../Qt5.12.2/5.12.2/gcc_64/include/QtCore/QVariant \
+		../../../../Qt5.12.2/5.12.2/gcc_64/include/QtGui/QIcon \
 		../../../../Qt5.12.2/5.12.2/gcc_64/include/QtWidgets/QApplication \
 		../../../../Qt5.12.2/5.12.2/gcc_64/include/QtWidgets/qapplication.h \
 		../../../../Qt5.12.2/5.12.2/gcc_64/include/QtCore/qcoreapplication.h \
