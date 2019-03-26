@@ -91,7 +91,8 @@ static void onTimeFunc(union sigval val)
 static void WINAPI onTimeFunc(UINT wTimerID, UINT msg,DWORD dwUser,DWORD dwl,DWORD dw2)
 #endif
 {
-    static uint32_t timing = 5;
+    static uint32_t timing = 0;
+	static uint8_t RunningDelay = 0;
 #if defined ( __linux )
     (void)val;
 #else
@@ -102,8 +103,11 @@ static void WINAPI onTimeFunc(UINT wTimerID, UINT msg,DWORD dwUser,DWORD dwl,DWO
     (void)dw2;
 #endif
 
-
-    timing += 1;
+	if(RunningDelay != Running)
+	{
+		RunningDelay = Running;
+		timing = 5;
+	}
 
     if(Running)
     {
@@ -213,16 +217,31 @@ static void WINAPI onTimeFunc(UINT wTimerID, UINT msg,DWORD dwUser,DWORD dwl,DWO
         }
     }
 
-    if(Emitter->Send(reinterpret_cast<uint8_t *>(OutData), sizeof(OutData)) == sizeof(OutData))
-    {
-        for(uint16_t count=0; count<static_cast<uint16_t>(R_ESC); count++)
-        {
-            OutData[count] = 0;
-        }
-    }
+	if(Running)
+	{
+		if(Emitter->Send(reinterpret_cast<uint8_t *>(OutData), sizeof(OutData)) == sizeof(OutData))
+		{
+			for(uint16_t count=0; count<static_cast<uint16_t>(R_ESC); count++)
+			{
+				OutData[count] = 0;
+			}
+		}
+	}
 
     if(!Running)
     {
+		if(timing)
+		{
+			timing -= 1;
+			if(Emitter->Send(reinterpret_cast<uint8_t *>(OutData), sizeof(OutData)) == sizeof(OutData))
+			{
+				for(uint16_t count=0; count<static_cast<uint16_t>(R_ESC); count++)
+				{
+					OutData[count] = 0;
+				}
+			}
+		}
+		
         Energy.PositiveA = 0;
         Energy.PositiveB = 0;
         Energy.PositiveC = 0;
