@@ -15,7 +15,7 @@ win32 {
 }
 
 unix {
-    LIBS += -L./ -lQt5Widgets -lQt5Gui -lQt5Core -lpthread -lm -lrt
+    LIBS += -lpthread -lm -lrt
 }
 
 # The following define makes your compiler emit warnings if you use
