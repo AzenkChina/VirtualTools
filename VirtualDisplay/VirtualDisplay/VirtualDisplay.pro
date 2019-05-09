@@ -16,6 +16,7 @@ win32 {
 
 unix {
     LIBS += -lpthread
+    QMAKE_RPATHDIR=$ORIGIN/lib
 }
 
 # The following define makes your compiler emit warnings if you use
