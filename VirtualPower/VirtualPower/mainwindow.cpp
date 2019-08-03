@@ -92,7 +92,7 @@ static void WINAPI onTimeFunc(UINT wTimerID, UINT msg,DWORD dwUser,DWORD dwl,DWO
 #endif
 {
     static uint32_t timing = 0;
-	static uint8_t RunningDelay = 0;
+    static uint8_t RunningDelay = 0;
 #if defined ( __linux )
     (void)val;
 #else
@@ -103,11 +103,11 @@ static void WINAPI onTimeFunc(UINT wTimerID, UINT msg,DWORD dwUser,DWORD dwl,DWO
     (void)dw2;
 #endif
 
-	if(RunningDelay != Running)
-	{
-		RunningDelay = Running;
-		timing = 5;
-	}
+    if(RunningDelay != Running)
+    {
+        RunningDelay = Running;
+        timing = 5;
+    }
 
     if(Running)
     {
@@ -217,31 +217,31 @@ static void WINAPI onTimeFunc(UINT wTimerID, UINT msg,DWORD dwUser,DWORD dwl,DWO
         }
     }
 
-	if(Running)
-	{
-		if(Emitter->Send(reinterpret_cast<uint8_t *>(OutData), sizeof(OutData)) == sizeof(OutData))
-		{
-			for(uint16_t count=0; count<static_cast<uint16_t>(R_ESC); count++)
-			{
-				OutData[count] = 0;
-			}
-		}
-	}
+    if(Running)
+    {
+        if(Emitter->Send(reinterpret_cast<uint8_t *>(OutData), sizeof(OutData)) == sizeof(OutData))
+        {
+            for(uint16_t count=0; count<static_cast<uint16_t>(R_ESC); count++)
+            {
+                OutData[count] = 0;
+            }
+        }
+    }
 
     if(!Running)
     {
-		if(timing)
-		{
-			timing -= 1;
-			if(Emitter->Send(reinterpret_cast<uint8_t *>(OutData), sizeof(OutData)) == sizeof(OutData))
-			{
-				for(uint16_t count=0; count<static_cast<uint16_t>(R_ESC); count++)
-				{
-					OutData[count] = 0;
-				}
-			}
-		}
-		
+        if(timing)
+        {
+            timing -= 1;
+            if(Emitter->Send(reinterpret_cast<uint8_t *>(OutData), sizeof(OutData)) == sizeof(OutData))
+            {
+                for(uint16_t count=0; count<static_cast<uint16_t>(R_ESC); count++)
+                {
+                    OutData[count] = 0;
+                }
+            }
+        }
+
         Energy.PositiveA = 0;
         Energy.PositiveB = 0;
         Energy.PositiveC = 0;
@@ -378,23 +378,23 @@ void MainWindow::CalcutePower()
 
         val[3] = val[0] * cos(static_cast<long double>(2 * PI * Configs.AnglePhaseA / 360));
         val[4] = val[3];
-        str = QString::number(static_cast<long>(val[3]), 'f', 2);
+        str = QString::number(static_cast<double>(val[3]), 'f', 2);
         ui->PositivePowerPhaseA->setText(str);
         OutData[R_PA - 1] = static_cast<int32_t>(val[3] * 1000);
 
         val[3] = val[1] * cos(static_cast<long double>(2 * PI * Configs.AnglePhaseB / 360));
         val[4] += val[3];
-        str = QString::number(static_cast<long>(val[3]), 'f', 2);
+        str = QString::number(static_cast<double>(val[3]), 'f', 2);
         ui->PositivePowerPhaseB->setText(str);
         OutData[R_PB - 1] = static_cast<int32_t>(val[3] * 1000);
 
         val[3] = val[2] * cos(static_cast<long double>(2 * PI * Configs.AnglePhaseC / 360));
         val[4] += val[3];
-        str = QString::number(static_cast<long>(val[3]), 'f', 2);
+        str = QString::number(static_cast<double>(val[3]), 'f', 2);
         ui->PositivePowerPhaseC->setText(str);
         OutData[R_PC - 1] = static_cast<int32_t>(val[3] * 1000);
 
-        str = QString::number(static_cast<long>(val[4]), 'f', 2);
+        str = QString::number(static_cast<double>(val[4]), 'f', 2);
         ui->PositivePowerTotal->setText(str);
         OutData[R_PT - 1] = static_cast<int32_t>(val[4] * 1000);
 
@@ -402,23 +402,23 @@ void MainWindow::CalcutePower()
 
         val[3] = val[0] * sin(static_cast<long double>(2 * PI * Configs.AnglePhaseA / 360));
         val[5] = val[3];
-        str = QString::number(static_cast<long>(val[3]), 'f', 2);
+        str = QString::number(static_cast<double>(val[3]), 'f', 2);
         ui->NegitivePowerPhaseA->setText(str);
         OutData[R_QA - 1] = static_cast<int32_t>(val[3] * 1000);
 
         val[3] = val[1] * sin(static_cast<long double>(2 * PI * Configs.AnglePhaseB / 360));
         val[5] += val[3];
-        str = QString::number(static_cast<long>(val[3]), 'f', 2);
+        str = QString::number(static_cast<double>(val[3]), 'f', 2);
         ui->NegitivePowerPhaseB->setText(str);
         OutData[R_QB - 1] = static_cast<int32_t>(val[3] * 1000);
 
         val[3] = val[2] * sin(static_cast<long double>(2 * PI * Configs.AnglePhaseC / 360));
         val[5] += val[3];
-        str = QString::number(static_cast<long>(val[3]), 'f', 2);
+        str = QString::number(static_cast<double>(val[3]), 'f', 2);
         ui->NegitivePowerPhaseC->setText(str);
         OutData[R_QC - 1] = static_cast<int32_t>(val[3] * 1000);
 
-        str = QString::number(static_cast<long>(val[5]), 'f', 2);
+        str = QString::number(static_cast<double>(val[5]), 'f', 2);
         ui->NegitivePowerTotal->setText(str);
         OutData[R_QT - 1] = static_cast<int32_t>(val[5] * 1000);
 
@@ -458,9 +458,9 @@ void MainWindow::CalcutePower()
         }
         else if(Configs.mode == THREE_PHASE_THREE)
         {
-			OutData[R_YUAUB - 1] = 120 * 1000;
-			OutData[R_YUAUC - 1] = 240 * 1000;
-			OutData[R_YUBUC - 1] = 120 * 1000;
+            OutData[R_YUAUB - 1] = 120 * 1000;
+            OutData[R_YUAUC - 1] = 240 * 1000;
+            OutData[R_YUBUC - 1] = 120 * 1000;
         }
         else
         {
@@ -536,161 +536,196 @@ void MainWindow::CalcutePower()
     }
 }
 
-void MainWindow::on_VoltagePhaseA_textChanged(const QString &arg1)
+void MainWindow::on_VoltagePhaseA_editingFinished()
 {
-    double_t val = static_cast<double_t>(arg1.toDouble());
+    if(ui->VoltagePhaseA->hasFocus())
+    {
+        return;
+    }
+
+    double_t val = static_cast<double_t>(ui->VoltagePhaseA->text().toDouble());
     if(val < 0)
     {
         val = -val;
     }
     Configs.VoltagePhaseA = val;
 
-    if(arg1.indexOf('.') != -1)
+    if(ui->VoltagePhaseA->text().indexOf('.') != -1)
     {
-        QString str = QString::number(static_cast<long>(Configs.VoltagePhaseA), 'f', 3);
+        QString str = QString::number(static_cast<double>(Configs.VoltagePhaseA), 'f', 3);
         ui->VoltagePhaseA->setText(str);
     }
     else
     {
-        QString str = QString::number(static_cast<long>(Configs.VoltagePhaseA), 'f', 0);
+        QString str = QString::number(static_cast<double>(Configs.VoltagePhaseA), 'f', 0);
         ui->VoltagePhaseA->setText(str);
     }
 
     CalcutePower();
 }
 
-void MainWindow::on_VoltagePhaseB_textChanged(const QString &arg1)
+void MainWindow::on_VoltagePhaseB_editingFinished()
 {
-    double_t val = static_cast<double_t>(arg1.toDouble());
+    if(ui->VoltagePhaseB->hasFocus())
+    {
+        return;
+    }
+
+    double_t val = static_cast<double_t>(ui->VoltagePhaseB->text().toDouble());
     if(val < 0)
     {
         val = -val;
     }
     Configs.VoltagePhaseB = val;
 
-    if(arg1.indexOf('.') != -1)
+    if(ui->VoltagePhaseB->text().indexOf('.') != -1)
     {
-        QString str = QString::number(static_cast<long>(Configs.VoltagePhaseB), 'f', 3);
+        QString str = QString::number(static_cast<double>(Configs.VoltagePhaseB), 'f', 3);
         ui->VoltagePhaseB->setText(str);
     }
     else
     {
-        QString str = QString::number(static_cast<long>(Configs.VoltagePhaseB), 'f', 0);
+        QString str = QString::number(static_cast<double>(Configs.VoltagePhaseB), 'f', 0);
         ui->VoltagePhaseB->setText(str);
     }
 
     CalcutePower();
 }
 
-void MainWindow::on_VoltagePhaseC_textChanged(const QString &arg1)
+void MainWindow::on_VoltagePhaseC_editingFinished()
 {
-    double_t val = static_cast<double_t>(arg1.toDouble());
+    if(ui->VoltagePhaseC->hasFocus())
+    {
+        return;
+    }
+
+    double_t val = static_cast<double_t>(ui->VoltagePhaseC->text().toDouble());
     if(val < 0)
     {
         val = -val;
     }
     Configs.VoltagePhaseC = val;
 
-    if(arg1.indexOf('.') != -1)
+    if(ui->VoltagePhaseC->text().indexOf('.') != -1)
     {
-        QString str = QString::number(static_cast<long>(Configs.VoltagePhaseC), 'f', 3);
+        QString str = QString::number(static_cast<double>(Configs.VoltagePhaseC), 'f', 3);
         ui->VoltagePhaseC->setText(str);
     }
     else
     {
-        QString str = QString::number(static_cast<long>(Configs.VoltagePhaseC), 'f', 0);
+        QString str = QString::number(static_cast<double>(Configs.VoltagePhaseC), 'f', 0);
         ui->VoltagePhaseC->setText(str);
     }
 
     CalcutePower();
 }
 
-void MainWindow::on_CurrentPhaseA_textChanged(const QString &arg1)
+void MainWindow::on_CurrentPhaseA_editingFinished()
 {
-    double_t val = static_cast<double_t>(arg1.toDouble());
+    if(ui->CurrentPhaseA->hasFocus())
+    {
+        return;
+    }
+
+    double_t val = static_cast<double_t>(ui->CurrentPhaseA->text().toDouble());
     if(val < 0)
     {
         val = -val;
     }
     Configs.CurrentPhaseA = val;
 
-    if(arg1.indexOf('.') != -1)
+    if(ui->CurrentPhaseA->text().indexOf('.') != -1)
     {
-        QString str = QString::number(static_cast<long>(Configs.CurrentPhaseA), 'f', 3);
+        QString str = QString::number(static_cast<double>(Configs.CurrentPhaseA), 'f', 3);
         ui->CurrentPhaseA->setText(str);
     }
     else
     {
-        QString str = QString::number(static_cast<long>(Configs.CurrentPhaseA), 'f', 0);
+        QString str = QString::number(static_cast<double>(Configs.CurrentPhaseA), 'f', 0);
         ui->CurrentPhaseA->setText(str);
     }
 
     CalcutePower();
 }
 
-void MainWindow::on_CurrentPhaseB_textChanged(const QString &arg1)
+void MainWindow::on_CurrentPhaseB_editingFinished()
 {
-    double_t val = static_cast<double_t>(arg1.toDouble());
+    if(ui->CurrentPhaseB->hasFocus())
+    {
+        return;
+    }
+
+    double_t val = static_cast<double_t>(ui->CurrentPhaseB->text().toDouble());
     if(val < 0)
     {
         val = -val;
     }
     Configs.CurrentPhaseB = val;
 
-    if(arg1.indexOf('.') != -1)
+    if(ui->CurrentPhaseB->text().indexOf('.') != -1)
     {
-        QString str = QString::number(static_cast<long>(Configs.CurrentPhaseB), 'f', 3);
+        QString str = QString::number(static_cast<double>(Configs.CurrentPhaseB), 'f', 3);
         ui->CurrentPhaseB->setText(str);
     }
     else
     {
-        QString str = QString::number(static_cast<long>(Configs.CurrentPhaseB), 'f', 0);
+        QString str = QString::number(static_cast<double>(Configs.CurrentPhaseB), 'f', 0);
         ui->CurrentPhaseB->setText(str);
     }
 
     CalcutePower();
 }
 
-void MainWindow::on_CurrentPhaseC_textChanged(const QString &arg1)
+void MainWindow::on_CurrentPhaseC_editingFinished()
 {
-    double_t val = static_cast<double_t>(arg1.toDouble());
+    if(ui->CurrentPhaseC->hasFocus())
+    {
+        return;
+    }
+
+    double_t val = static_cast<double_t>(ui->CurrentPhaseC->text().toDouble());
     if(val < 0)
     {
         val = -val;
     }
     Configs.CurrentPhaseC = val;
 
-    if(arg1.indexOf('.') != -1)
+    if(ui->CurrentPhaseC->text().indexOf('.') != -1)
     {
-        QString str = QString::number(static_cast<long>(Configs.CurrentPhaseC), 'f', 3);
+        QString str = QString::number(static_cast<double>(Configs.CurrentPhaseC), 'f', 3);
         ui->CurrentPhaseC->setText(str);
     }
     else
     {
-        QString str = QString::number(static_cast<long>(Configs.CurrentPhaseC), 'f', 0);
+        QString str = QString::number(static_cast<double>(Configs.CurrentPhaseC), 'f', 0);
         ui->CurrentPhaseC->setText(str);
     }
 
     CalcutePower();
 }
 
-void MainWindow::on_CurrentPhaseN_textChanged(const QString &arg1)
+void MainWindow::on_CurrentPhaseN_editingFinished()
 {
-    double_t val = static_cast<double_t>(arg1.toDouble());
+    if(ui->CurrentPhaseN->hasFocus())
+    {
+        return;
+    }
+
+    double_t val = static_cast<double_t>(ui->CurrentPhaseN->text().toDouble());
     if(val < 0)
     {
         val = -val;
     }
     Configs.CurrentPhaseN = val;
 
-    if(arg1.indexOf('.') != -1)
+    if(ui->CurrentPhaseN->text().indexOf('.') != -1)
     {
-        QString str = QString::number(static_cast<long>(Configs.CurrentPhaseN), 'f', 3);
+        QString str = QString::number(static_cast<double>(Configs.CurrentPhaseN), 'f', 3);
         ui->CurrentPhaseN->setText(str);
     }
     else
     {
-        QString str = QString::number(static_cast<long>(Configs.CurrentPhaseN), 'f', 0);
+        QString str = QString::number(static_cast<double>(Configs.CurrentPhaseN), 'f', 0);
         ui->CurrentPhaseN->setText(str);
     }
 

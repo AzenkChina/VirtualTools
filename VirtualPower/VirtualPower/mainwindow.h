@@ -74,25 +74,25 @@ class MainWindow : public QMainWindow
     Q_OBJECT
 
 public:
-    explicit MainWindow(QWidget *parent = 0);
+    explicit MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
 
 private slots:
     void CalcutePower();
 
-    void on_VoltagePhaseA_textChanged(const QString &arg1);
+    void on_VoltagePhaseA_editingFinished();
 
-    void on_VoltagePhaseB_textChanged(const QString &arg1);
+    void on_VoltagePhaseB_editingFinished();
 
-    void on_VoltagePhaseC_textChanged(const QString &arg1);
+    void on_VoltagePhaseC_editingFinished();
 
-    void on_CurrentPhaseA_textChanged(const QString &arg1);
+    void on_CurrentPhaseA_editingFinished();
 
-    void on_CurrentPhaseB_textChanged(const QString &arg1);
+    void on_CurrentPhaseB_editingFinished();
 
-    void on_CurrentPhaseC_textChanged(const QString &arg1);
+    void on_CurrentPhaseC_editingFinished();
 
-    void on_CurrentPhaseN_textChanged(const QString &arg1);
+    void on_CurrentPhaseN_editingFinished();
 
     void on_CurrenAngleA_textChanged(const QString &arg1);
 
