@@ -149,7 +149,6 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->LabelI2->setVisible(false);
     ui->LabelI3->setVisible(false);
 
-    ui->LabelSignal->setVisible(false);
     ui->LabelComm->setVisible(false);
     ui->LabelWarnning->setVisible(false);
 
@@ -165,32 +164,10 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->LabelRate3->setVisible(false);
     ui->LabelRate4->setVisible(false);
 
-    ui->LabelBatteryBackup->setVisible(false);
-    ui->LabelBatteryRtc->setVisible(false);
     ui->LabelRelay->setVisible(false);
 
     ui->LabelTime->setVisible(false);
     ui->LabelDate->setVisible(false);
-
-    ui->LabelPrimary->setVisible(false);
-    ui->LabelSecondary->setVisible(false);
-
-    ui->LabelNetPower->setVisible(false);
-    ui->LabelAuxPower->setVisible(false);
-
-    ui->LabelMon->setVisible(false);
-
-    ui->LabelNow->setVisible(false);
-    ui->LabelLast->setVisible(false);
-
-    ui->LabelNeg->setVisible(false);
-    ui->LabelPos->setVisible(false);
-    ui->LabelTotal->setVisible(false);
-    ui->LabelEnergy->setVisible(false);
-
-    ui->LabelTarif->setVisible(false);
-    ui->LabelCredit->setVisible(false);
-    ui->LabelNumber->setVisible(false);
 
     ui->LabelUnit->setVisible(false);
 
@@ -283,7 +260,6 @@ void MainWindow::TimerUpdate()
         ui->LabelI2->setVisible(false);
         ui->LabelI3->setVisible(false);
 
-        ui->LabelSignal->setVisible(false);
         ui->LabelComm->setVisible(false);
         ui->LabelWarnning->setVisible(false);
 
@@ -299,32 +275,10 @@ void MainWindow::TimerUpdate()
         ui->LabelRate3->setVisible(false);
         ui->LabelRate4->setVisible(false);
 
-        ui->LabelBatteryBackup->setVisible(false);
-        ui->LabelBatteryRtc->setVisible(false);
         ui->LabelRelay->setVisible(false);
 
         ui->LabelTime->setVisible(false);
         ui->LabelDate->setVisible(false);
-
-        ui->LabelPrimary->setVisible(false);
-        ui->LabelSecondary->setVisible(false);
-
-        ui->LabelNetPower->setVisible(false);
-        ui->LabelAuxPower->setVisible(false);
-
-        ui->LabelMon->setVisible(false);
-
-        ui->LabelNow->setVisible(false);
-        ui->LabelLast->setVisible(false);
-
-        ui->LabelNeg->setVisible(false);
-        ui->LabelPos->setVisible(false);
-        ui->LabelTotal->setVisible(false);
-        ui->LabelEnergy->setVisible(false);
-
-        ui->LabelTarif->setVisible(false);
-        ui->LabelCredit->setVisible(false);
-        ui->LabelNumber->setVisible(false);
 
         ui->LabelUnit->setVisible(false);
 
@@ -352,7 +306,6 @@ void MainWindow::TimerUpdate()
         ui->LabelI2->setText("-I2");
         ui->LabelI3->setText("-I3");
 
-        ui->LabelSignal->setVisible(true);
         ui->LabelComm->setVisible(true);
         ui->LabelWarnning->setVisible(true);
 
@@ -368,38 +321,15 @@ void MainWindow::TimerUpdate()
         ui->LabelRate3->setVisible(true);
         ui->LabelRate4->setVisible(true);
 
-        ui->LabelBatteryBackup->setVisible(true);
-        ui->LabelBatteryRtc->setVisible(true);
         ui->LabelRelay->setVisible(true);
 
         ui->LabelTime->setVisible(true);
         ui->LabelDate->setVisible(true);
 
-        ui->LabelPrimary->setVisible(true);
-        ui->LabelSecondary->setVisible(true);
-
-        ui->LabelNetPower->setVisible(true);
-        ui->LabelAuxPower->setVisible(true);
-
-        ui->LabelMon->setVisible(true);
-
-        ui->LabelNow->setVisible(true);
-        ui->LabelLast->setVisible(true);
-
-        ui->LabelNeg->setVisible(true);
-        ui->LabelPos->setVisible(true);
-        ui->LabelTotal->setVisible(true);
-        ui->LabelEnergy->setVisible(true);
-
-        ui->LabelTarif->setVisible(true);
-        ui->LabelCredit->setVisible(true);
-        ui->LabelNumber->setVisible(true);
-
         ui->LabelUnit->setVisible(true);
 
         ui->WindowCentral->display(88888888);
         ui->WindowCorner->display(88888888);
-        ui->LabelNumber->display(88);
 
         return;
     }
@@ -725,35 +655,12 @@ void MainWindow::TimerUpdate()
         ui->LabelComm->setVisible(false);
     }
 
-    if(lcd_message.label[LCD_LABEL_SIGNAL].status == LCD_LAB_SHOW_ON)
-    {
-        ui->LabelSignal->setValue(lcd_message.label[LCD_LABEL_SIGNAL].value);
-        ui->LabelSignal->setVisible(true);
-    }
-    else if(lcd_message.label[LCD_LABEL_SIGNAL].status == LCD_LAB_SHOW_FLASH)
-    {
-        if(flash_on)
-        {
-            ui->LabelSignal->setValue(lcd_message.label[LCD_LABEL_SIGNAL].value);
-            ui->LabelSignal->setVisible(true);
-        }
-        else
-        {
-            ui->LabelSignal->setVisible(false);
-        }
-
-    }
-    else
-    {
-        ui->LabelSignal->setVisible(false);
-    }
-
-    if(lcd_message.label[LCD_LABEL_PHASE].status == LCD_LAB_SHOW_ON)
+    if(lcd_message.label[LCD_LABEL_QUAD].status == LCD_LAB_SHOW_ON)
     {
         ui->LabelQuadLine1->setVisible(true);
         ui->LabelQuadLine2->setVisible(true);
 
-        switch(lcd_message.label[LCD_LABEL_PHASE].value)
+        switch(lcd_message.label[LCD_LABEL_QUAD].value)
         {
             case 1:
             {
@@ -789,14 +696,14 @@ void MainWindow::TimerUpdate()
             }
         }
     }
-    else if(lcd_message.label[LCD_LABEL_PHASE].status == LCD_LAB_SHOW_FLASH)
+    else if(lcd_message.label[LCD_LABEL_QUAD].status == LCD_LAB_SHOW_FLASH)
     {
         if(flash_on)
         {
             ui->LabelQuadLine1->setVisible(true);
             ui->LabelQuadLine2->setVisible(true);
 
-            switch(lcd_message.label[LCD_LABEL_PHASE].value)
+            switch(lcd_message.label[LCD_LABEL_QUAD].value)
             {
                 case 1:
                 {
@@ -948,52 +855,6 @@ void MainWindow::TimerUpdate()
         ui->LabelRate4->setVisible(false);
     }
 
-    if(lcd_message.label[LCD_LABEL_BATBAK].status == LCD_LAB_SHOW_ON)
-    {
-        ui->LabelBatteryBackup->setValue(lcd_message.label[LCD_LABEL_BATBAK].value);
-        ui->LabelBatteryBackup->setVisible(true);
-    }
-    else if(lcd_message.label[LCD_LABEL_BATBAK].status == LCD_LAB_SHOW_FLASH)
-    {
-        if(flash_on)
-        {
-            ui->LabelBatteryBackup->setValue(lcd_message.label[LCD_LABEL_BATBAK].value);
-            ui->LabelBatteryBackup->setVisible(true);
-        }
-        else
-        {
-            ui->LabelBatteryBackup->setVisible(false);
-        }
-
-    }
-    else
-    {
-        ui->LabelBatteryBackup->setVisible(false);
-    }
-
-    if(lcd_message.label[LCD_LABEL_BATRTC].status == LCD_LAB_SHOW_ON)
-    {
-        ui->LabelBatteryRtc->setValue(lcd_message.label[LCD_LABEL_BATRTC].value);
-        ui->LabelBatteryRtc->setVisible(true);
-    }
-    else if(lcd_message.label[LCD_LABEL_BATRTC].status == LCD_LAB_SHOW_FLASH)
-    {
-        if(flash_on)
-        {
-            ui->LabelBatteryRtc->setValue(lcd_message.label[LCD_LABEL_BATRTC].value);
-            ui->LabelBatteryRtc->setVisible(true);
-        }
-        else
-        {
-            ui->LabelBatteryRtc->setVisible(false);
-        }
-
-    }
-    else
-    {
-        ui->LabelBatteryRtc->setVisible(false);
-    }
-
     if(lcd_message.label[LCD_LABEL_RELAY].status == LCD_LAB_SHOW_ON)
     {
         ui->LabelRelay->setVisible(true);
@@ -1055,303 +916,6 @@ void MainWindow::TimerUpdate()
     {
         ui->LabelTime->setVisible(false);
     }
-
-    if(lcd_message.label[LCD_LABEL_SECOND].status == LCD_LAB_SHOW_ON)
-    {
-        ui->LabelSecondary->setVisible(true);
-    }
-    else if(lcd_message.label[LCD_LABEL_SECOND].status == LCD_LAB_SHOW_FLASH)
-    {
-        if(flash_on)
-        {
-            ui->LabelSecondary->setVisible(true);
-        }
-        else
-        {
-            ui->LabelSecondary->setVisible(false);
-        }
-
-    }
-    else
-    {
-        ui->LabelSecondary->setVisible(false);
-    }
-
-    if(lcd_message.label[LCD_LABEL_PRIM].status == LCD_LAB_SHOW_ON)
-    {
-        ui->LabelPrimary->setVisible(true);
-    }
-    else if(lcd_message.label[LCD_LABEL_PRIM].status == LCD_LAB_SHOW_FLASH)
-    {
-        if(flash_on)
-        {
-            ui->LabelPrimary->setVisible(true);
-        }
-        else
-        {
-            ui->LabelPrimary->setVisible(false);
-        }
-
-    }
-    else
-    {
-        ui->LabelPrimary->setVisible(false);
-    }
-
-    if(lcd_message.label[LCD_LABEL_NET].status == LCD_LAB_SHOW_ON)
-    {
-        ui->LabelNetPower->setVisible(true);
-    }
-    else if(lcd_message.label[LCD_LABEL_NET].status == LCD_LAB_SHOW_FLASH)
-    {
-        if(flash_on)
-        {
-            ui->LabelNetPower->setVisible(true);
-        }
-        else
-        {
-            ui->LabelNetPower->setVisible(false);
-        }
-
-    }
-    else
-    {
-        ui->LabelNetPower->setVisible(false);
-    }
-
-    if(lcd_message.label[LCD_LABEL_AUX].status == LCD_LAB_SHOW_ON)
-    {
-        ui->LabelAuxPower->setVisible(true);
-    }
-    else if(lcd_message.label[LCD_LABEL_AUX].status == LCD_LAB_SHOW_FLASH)
-    {
-        if(flash_on)
-        {
-            ui->LabelAuxPower->setVisible(true);
-        }
-        else
-        {
-            ui->LabelAuxPower->setVisible(false);
-        }
-
-    }
-    else
-    {
-        ui->LabelAuxPower->setVisible(false);
-    }
-
-    if(lcd_message.label[LCD_LABEL_MON].status == LCD_LAB_SHOW_ON)
-    {
-        ui->LabelMon->setVisible(true);
-    }
-    else if(lcd_message.label[LCD_LABEL_MON].status == LCD_LAB_SHOW_FLASH)
-    {
-        if(flash_on)
-        {
-            ui->LabelMon->setVisible(true);
-        }
-        else
-        {
-            ui->LabelMon->setVisible(false);
-        }
-
-    }
-    else
-    {
-        ui->LabelMon->setVisible(false);
-    }
-
-    if(lcd_message.label[LCD_LABEL_NOW].status == LCD_LAB_SHOW_ON)
-    {
-        ui->LabelU1->setVisible(true);
-    }
-    else if(lcd_message.label[LCD_LABEL_NOW].status == LCD_LAB_SHOW_FLASH)
-    {
-        if(flash_on)
-        {
-            ui->LabelNow->setVisible(true);
-        }
-        else
-        {
-            ui->LabelNow->setVisible(false);
-        }
-
-    }
-    else
-    {
-        ui->LabelNow->setVisible(false);
-    }
-
-    if(lcd_message.label[LCD_LABEL_LAST].status == LCD_LAB_SHOW_ON)
-    {
-        ui->LabelLast->setVisible(true);
-    }
-    else if(lcd_message.label[LCD_LABEL_LAST].status == LCD_LAB_SHOW_FLASH)
-    {
-        if(flash_on)
-        {
-            ui->LabelLast->setVisible(true);
-        }
-        else
-        {
-            ui->LabelLast->setVisible(false);
-        }
-
-    }
-    else
-    {
-        ui->LabelLast->setVisible(false);
-    }
-
-    if(lcd_message.label[LCD_LABEL_TOTAL].status == LCD_LAB_SHOW_ON)
-    {
-        ui->LabelTotal->setVisible(true);
-    }
-    else if(lcd_message.label[LCD_LABEL_TOTAL].status == LCD_LAB_SHOW_FLASH)
-    {
-        if(flash_on)
-        {
-            ui->LabelTotal->setVisible(true);
-        }
-        else
-        {
-            ui->LabelTotal->setVisible(false);
-        }
-
-    }
-    else
-    {
-        ui->LabelTotal->setVisible(false);
-    }
-
-    if(lcd_message.label[LCD_LABEL_NEG].status == LCD_LAB_SHOW_ON)
-    {
-        ui->LabelNeg->setVisible(true);
-    }
-    else if(lcd_message.label[LCD_LABEL_NEG].status == LCD_LAB_SHOW_FLASH)
-    {
-        if(flash_on)
-        {
-            ui->LabelNeg->setVisible(true);
-        }
-        else
-        {
-            ui->LabelNeg->setVisible(false);
-        }
-
-    }
-    else
-    {
-        ui->LabelNeg->setVisible(false);
-    }
-
-    if(lcd_message.label[LCD_LABEL_POS].status == LCD_LAB_SHOW_ON)
-    {
-        ui->LabelPos->setVisible(true);
-    }
-    else if(lcd_message.label[LCD_LABEL_POS].status == LCD_LAB_SHOW_FLASH)
-    {
-        if(flash_on)
-        {
-            ui->LabelPos->setVisible(true);
-        }
-        else
-        {
-            ui->LabelPos->setVisible(false);
-        }
-
-    }
-    else
-    {
-        ui->LabelPos->setVisible(false);
-    }
-
-    if(lcd_message.label[LCD_LABEL_TARIF].status == LCD_LAB_SHOW_ON)
-    {
-        ui->LabelTarif->setVisible(true);
-    }
-    else if(lcd_message.label[LCD_LABEL_TARIF].status == LCD_LAB_SHOW_FLASH)
-    {
-        if(flash_on)
-        {
-            ui->LabelTarif->setVisible(true);
-        }
-        else
-        {
-            ui->LabelTarif->setVisible(false);
-        }
-
-    }
-    else
-    {
-        ui->LabelTarif->setVisible(false);
-    }
-
-    if(lcd_message.label[LCD_LABEL_CREDIT].status == LCD_LAB_SHOW_ON)
-    {
-        ui->LabelCredit->setVisible(true);
-    }
-    else if(lcd_message.label[LCD_LABEL_CREDIT].status == LCD_LAB_SHOW_FLASH)
-    {
-        if(flash_on)
-        {
-            ui->LabelCredit->setVisible(true);
-        }
-        else
-        {
-            ui->LabelCredit->setVisible(false);
-        }
-
-    }
-    else
-    {
-        ui->LabelCredit->setVisible(false);
-    }
-
-    if(lcd_message.label[LCD_LABEL_ENERGY].status == LCD_LAB_SHOW_ON)
-    {
-        ui->LabelEnergy->setVisible(true);
-    }
-    else if(lcd_message.label[LCD_LABEL_ENERGY].status == LCD_LAB_SHOW_FLASH)
-    {
-        if(flash_on)
-        {
-            ui->LabelEnergy->setVisible(true);
-        }
-        else
-        {
-            ui->LabelEnergy->setVisible(false);
-        }
-
-    }
-    else
-    {
-        ui->LabelEnergy->setVisible(false);
-    }
-
-    if(lcd_message.label[LCD_LABEL_NUMBER].status == LCD_LAB_SHOW_ON)
-    {
-        ui->LabelNumber->setVisible(true);
-        ui->LabelNumber->display(lcd_message.label[LCD_LABEL_NUMBER].value);
-    }
-    else if(lcd_message.label[LCD_LABEL_NUMBER].status == LCD_LAB_SHOW_FLASH)
-    {
-        if(flash_on)
-        {
-            ui->LabelNumber->setVisible(true);
-            ui->LabelNumber->display(lcd_message.label[LCD_LABEL_NUMBER].value);
-        }
-        else
-        {
-            ui->LabelNumber->setVisible(false);
-        }
-
-    }
-    else
-    {
-        ui->LabelNumber->setVisible(false);
-    }
-
 
     Mul = static_cast<uint8_t>(lcd_message.windows[LCD_WINDOW_MAIN].dot);
     ui->WindowCentral->setVisible(true);
