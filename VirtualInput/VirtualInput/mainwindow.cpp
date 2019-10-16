@@ -14,23 +14,23 @@
 #include "QtCore"
 
 
-#define KEY_ID_00               (static_cast<uint16_t>(0x00))
-#define KEY_ID_01               (static_cast<uint16_t>(0x01))
-#define KEY_ID_02               (static_cast<uint16_t>(0x02))
-#define KEY_ID_03               (static_cast<uint16_t>(0x03))
-#define KEY_ID_04               (static_cast<uint16_t>(0x04))
-#define KEY_ID_05               (static_cast<uint16_t>(0x05))
-#define KEY_ID_06               (static_cast<uint16_t>(0x06))
-#define KEY_ID_07               (static_cast<uint16_t>(0x07))
-#define KEY_ID_08               (static_cast<uint16_t>(0x08))
-#define KEY_ID_09               (static_cast<uint16_t>(0x09))
+#define KEY_ID_00               (static_cast<uint16_t>(0x0000))
+#define KEY_ID_01               (static_cast<uint16_t>(0x0001))
+#define KEY_ID_02               (static_cast<uint16_t>(0x0002))
+#define KEY_ID_03               (static_cast<uint16_t>(0x0004))
+#define KEY_ID_04               (static_cast<uint16_t>(0x0008))
+#define KEY_ID_05               (static_cast<uint16_t>(0x0010))
+#define KEY_ID_06               (static_cast<uint16_t>(0x0020))
+#define KEY_ID_07               (static_cast<uint16_t>(0x0040))
+#define KEY_ID_08               (static_cast<uint16_t>(0x0080))
+#define KEY_ID_09               (static_cast<uint16_t>(0x0100))
 
-#define KEY_ID_BACK             (static_cast<uint16_t>(0x0A))
-#define KEY_ID_ENTER            (static_cast<uint16_t>(0x0B))
-#define KEY_ID_PROGRAM          (static_cast<uint16_t>(0x0C))
+#define KEY_ID_BACK             (static_cast<uint16_t>(0x0200))
+#define KEY_ID_ENTER            (static_cast<uint16_t>(0x0400))
+#define KEY_ID_PROGRAM          (static_cast<uint16_t>(0x0800))
 
-#define KEY_ID_UP               (static_cast<uint16_t>(0x10))
-#define KEY_ID_DOWN             (static_cast<uint16_t>(0x20))
+#define KEY_ID_UP               (static_cast<uint16_t>(0x1000))
+#define KEY_ID_DOWN             (static_cast<uint16_t>(0x2000))
 
 
 enum __key_status
