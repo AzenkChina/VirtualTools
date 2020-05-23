@@ -3,8 +3,6 @@
 #include "communication.h"
 #include "include/GXDLMSCommon.h"
 
-#include <QDebug>
-
 Prober::Prober(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::Prober) {
@@ -22,7 +20,7 @@ Prober::~Prober() {
 bool Prober::praseParameter(struct parameter &para) {
     if(ui->AuthKey->text().size() != 32) {ui->LOG->appendPlainText("认证密钥不正确");return false;}
     if(ui->EncryptKey->text().size() != 32) {ui->LOG->appendPlainText("加密密钥不正确");return false;}
-    if(ui->Password->text().size() < 16) {ui->LOG->appendPlainText("认证密码不正确");return false;}
+    if(ui->Password->text().size() < 16) {ui->LOG->appendPlainText("验证密码不正确");return false;}
     para.akey.SetHexString(ui->AuthKey->text().toStdString());
     para.ekey.SetHexString(ui->EncryptKey->text().toStdString());
     para.password.SetHexString(ui->Password->text().toStdString());
@@ -633,6 +631,8 @@ void Prober::on_SerialNo_activated(const QString &arg1) {
             ui->SerialNo->setCurrentIndex(cnt);
         }
     }
+#else
+    (void)arg1;
 #endif
 }
 
@@ -664,6 +664,7 @@ void Prober::on_ButtonGetAddress_pressed() {
 #endif
     if(!Port->open(QIODevice::ReadWrite)) {
         delete Port;
+        Port = nullptr;
         ui->ButtonRead->setEnabled(true);
         ui->ButtonWrite->setEnabled(true);
         ui->ButtonExecute->setEnabled(true);
@@ -707,11 +708,13 @@ void Prober::on_ButtonGetAddress_pressed() {
 
     recv.clear();
     Port->write(reinterpret_cast<const char *>(packet), sizeof(packet));
-    Port->flush();
 
     Timer = new QTimer(this);
     connect(Timer, SIGNAL(timeout()), this, SLOT(on_Timer_overflow()));
     Timer->start(1500);
+
+    Port->flush();
+    ui->AddressReal->setText("");
 }
 
 void Prober::on_Serial_receive() {
@@ -824,12 +827,12 @@ void Prober::on_Button2Time_pressed() {
     ui->Text->setText(str);
 }
 
-void Prober::on_ButtonHexDec_pressed()
-{
+void Prober::on_ButtonHexDec_pressed() {
     if(ui->ButtonHexDec->text() == QString::fromStdString("十进制")) {
         if(ui->HexDec->text() != QString::fromStdString("")) {
             bool ret;
             uint val = ui->HexDec->text().toUInt(&ret, 10);
+            ui->HexDec->setMaxLength(4);
             if(ret) {
                 ui->HexDec->setText(QString::number(val, 16));
             }
@@ -837,12 +840,14 @@ void Prober::on_ButtonHexDec_pressed()
                 ui->HexDec->setText(QString::fromStdString(""));
             }
         }
+        ui->HexDec->setMaxLength(4);
         ui->ButtonHexDec->setText(QString::fromStdString("十六进制"));
     }
     else {
         if(ui->HexDec->text() != QString::fromStdString("")) {
             bool ret;
             uint val = ui->HexDec->text().toUInt(&ret, 16);
+            ui->HexDec->setMaxLength(5);
             if(ret) {
                 ui->HexDec->setText(QString::number(val, 10));
             }
@@ -850,7 +855,7 @@ void Prober::on_ButtonHexDec_pressed()
                 ui->HexDec->setText(QString::fromStdString(""));
             }
         }
-
+        ui->HexDec->setMaxLength(5);
         ui->ButtonHexDec->setText(QString::fromStdString("十进制"));
     }
 }

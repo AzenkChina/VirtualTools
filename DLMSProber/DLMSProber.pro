@@ -35,6 +35,7 @@ CONFIG += c++11
 SOURCES += \
     main.cpp \
     prober.cpp \
+    communication.cpp \
     src/GXAdjacentCell.cpp \
     src/GXAPDU.cpp \
     src/GXApplicationContextName.cpp \
@@ -158,11 +159,11 @@ SOURCES += \
     src/GXXmlReader.cpp \
     src/GXXmlWriter.cpp \
     src/GXXmlWriterSettings.cpp \
-    communication.cpp \
     src/GXDLMSCommon.cpp
 
 HEADERS += \
     prober.h \
+    communication.h \
     include/chipperingenums.h \
     include/enums.h \
     include/errorcodes.h \
@@ -309,7 +310,6 @@ HEADERS += \
     include/TranslatorSimpleTags.h \
     include/TranslatorStandardTags.h \
     include/TranslatorTags.h \
-    communication.h \
     include/GXDLMSCommon.h
 
 FORMS += \
