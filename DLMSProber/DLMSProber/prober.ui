@@ -822,13 +822,39 @@
     <property name="contextMenuPolicy">
      <enum>Qt::NoContextMenu</enum>
     </property>
+    <property name="dateTime">
+     <datetime>
+      <hour>0</hour>
+      <minute>0</minute>
+      <second>0</second>
+      <year>2020</year>
+      <month>1</month>
+      <day>1</day>
+     </datetime>
+    </property>
+    <property name="minimumDateTime">
+     <datetime>
+      <hour>0</hour>
+      <minute>0</minute>
+      <second>0</second>
+      <year>1970</year>
+      <month>1</month>
+      <day>1</day>
+     </datetime>
+    </property>
+    <property name="currentSection">
+     <enum>QDateTimeEdit::YearSection</enum>
+    </property>
+    <property name="displayFormat">
+     <string>yyyy/M/d hh:mm</string>
+    </property>
    </widget>
    <widget class="QLineEdit" name="Text">
     <property name="geometry">
      <rect>
-      <x>300</x>
+      <x>280</x>
       <y>680</y>
-      <width>240</width>
+      <width>260</width>
       <height>30</height>
      </rect>
     </property>
@@ -840,13 +866,13 @@
     </property>
     <property name="minimumSize">
      <size>
-      <width>240</width>
+      <width>260</width>
       <height>30</height>
      </size>
     </property>
     <property name="maximumSize">
      <size>
-      <width>240</width>
+      <width>260</width>
       <height>30</height>
      </size>
     </property>
