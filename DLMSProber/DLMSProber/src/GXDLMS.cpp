@@ -84,8 +84,32 @@ bool CGXDLMS::IsReplyMessage(DLMS_COMMAND cmd)
         cmd == DLMS_COMMAND_METHOD_RESPONSE;
 }
 
-int CGXDLMS::GetAddress(long value, unsigned long& address, int& size)
+int CGXDLMS::GetAddress(unsigned long value, unsigned long& address, int& size)
 {
+    if(((value >> 30) & 0x03) == 0) {
+        address = (unsigned char)(value << 1 | 1);
+        size = 1;
+    }
+    else if(((value >> 30) & 0x03) == 1) {
+        address = (unsigned char)((((value >> 16) & 0x7F) << 1) | 1);
+        size = 1;
+    }
+    else if (((value >> 30) & 0x03) == 2) {
+        address = (unsigned short)(((((value >> 16) & 0x7F) << 1) << 8) | (value & 0x7F) << 1 | 1);
+        size = 2;
+    }
+    else if (((value >> 30) & 0x03) == 3) {
+        address = (unsigned long)((((value >> 16) & 0x3F80) << 2) << 16 | (((value >> 16) & 0x7F) << 1) << 16 | (value & 0x3F80) << 2 | (value & 0x7F) << 1 | 1);
+        size = 4;
+    }
+    else {
+        //Invalid address
+        return DLMS_ERROR_CODE_INVALID_PARAMETER;
+    }
+
+    return DLMS_ERROR_CODE_OK;
+
+/*
     if (value < 0x80)
     {
         address = (unsigned char)(value << 1 | 1);
@@ -109,6 +133,7 @@ int CGXDLMS::GetAddress(long value, unsigned long& address, int& size)
         return DLMS_ERROR_CODE_INVALID_PARAMETER;
     }
     return DLMS_ERROR_CODE_OK;
+    */
 }
 
 int CGXDLMS::CheckInit(CGXDLMSSettings& settings)
@@ -1569,8 +1594,69 @@ int CGXDLMS::GetHdlcData(
 
 int CGXDLMS::GetHDLCAddress(
     CGXByteBuffer& buff,
-    unsigned long& address)
+    unsigned long& address,
+    bool alwaysone)
 {
+    unsigned char ch;
+    unsigned short s;
+    unsigned long l;
+    int ret, size = 0;
+    address = 0;
+
+    for (unsigned long pos = buff.GetPosition(); pos != buff.GetSize(); ++pos)
+    {
+        ++size;
+        if ((ret = buff.GetUInt8(pos, &ch)) != 0)
+        {
+            return ret;
+        }
+        if ((ch & 0x1) == 1)
+        {
+            break;
+        }
+    }
+    if (size == 1)
+    {
+        if ((ret = buff.GetUInt8(&ch)) != 0)
+        {
+            return ret;
+        }
+        if(alwaysone == true)
+        {
+            address = ((ch & 0xFE) >> 1);
+        }
+        else
+        {
+            address = ((unsigned long)((ch & 0xFE) >> 1) << 16);
+            address |= (1 << 30);
+        }
+    }
+    else if (size == 2)
+    {
+        if ((ret = buff.GetUInt16(&s)) != 0)
+        {
+            return ret;
+        }
+        address = ((s & 0xFE) >> 1) | (unsigned long)(((s & 0xFE00) >> 1) << 8);
+        address |= (2 << 30);
+    }
+    else if (size == 4)
+    {
+        if ((ret = buff.GetUInt32(&l)) != 0)
+        {
+            return ret;
+        }
+        address = ((l & 0xFE) >> 1) | ((l & 0xFE00) >> 2)
+            | ((l & 0xFE0000) >> 1) | ((l & 0xFE000000) >> 2);
+        address |= (3 << 30);
+    }
+    else
+    {
+        return DLMS_ERROR_CODE_INVALID_PARAMETER;
+    }
+    return DLMS_ERROR_CODE_OK;
+
+    /*
     unsigned char ch;
     unsigned short s;
     unsigned long l;
@@ -1618,6 +1704,7 @@ int CGXDLMS::GetHDLCAddress(
         return DLMS_ERROR_CODE_INVALID_PARAMETER;
     }
     return DLMS_ERROR_CODE_OK;
+    */
 }
 
 static void GetServerAddress(int address, int& logical, int& physical)
@@ -1644,17 +1731,18 @@ int CGXDLMS::CheckHdlcAddress(
 {
     unsigned char ch;
     int ret;
-    // Get destination and source addresses.
-    if ((ret = GetHDLCAddress(reply, target)) != 0)
-    {
-        return ret;
-    }
-    if ((ret = GetHDLCAddress(reply, source)) != 0)
-    {
-        return ret;
-    }
     if (server)
     {
+        // Get destination and source addresses.
+        if ((ret = GetHDLCAddress(reply, target, false)) != 0)
+        {
+            return ret;
+        }
+        if ((ret = GetHDLCAddress(reply, source, true)) != 0)
+        {
+            return ret;
+        }
+
         // Check that server addresses match.
         if (settings.GetServerAddress() != 0 && settings.GetServerAddress() != target)
         {
@@ -1703,6 +1791,16 @@ int CGXDLMS::CheckHdlcAddress(
     }
     else
     {
+        // Get destination and source addresses.
+        if ((ret = GetHDLCAddress(reply, target, true)) != 0)
+        {
+            return ret;
+        }
+        if ((ret = GetHDLCAddress(reply, source, false)) != 0)
+        {
+            return ret;
+        }
+
         // Check that client addresses match.
         if (settings.GetClientAddress() != target)
         {

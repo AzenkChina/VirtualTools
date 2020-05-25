@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>820</width>
-    <height>720</height>
+    <height>650</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -19,13 +19,13 @@
   <property name="minimumSize">
    <size>
     <width>820</width>
-    <height>720</height>
+    <height>650</height>
    </size>
   </property>
   <property name="maximumSize">
    <size>
     <width>820</width>
-    <height>720</height>
+    <height>650</height>
    </size>
   </property>
   <property name="font">
@@ -597,8 +597,26 @@
       <x>10</x>
       <y>270</y>
       <width>800</width>
-      <height>190</height>
+      <height>160</height>
      </rect>
+    </property>
+    <property name="sizePolicy">
+     <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+      <horstretch>0</horstretch>
+      <verstretch>0</verstretch>
+     </sizepolicy>
+    </property>
+    <property name="minimumSize">
+     <size>
+      <width>800</width>
+      <height>160</height>
+     </size>
+    </property>
+    <property name="maximumSize">
+     <size>
+      <width>800</width>
+      <height>160</height>
+     </size>
     </property>
     <property name="contextMenuPolicy">
      <enum>Qt::NoContextMenu</enum>
@@ -611,10 +629,28 @@
     <property name="geometry">
      <rect>
       <x>10</x>
-      <y>479</y>
+      <y>440</y>
       <width>800</width>
-      <height>190</height>
+      <height>160</height>
      </rect>
+    </property>
+    <property name="sizePolicy">
+     <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+      <horstretch>0</horstretch>
+      <verstretch>0</verstretch>
+     </sizepolicy>
+    </property>
+    <property name="minimumSize">
+     <size>
+      <width>800</width>
+      <height>160</height>
+     </size>
+    </property>
+    <property name="maximumSize">
+     <size>
+      <width>800</width>
+      <height>160</height>
+     </size>
     </property>
     <property name="contextMenuPolicy">
      <enum>Qt::NoContextMenu</enum>
@@ -814,7 +850,7 @@
     <property name="geometry">
      <rect>
       <x>10</x>
-      <y>680</y>
+      <y>610</y>
       <width>170</width>
       <height>31</height>
      </rect>
@@ -853,7 +889,7 @@
     <property name="geometry">
      <rect>
       <x>280</x>
-      <y>680</y>
+      <y>610</y>
       <width>260</width>
       <height>30</height>
      </rect>
@@ -902,7 +938,7 @@
     <property name="geometry">
      <rect>
       <x>190</x>
-      <y>680</y>
+      <y>610</y>
       <width>80</width>
       <height>30</height>
      </rect>
@@ -927,7 +963,7 @@
     <property name="geometry">
      <rect>
       <x>550</x>
-      <y>680</y>
+      <y>610</y>
       <width>80</width>
       <height>30</height>
      </rect>
@@ -952,7 +988,7 @@
     <property name="geometry">
      <rect>
       <x>640</x>
-      <y>680</y>
+      <y>610</y>
       <width>80</width>
       <height>30</height>
      </rect>
@@ -1004,7 +1040,7 @@
     <property name="geometry">
      <rect>
       <x>730</x>
-      <y>680</y>
+      <y>610</y>
       <width>80</width>
       <height>30</height>
      </rect>

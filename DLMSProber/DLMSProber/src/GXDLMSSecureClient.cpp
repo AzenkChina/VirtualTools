@@ -35,8 +35,8 @@
 #include "../include/GXDLMSSecureClient.h"
 
 CGXDLMSSecureClient::CGXDLMSSecureClient(bool UseLogicalNameReferencing,
-    int clientAddress,
-    int serverAddress,
+    unsigned long clientAddress,
+    unsigned long serverAddress,
     //Authentication type.
     DLMS_AUTHENTICATION authentication,
     //Password if authentication is used.

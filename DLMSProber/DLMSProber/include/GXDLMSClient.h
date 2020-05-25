@@ -99,8 +99,8 @@ public:
     /////////////////////////////////////////////////////////////////////////////
     CGXDLMSClient(
         bool UseLogicalNameReferencing = true,
-        int ClientAddress = 16,
-        int ServerAddress = 1,
+        unsigned long ClientAddress = 16,
+        unsigned long ServerAddress = 1,
         //Authentication type.
         DLMS_AUTHENTICATION authentication = DLMS_AUTHENTICATION_NONE,
         //Password if authentication is used.

@@ -56,7 +56,7 @@ private:
     /////////////////////////////////////////////////////////////////////////////
     // Get adress as GXDLMSVariant.
     /////////////////////////////////////////////////////////////////////////////
-    static int GetAddress(long value, unsigned long& address, int& size);
+    static int GetAddress(unsigned long value, unsigned long& address, int& size);
 
     /////////////////////////////////////////////////////////////////////////////
     // Get address as an byte array.
@@ -279,7 +279,8 @@ public:
      */
     static int GetHDLCAddress(
         CGXByteBuffer& buff,
-        unsigned long& address);
+        unsigned long& address,
+        bool alwaysone);
 
     /**
      * Check that client and server address match.

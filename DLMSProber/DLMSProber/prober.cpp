@@ -173,30 +173,61 @@ void Prober::on_ButtonRead_pressed() {
         ui->ButtonExecute->setEnabled(true);
         return;
     }
+
     if(para.addressMode == 1) {
         if(para.level == DLMS_AUTHENTICATION_LOW) {
-            cl = new CGXDLMSSecureClient(true, para.client, (para.physical & 0x7f), para.level, para.password.ToString().data(), DLMS_INTERFACE_TYPE_HDLC);
+            cl = new CGXDLMSSecureClient(true,
+                                         para.client,
+                                         (1 << 30) | (para.logical << 16),
+                                         para.level,
+                                         para.password.ToString().data(),
+                                         DLMS_INTERFACE_TYPE_HDLC);
         }
         else {
-            cl = new CGXDLMSSecureClient(true, para.client, (para.physical & 0x7f), para.level, nullptr, DLMS_INTERFACE_TYPE_HDLC);
+            cl = new CGXDLMSSecureClient(true,
+                                         para.client,
+                                         (1 << 30) | (para.logical << 16),
+                                         para.level,
+                                         nullptr,
+                                         DLMS_INTERFACE_TYPE_HDLC);
         }
     }
-    else if (para.addressMode == 4) {
+    else if (para.addressMode == 2) {
         if(para.level == DLMS_AUTHENTICATION_LOW) {
-            cl = new CGXDLMSSecureClient(true, para.client, (para.physical + 0x4000), para.level, para.password.ToString().data(), DLMS_INTERFACE_TYPE_HDLC);
+            cl = new CGXDLMSSecureClient(true,
+                                         para.client,
+                                         (2 << 30) | (para.logical << 16) | (para.physical % 100),
+                                         para.level,
+                                         para.password.ToString().data(),
+                                         DLMS_INTERFACE_TYPE_HDLC);
         }
         else {
-            cl = new CGXDLMSSecureClient(true, para.client, (para.physical + 0x4000), para.level, nullptr, DLMS_INTERFACE_TYPE_HDLC);
+            cl = new CGXDLMSSecureClient(true,
+                                         para.client,
+                                         (2 << 30) | (para.logical << 16) | (para.physical % 100),
+                                         para.level,
+                                         nullptr,
+                                         DLMS_INTERFACE_TYPE_HDLC);
         }
     }
     else {
         if(para.level == DLMS_AUTHENTICATION_LOW) {
-            cl = new CGXDLMSSecureClient(true, para.client, para.physical, para.level, para.password.ToString().data(), DLMS_INTERFACE_TYPE_HDLC);
+            cl = new CGXDLMSSecureClient(true,
+                                         para.client,
+                                         (3 << 30) | (para.logical << 16) | (para.physical % 10000),
+                                         para.level,
+                                         para.password.ToString().data(),
+                                         DLMS_INTERFACE_TYPE_HDLC);
         }
         else {
-            cl = new CGXDLMSSecureClient(true, para.client, para.physical, para.level, nullptr, DLMS_INTERFACE_TYPE_HDLC);
+            cl = new CGXDLMSSecureClient(true, para.client,
+                                         (3 << 30) | (para.logical << 16) | (para.physical % 10000),
+                                         para.level,
+                                         nullptr,
+                                         DLMS_INTERFACE_TYPE_HDLC);
         }
     }
+
 
     if(para.level == DLMS_AUTHENTICATION_HIGH_GMAC) {
         cl->GetCiphering()->SetSecurity(DLMS_SECURITY_AUTHENTICATION_ENCRYPTION);
@@ -263,7 +294,7 @@ void Prober::on_ButtonRead_pressed() {
         ui->ButtonRead->setEnabled(true);
         ui->ButtonWrite->setEnabled(true);
         ui->ButtonExecute->setEnabled(true);
-        ui->LOG->appendPlainText("初始化串口出错");
+        ui->LOG->appendPlainText("读取出错");
         return;
     }
 
@@ -281,7 +312,13 @@ void Prober::on_ButtonRead_pressed() {
             str.append(val);
         }
 
-        ui->LOG->appendPlainText("读取成功");
+        QString mark;
+        mark.append("读取成功");
+        mark.append("[");
+        mark.append(QDateTime::currentDateTime().toString("hh:mm:ss"));
+        mark.append("]");
+
+        ui->LOG->appendPlainText(mark);
         ui->LOG->appendPlainText(str);
     }
 
@@ -307,28 +344,58 @@ void Prober::on_ButtonWrite_pressed() {
         ui->ButtonExecute->setEnabled(true);
         return;
     }
+
     if(para.addressMode == 1) {
         if(para.level == DLMS_AUTHENTICATION_LOW) {
-            cl = new CGXDLMSSecureClient(true, para.client, (para.physical & 0x7f), para.level, para.password.ToString().data(), DLMS_INTERFACE_TYPE_HDLC);
+            cl = new CGXDLMSSecureClient(true,
+                                         para.client,
+                                         (1 << 30) | (para.logical << 16),
+                                         para.level,
+                                         para.password.ToString().data(),
+                                         DLMS_INTERFACE_TYPE_HDLC);
         }
         else {
-            cl = new CGXDLMSSecureClient(true, para.client, (para.physical & 0x7f), para.level, nullptr, DLMS_INTERFACE_TYPE_HDLC);
+            cl = new CGXDLMSSecureClient(true,
+                                         para.client,
+                                         (1 << 30) | (para.logical << 16),
+                                         para.level,
+                                         nullptr,
+                                         DLMS_INTERFACE_TYPE_HDLC);
         }
     }
-    else if (para.addressMode == 4) {
+    else if (para.addressMode == 2) {
         if(para.level == DLMS_AUTHENTICATION_LOW) {
-            cl = new CGXDLMSSecureClient(true, para.client, (para.physical + 0x4000), para.level, para.password.ToString().data(), DLMS_INTERFACE_TYPE_HDLC);
+            cl = new CGXDLMSSecureClient(true,
+                                         para.client,
+                                         (2 << 30) | (para.logical << 16) | (para.physical % 100),
+                                         para.level,
+                                         para.password.ToString().data(),
+                                         DLMS_INTERFACE_TYPE_HDLC);
         }
         else {
-            cl = new CGXDLMSSecureClient(true, para.client, (para.physical + 0x4000), para.level, nullptr, DLMS_INTERFACE_TYPE_HDLC);
+            cl = new CGXDLMSSecureClient(true,
+                                         para.client,
+                                         (2 << 30) | (para.logical << 16) | (para.physical % 100),
+                                         para.level,
+                                         nullptr,
+                                         DLMS_INTERFACE_TYPE_HDLC);
         }
     }
     else {
         if(para.level == DLMS_AUTHENTICATION_LOW) {
-            cl = new CGXDLMSSecureClient(true, para.client, para.physical, para.level, para.password.ToString().data(), DLMS_INTERFACE_TYPE_HDLC);
+            cl = new CGXDLMSSecureClient(true,
+                                         para.client,
+                                         (3 << 30) | (para.logical << 16) | (para.physical % 10000),
+                                         para.level,
+                                         para.password.ToString().data(),
+                                         DLMS_INTERFACE_TYPE_HDLC);
         }
         else {
-            cl = new CGXDLMSSecureClient(true, para.client, para.physical, para.level, nullptr, DLMS_INTERFACE_TYPE_HDLC);
+            cl = new CGXDLMSSecureClient(true, para.client,
+                                         (3 << 30) | (para.logical << 16) | (para.physical % 10000),
+                                         para.level,
+                                         nullptr,
+                                         DLMS_INTERFACE_TYPE_HDLC);
         }
     }
 
@@ -399,7 +466,7 @@ void Prober::on_ButtonWrite_pressed() {
         ui->ButtonRead->setEnabled(true);
         ui->ButtonWrite->setEnabled(true);
         ui->ButtonExecute->setEnabled(true);
-        ui->LOG->appendPlainText("初始化串口出错");
+        ui->LOG->appendPlainText("设置出错");
         return;
     }
 
@@ -433,7 +500,13 @@ void Prober::on_ButtonWrite_pressed() {
             str.append(val);
         }
 
-        ui->LOG->appendPlainText("设置成功");
+        QString mark;
+        mark.append("设置成功");
+        mark.append("[");
+        mark.append(QDateTime::currentDateTime().toString("hh:mm:ss"));
+        mark.append("]");
+
+        ui->LOG->appendPlainText(mark);
         ui->LOG->appendPlainText(str);
     }
 
@@ -460,28 +533,58 @@ void Prober::on_ButtonExecute_pressed() {
         ui->ButtonExecute->setEnabled(true);
         return;
     }
+
     if(para.addressMode == 1) {
         if(para.level == DLMS_AUTHENTICATION_LOW) {
-            cl = new CGXDLMSSecureClient(true, para.client, (para.physical & 0x7f), para.level, para.password.ToString().data(), DLMS_INTERFACE_TYPE_HDLC);
+            cl = new CGXDLMSSecureClient(true,
+                                         para.client,
+                                         (1 << 30) | (para.logical << 16),
+                                         para.level,
+                                         para.password.ToString().data(),
+                                         DLMS_INTERFACE_TYPE_HDLC);
         }
         else {
-            cl = new CGXDLMSSecureClient(true, para.client, (para.physical & 0x7f), para.level, nullptr, DLMS_INTERFACE_TYPE_HDLC);
+            cl = new CGXDLMSSecureClient(true,
+                                         para.client,
+                                         (1 << 30) | (para.logical << 16),
+                                         para.level,
+                                         nullptr,
+                                         DLMS_INTERFACE_TYPE_HDLC);
         }
     }
-    else if (para.addressMode == 4) {
+    else if (para.addressMode == 2) {
         if(para.level == DLMS_AUTHENTICATION_LOW) {
-            cl = new CGXDLMSSecureClient(true, para.client, (para.physical + 0x4000), para.level, para.password.ToString().data(), DLMS_INTERFACE_TYPE_HDLC);
+            cl = new CGXDLMSSecureClient(true,
+                                         para.client,
+                                         (2 << 30) | (para.logical << 16) | (para.physical % 100),
+                                         para.level,
+                                         para.password.ToString().data(),
+                                         DLMS_INTERFACE_TYPE_HDLC);
         }
         else {
-            cl = new CGXDLMSSecureClient(true, para.client, (para.physical + 0x4000), para.level, nullptr, DLMS_INTERFACE_TYPE_HDLC);
+            cl = new CGXDLMSSecureClient(true,
+                                         para.client,
+                                         (2 << 30) | (para.logical << 16) | (para.physical % 100),
+                                         para.level,
+                                         nullptr,
+                                         DLMS_INTERFACE_TYPE_HDLC);
         }
     }
     else {
         if(para.level == DLMS_AUTHENTICATION_LOW) {
-            cl = new CGXDLMSSecureClient(true, para.client, para.physical, para.level, para.password.ToString().data(), DLMS_INTERFACE_TYPE_HDLC);
+            cl = new CGXDLMSSecureClient(true,
+                                         para.client,
+                                         (3 << 30) | (para.logical << 16) | (para.physical % 10000),
+                                         para.level,
+                                         para.password.ToString().data(),
+                                         DLMS_INTERFACE_TYPE_HDLC);
         }
         else {
-            cl = new CGXDLMSSecureClient(true, para.client, para.physical, para.level, nullptr, DLMS_INTERFACE_TYPE_HDLC);
+            cl = new CGXDLMSSecureClient(true, para.client,
+                                         (3 << 30) | (para.logical << 16) | (para.physical % 10000),
+                                         para.level,
+                                         nullptr,
+                                         DLMS_INTERFACE_TYPE_HDLC);
         }
     }
 
@@ -552,7 +655,7 @@ void Prober::on_ButtonExecute_pressed() {
         ui->ButtonRead->setEnabled(true);
         ui->ButtonWrite->setEnabled(true);
         ui->ButtonExecute->setEnabled(true);
-        ui->LOG->appendPlainText("初始化串口出错");
+        ui->LOG->appendPlainText("执行出错");
         return;
     }
 
@@ -574,7 +677,7 @@ void Prober::on_ButtonExecute_pressed() {
     CGXReplyData reply;
 
     if(comm.Method(&Object, para.index, bb, reply) != DLMS_ERROR_CODE_OK) {
-        ui->LOG->appendPlainText("访问失败");
+        ui->LOG->appendPlainText("执行失败");
     }
     else {
         CGXByteBuffer rep;
@@ -586,7 +689,13 @@ void Prober::on_ButtonExecute_pressed() {
             str.append(val);
         }
 
-        ui->LOG->appendPlainText("访问失败");
+        QString mark;
+        mark.append("执行成功");
+        mark.append("[");
+        mark.append(QDateTime::currentDateTime().toString("hh:mm:ss"));
+        mark.append("]");
+
+        ui->LOG->appendPlainText(mark);
         ui->LOG->appendPlainText(str);
     }
 
