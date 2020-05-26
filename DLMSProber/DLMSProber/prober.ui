@@ -85,7 +85,7 @@
      <string>1</string>
     </property>
     <property name="maxLength">
-     <number>5</number>
+     <number>4</number>
     </property>
     <property name="echoMode">
      <enum>QLineEdit::Normal</enum>
@@ -337,7 +337,7 @@
      <string/>
     </property>
     <property name="maxLength">
-     <number>5</number>
+     <number>4</number>
     </property>
     <property name="alignment">
      <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>

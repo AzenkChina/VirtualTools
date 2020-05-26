@@ -19,6 +19,12 @@ unix {
     QMAKE_RPATHDIR=$ORIGIN/lib
 }
 
+VERSION = 1.0.0.0
+QMAKE_TARGET_COMPANY = azenk
+QMAKE_TARGET_PRODUCT = "DLMSProber"
+QMAKE_TARGET_DESCRIPTION = "DLMS Prober"
+QMAKE_TARGET_COPYRIGHT = azenk
+
 # The following define makes your compiler emit warnings if you use
 # any feature of Qt which has been marked as deprecated (the exact warnings
 # depend on your compiler). Please consult the documentation of the
