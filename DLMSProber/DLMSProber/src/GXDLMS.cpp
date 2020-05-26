@@ -703,7 +703,7 @@ int Cipher0(CGXDLMSLNParameters& p,
     // If client.
     if (p.GetCipheredCommand() == DLMS_COMMAND_NONE) {
         if ((p.GetSettings()->GetProposedConformance() & DLMS_CONFORMANCE_GENERAL_PROTECTION) == 0
-            && (p.GetSettings()->GetNegotiatedConformance() & DLMS_CONFORMANCE_GENERAL_PROTECTION) == 0)
+            || (p.GetSettings()->GetNegotiatedConformance() & DLMS_CONFORMANCE_GENERAL_PROTECTION) == 0)
         {
             if (p.GetSettings()->GetCipher()->GetDedicatedKey().GetSize() != 0 &&
                 (!p.GetSettings()->IsServer() ||

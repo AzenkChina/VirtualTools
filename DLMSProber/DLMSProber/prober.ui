@@ -288,7 +288,7 @@
      <string>3030303030303030</string>
     </property>
     <property name="maxLength">
-     <number>32</number>
+     <number>40</number>
     </property>
     <property name="alignment">
      <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>

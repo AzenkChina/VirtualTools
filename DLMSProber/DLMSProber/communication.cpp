@@ -109,6 +109,7 @@ int CGXCommunication::Close()
     int ret;
     std::vector<CGXByteBuffer> data;
     CGXReplyData reply;
+    /*
     if ((m_hComPort != INVALID_HANDLE_VALUE || m_socket != -1) &&
         (m_Parser->GetInterfaceType() == DLMS_INTERFACE_TYPE_WRAPPER ||
             m_Parser->GetCiphering()->GetSecurity() != DLMS_SECURITY_NONE))
@@ -120,6 +121,7 @@ int CGXCommunication::Close()
             printf("ReleaseRequest failed (%d) %s.\r\n", ret, CGXDLMSConverter::GetErrorMessage(ret));
         }
     }
+    */
     if (m_hComPort != INVALID_HANDLE_VALUE || m_socket != -1)
     {
         if ((ret = m_Parser->DisconnectRequest(data)) != 0 ||
