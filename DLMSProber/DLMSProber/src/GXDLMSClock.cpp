@@ -152,7 +152,7 @@ int CGXDLMSClock::GetMethodCount()
 {
     return 6;
 }
-#include <QDebug>
+
 void CGXDLMSClock::GetValues(std::vector<std::string>& values)
 {
     values.clear();
