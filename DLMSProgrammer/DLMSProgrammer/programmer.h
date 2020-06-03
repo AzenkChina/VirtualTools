@@ -4,7 +4,7 @@
 #include <QMainWindow>
 #include <QSerialPortInfo>
 #include <QFileDialog>
-#include <QTimer>
+#include <QThread>
 
 #include <iostream>
 #include <fstream>
@@ -44,6 +44,30 @@ namespace Ui {
 class Programmer;
 }
 
+class Thread : public QThread
+{
+    Q_OBJECT
+
+public:
+    explicit Thread(QWidget *parent = nullptr);
+    ~Thread();
+    void init(struct parameter *para, std::vector<struct closure> *closure, bool set, bool get);
+
+signals:
+    void updateMessage(const QString arg);
+
+    void updateResult(const QString arg);
+
+    void finishWork();
+
+private:
+    struct parameter para;
+    std::vector<struct closure> closure;
+    bool set = true;
+    bool get = false;
+    void run();
+};
+
 class Programmer : public QMainWindow
 {
     Q_OBJECT
@@ -61,12 +85,16 @@ private slots:
 
     void on_ButtonStart_pressed();
 
-    void on_Timer_overflow();
+    void on_updateMessage(const QString arg);
+
+    void on_updateResult(const QString arg);
+
+    void on_finishWork();
 
 private:
     Ui::Programmer *ui;
     QByteArray recv;
-    QTimer *Timer = nullptr;
+    class Thread *Thread = nullptr;
     std::vector<struct closure> closure;
 
     void getAvaliableSerials();

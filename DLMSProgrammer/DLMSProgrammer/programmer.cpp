@@ -5,6 +5,228 @@
 
 using namespace std;
 
+
+Thread::Thread(QWidget *parent) {
+
+}
+
+Thread::~Thread() {
+
+}
+
+void Thread::init(struct parameter *para, std::vector<struct closure> *closure, bool set, bool get) {
+    this->para = *para;
+    this->closure = *closure;
+    this->get = get;
+    this->set = set;
+}
+
+void Thread::run() {
+    for (uint16_t physical = this->para.physicalstart; physical <= this->para.physicalstop; physical++) {
+        CGXDLMSSecureClient *cl;
+        if(this->para.addressMode == 1) {
+            if(this->para.level == DLMS_AUTHENTICATION_LOW) {
+                cl = new CGXDLMSSecureClient(true,
+                                             this->para.client,
+                                             (1 << 30) | (this->para.logical << 16),
+                                             this->para.level,
+                                             this->para.password.ToString().data(),
+                                             DLMS_INTERFACE_TYPE_HDLC);
+            }
+            else {
+                cl = new CGXDLMSSecureClient(true,
+                                             this->para.client,
+                                             (1 << 30) | (this->para.logical << 16),
+                                             this->para.level,
+                                             nullptr,
+                                             DLMS_INTERFACE_TYPE_HDLC);
+            }
+        }
+        else if (this->para.addressMode == 2) {
+            if(this->para.level == DLMS_AUTHENTICATION_LOW) {
+                cl = new CGXDLMSSecureClient(true,
+                                             this->para.client,
+                                             (2 << 30) | (this->para.logical << 16) | (physical % 100),
+                                             this->para.level,
+                                             this->para.password.ToString().data(),
+                                             DLMS_INTERFACE_TYPE_HDLC);
+            }
+            else {
+                cl = new CGXDLMSSecureClient(true,
+                                             this->para.client,
+                                             (2 << 30) | (this->para.logical << 16) | (physical % 100),
+                                             this->para.level,
+                                             nullptr,
+                                             DLMS_INTERFACE_TYPE_HDLC);
+            }
+        }
+        else {
+            if(this->para.level == DLMS_AUTHENTICATION_LOW) {
+                cl = new CGXDLMSSecureClient(true,
+                                             this->para.client,
+                                             (3 << 30) | (this->para.logical << 16) | (physical % 10000),
+                                             this->para.level,
+                                             this->para.password.ToString().data(),
+                                             DLMS_INTERFACE_TYPE_HDLC);
+            }
+            else {
+                cl = new CGXDLMSSecureClient(true, this->para.client,
+                                             (3 << 30) | (this->para.logical << 16) | (physical % 10000),
+                                             this->para.level,
+                                             nullptr,
+                                             DLMS_INTERFACE_TYPE_HDLC);
+            }
+        }
+
+
+        if(this->para.level == DLMS_AUTHENTICATION_HIGH_GMAC) {
+            cl->GetCiphering()->SetSecurity(DLMS_SECURITY_AUTHENTICATION_ENCRYPTION);
+        }
+        else {
+            cl->GetCiphering()->SetSecurity(DLMS_SECURITY_NONE);
+        }
+
+        cl->SetProposedConformance(static_cast<DLMS_CONFORMANCE>(\
+                                       DLMS_CONFORMANCE_GENERAL_PROTECTION | \
+                                       DLMS_CONFORMANCE_GENERAL_BLOCK_TRANSFER | \
+                                       DLMS_CONFORMANCE_READ | \
+                                       DLMS_CONFORMANCE_WRITE | \
+                                       DLMS_CONFORMANCE_UN_CONFIRMED_WRITE | \
+                                       DLMS_CONFORMANCE_ATTRIBUTE_0_SUPPORTED_WITH_SET | \
+                                       DLMS_CONFORMANCE_PRIORITY_MGMT_SUPPORTED | \
+                                       DLMS_CONFORMANCE_ATTRIBUTE_0_SUPPORTED_WITH_GET | \
+                                       DLMS_CONFORMANCE_BLOCK_TRANSFER_WITH_GET_OR_READ | \
+                                       DLMS_CONFORMANCE_BLOCK_TRANSFER_WITH_SET_OR_WRITE | \
+                                       DLMS_CONFORMANCE_BLOCK_TRANSFER_WITH_ACTION | \
+                                       DLMS_CONFORMANCE_MULTIPLE_REFERENCES | \
+                                       DLMS_CONFORMANCE_INFORMATION_REPORT | \
+                                       DLMS_CONFORMANCE_DATA_NOTIFICATION | \
+                                       DLMS_CONFORMANCE_ACCESS | \
+                                       DLMS_CONFORMANCE_PARAMETERIZED_ACCESS | \
+                                       DLMS_CONFORMANCE_GET | \
+                                       DLMS_CONFORMANCE_SET | \
+                                       DLMS_CONFORMANCE_SELECTIVE_ACCESS | \
+                                       DLMS_CONFORMANCE_EVENT_NOTIFICATION | \
+                                       DLMS_CONFORMANCE_ACTION\
+                                       ));
+
+        cl->SetAutoIncreaseInvokeID(true);
+
+        CGXByteBuffer bb;
+
+        bb.Clear();
+        bb.SetHexString(QString::fromLocal8Bit("4446534552564552").toStdString());
+        cl->GetCiphering()->SetSystemTitle(bb);
+
+        bb.Clear();
+        bb.SetHexString(QString::fromLocal8Bit("30313233343536373839303132333435").toStdString());
+        cl->GetCiphering()->SetDedicatedKey(bb);
+
+        cl->GetCiphering()->SetAuthenticationKey(para.akey);
+        cl->GetCiphering()->SetBlockCipherKey(para.ekey);
+
+        CGXCommunication comm(cl, 6000, GX_TRACE_LEVEL_OFF, nullptr);
+
+        emit updateMessage("地址: " + QString::number(physical));
+
+        int ret;
+        if ((ret = comm.Open(para.comm.toStdString().data(), false, 115200)) != 0) {
+            delete cl;
+            emit updateMessage("打开串口出错");
+            emit updateResult("地址: " + QString::number(physical) + " 操作失败");
+            emit finishWork();
+            return;
+        }
+
+        if ((ret = comm.InitializeConnection()) != 0) {
+            comm.Close();
+
+            delete cl;
+            emit updateMessage("初始化出错");
+            emit updateResult("地址: " + QString::number(physical) + " 操作失败");
+            emit finishWork();
+            return;
+        }
+
+        bool phy = true;
+        for(vector<struct closure>::iterator iter = this->closure.begin(); iter != this->closure.end(); iter++) {
+            CGXDLMSCommon Object(iter->id, iter->obis.toStdString());
+            QString result;
+            CGXByteBuffer data;
+            CGXReplyData reply;
+            std::string value;
+
+            result.clear();
+            data.Clear();
+            reply.Clear();
+            value.clear();
+
+            data.SetHexString(iter->data.toStdString());
+            result.append(iter->name + ": ");
+
+            if(iter->method) {
+                if(comm.Method(&Object, iter->index, data, reply) != DLMS_ERROR_CODE_OK) {
+                    result.append("执行失败 ");
+                    phy = false;
+                }
+                else {
+                    result.append("执行成功 ");
+                }
+            }
+            else {
+                if(this->set == true) {
+                    if(comm.Write(&Object, iter->index, data, reply) != DLMS_ERROR_CODE_OK) {
+                        result.append("设置失败 ");
+                        phy = false;
+                    }
+                    else {
+                        result.append("设置成功 ");
+                    }
+                }
+                if(this->get == true) {
+                    if(comm.Read(&Object, iter->index, value) != DLMS_ERROR_CODE_OK) {
+                        result.append("读取失败 ");
+                        phy = false;
+                    }
+                    else {
+                        QString str;
+                        for (unsigned int n = 0; n < value.size(); n++) {
+                            QString val;
+                            val.sprintf("%02x", static_cast<unsigned char>(value.data()[n]));
+                            str.append(val);
+                        }
+                        if(str != iter->data) {
+                            result.append("检查失败 ");
+                            phy = false;
+                        }
+                        else {
+                            result.append("检查成功 ");
+                        }
+                    }
+                }
+            }
+
+            emit updateMessage(result);
+        }
+
+        if(phy == false) {
+            emit updateResult("地址: " + QString::number(physical) + " 操作失败");
+        }
+        else {
+            emit updateResult("地址: " + QString::number(physical) + " 操作成功");
+        }
+
+        comm.Close();
+        delete cl;
+    }
+
+    emit finishWork();
+}
+
+
+
+
+
 Programmer::Programmer(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::Programmer) {
@@ -13,9 +235,6 @@ Programmer::Programmer(QWidget *parent) :
     this->getAvaliableSerials();
 
     this->on_Level_currentIndexChanged(ui->Level->currentIndex());
-
-    this->Timer = new QTimer(this);
-    connect(this->Timer, SIGNAL(timeout()), this, SLOT(on_Timer_overflow()));
 }
 
 Programmer::~Programmer() {
@@ -127,9 +346,36 @@ void Programmer::on_ButtonStart_pressed() {
         return;
     }
 
-    ui->ButtonStart->setEnabled(false);
+    struct parameter para;
+    if(this->praseParameter(para) != true) {
+        return;
+    }
 
-    this->Timer->start(1000);
+    if(this->Thread) {
+        delete this->Thread;
+    }
+
+    this->Thread = new class Thread;
+    this->Thread->init(&para, &this->closure, ui->BoxSet->isChecked(), ui->BoxGet->isChecked());
+    connect(this->Thread, SIGNAL(updateMessage(const QString arg)), this, SLOT(on_updateMessage(const QString arg)));
+    connect(this->Thread, SIGNAL(updateResult(const QString arg)), this, SLOT(on_updateResult(const QString arg)));
+    connect(this->Thread, SIGNAL(finishWork()), this, SLOT(on_finishWork()));
+
+    ui->ButtonStart->setEnabled(false);
+    ui->LOG->clear();
+    this->Thread->start();
+}
+
+void Programmer::on_updateMessage(const QString arg) {
+    ui->LOG->appendPlainText(arg);
+}
+
+void Programmer::on_updateResult(const QString arg) {
+    ui->Result->appendPlainText(arg);
+}
+
+void Programmer::on_finishWork() {
+    ui->ButtonStart->setEnabled(true);
 }
 
 void Programmer::getAvaliableSerials() {
@@ -377,216 +623,4 @@ void Programmer::on_ButtonLoad_pressed() {
     ui->ButtonLoad->setText(QString::fromStdString("已加载"));
     ui->LOG->clear();
     ui->Result->clear();
-}
-
-void Programmer::on_Timer_overflow() {
-    this->Timer->stop();
-
-    struct parameter para;
-    if(this->praseParameter(para) != true) {
-        ui->ButtonStart->setEnabled(true);
-        return;
-    }
-
-    ui->LOG->clear();
-
-    for (uint16_t physical = para.physicalstart; physical <= para.physicalstop; physical++) {
-        CGXDLMSSecureClient *cl;
-        if(para.addressMode == 1) {
-            if(para.level == DLMS_AUTHENTICATION_LOW) {
-                cl = new CGXDLMSSecureClient(true,
-                                             para.client,
-                                             (1 << 30) | (para.logical << 16),
-                                             para.level,
-                                             para.password.ToString().data(),
-                                             DLMS_INTERFACE_TYPE_HDLC);
-            }
-            else {
-                cl = new CGXDLMSSecureClient(true,
-                                             para.client,
-                                             (1 << 30) | (para.logical << 16),
-                                             para.level,
-                                             nullptr,
-                                             DLMS_INTERFACE_TYPE_HDLC);
-            }
-        }
-        else if (para.addressMode == 2) {
-            if(para.level == DLMS_AUTHENTICATION_LOW) {
-                cl = new CGXDLMSSecureClient(true,
-                                             para.client,
-                                             (2 << 30) | (para.logical << 16) | (physical % 100),
-                                             para.level,
-                                             para.password.ToString().data(),
-                                             DLMS_INTERFACE_TYPE_HDLC);
-            }
-            else {
-                cl = new CGXDLMSSecureClient(true,
-                                             para.client,
-                                             (2 << 30) | (para.logical << 16) | (physical % 100),
-                                             para.level,
-                                             nullptr,
-                                             DLMS_INTERFACE_TYPE_HDLC);
-            }
-        }
-        else {
-            if(para.level == DLMS_AUTHENTICATION_LOW) {
-                cl = new CGXDLMSSecureClient(true,
-                                             para.client,
-                                             (3 << 30) | (para.logical << 16) | (physical % 10000),
-                                             para.level,
-                                             para.password.ToString().data(),
-                                             DLMS_INTERFACE_TYPE_HDLC);
-            }
-            else {
-                cl = new CGXDLMSSecureClient(true, para.client,
-                                             (3 << 30) | (para.logical << 16) | (physical % 10000),
-                                             para.level,
-                                             nullptr,
-                                             DLMS_INTERFACE_TYPE_HDLC);
-            }
-        }
-
-
-        if(para.level == DLMS_AUTHENTICATION_HIGH_GMAC) {
-            cl->GetCiphering()->SetSecurity(DLMS_SECURITY_AUTHENTICATION_ENCRYPTION);
-        }
-        else {
-            cl->GetCiphering()->SetSecurity(DLMS_SECURITY_NONE);
-        }
-
-        cl->SetProposedConformance(static_cast<DLMS_CONFORMANCE>(\
-                                       DLMS_CONFORMANCE_GENERAL_PROTECTION | \
-                                       DLMS_CONFORMANCE_GENERAL_BLOCK_TRANSFER | \
-                                       DLMS_CONFORMANCE_READ | \
-                                       DLMS_CONFORMANCE_WRITE | \
-                                       DLMS_CONFORMANCE_UN_CONFIRMED_WRITE | \
-                                       DLMS_CONFORMANCE_ATTRIBUTE_0_SUPPORTED_WITH_SET | \
-                                       DLMS_CONFORMANCE_PRIORITY_MGMT_SUPPORTED | \
-                                       DLMS_CONFORMANCE_ATTRIBUTE_0_SUPPORTED_WITH_GET | \
-                                       DLMS_CONFORMANCE_BLOCK_TRANSFER_WITH_GET_OR_READ | \
-                                       DLMS_CONFORMANCE_BLOCK_TRANSFER_WITH_SET_OR_WRITE | \
-                                       DLMS_CONFORMANCE_BLOCK_TRANSFER_WITH_ACTION | \
-                                       DLMS_CONFORMANCE_MULTIPLE_REFERENCES | \
-                                       DLMS_CONFORMANCE_INFORMATION_REPORT | \
-                                       DLMS_CONFORMANCE_DATA_NOTIFICATION | \
-                                       DLMS_CONFORMANCE_ACCESS | \
-                                       DLMS_CONFORMANCE_PARAMETERIZED_ACCESS | \
-                                       DLMS_CONFORMANCE_GET | \
-                                       DLMS_CONFORMANCE_SET | \
-                                       DLMS_CONFORMANCE_SELECTIVE_ACCESS | \
-                                       DLMS_CONFORMANCE_EVENT_NOTIFICATION | \
-                                       DLMS_CONFORMANCE_ACTION\
-                                       ));
-
-        cl->SetAutoIncreaseInvokeID(true);
-
-        CGXByteBuffer bb;
-
-        bb.Clear();
-        bb.SetHexString(QString::fromLocal8Bit("4446534552564552").toStdString());
-        cl->GetCiphering()->SetSystemTitle(bb);
-
-        bb.Clear();
-        bb.SetHexString(QString::fromLocal8Bit("30313233343536373839303132333435").toStdString());
-        cl->GetCiphering()->SetDedicatedKey(bb);
-
-        cl->GetCiphering()->SetAuthenticationKey(para.akey);
-        cl->GetCiphering()->SetBlockCipherKey(para.ekey);
-
-        CGXCommunication comm(cl, 6000, GX_TRACE_LEVEL_OFF, nullptr);
-
-        ui->LOG->appendPlainText("地址: " + QString::number(physical));
-
-        int ret;
-        if ((ret = comm.Open(para.comm.toStdString().data(), false, 115200)) != 0) {
-            delete cl;
-            ui->LOG->appendPlainText("打开串口出错");
-            ui->ButtonStart->setEnabled(true);
-            ui->Result->appendPlainText("地址: " + QString::number(physical) + " 操作失败");
-            return;
-        }
-
-        if ((ret = comm.InitializeConnection()) != 0) {
-            comm.Close();
-
-            delete cl;
-            ui->LOG->appendPlainText("初始化出错");
-            ui->ButtonStart->setEnabled(true);
-            ui->Result->appendPlainText("地址: " + QString::number(physical) + " 操作失败");
-            return;
-        }
-
-        bool phy = true;
-        for(vector<struct closure>::iterator iter = this->closure.begin(); iter != this->closure.end(); iter++) {
-            CGXDLMSCommon Object(iter->id, iter->obis.toStdString());
-            QString result;
-            CGXByteBuffer data;
-            CGXReplyData reply;
-            std::string value;
-
-            result.clear();
-            data.Clear();
-            reply.Clear();
-            value.clear();
-
-            data.SetHexString(iter->data.toStdString());
-            result.append(iter->name + ": ");
-
-            if(iter->method) {
-                if(comm.Method(&Object, iter->index, data, reply) != DLMS_ERROR_CODE_OK) {
-                    result.append("执行失败 ");
-                    phy = false;
-                }
-                else {
-                    result.append("执行成功 ");
-                }
-            }
-            else {
-                if(ui->BoxSet->isChecked()) {
-                    if(comm.Write(&Object, iter->index, data, reply) != DLMS_ERROR_CODE_OK) {
-                        result.append("设置失败 ");
-                        phy = false;
-                    }
-                    else {
-                        result.append("设置成功 ");
-                    }
-                }
-                if(ui->BoxGet->isChecked()) {
-                    if(comm.Read(&Object, iter->index, value) != DLMS_ERROR_CODE_OK) {
-                        result.append("读取失败 ");
-                        phy = false;
-                    }
-                    else {
-                        QString str;
-                        for (unsigned int n = 0; n < value.size(); n++) {
-                            QString val;
-                            val.sprintf("%02x", static_cast<unsigned char>(value.data()[n]));
-                            str.append(val);
-                        }
-                        if(str != iter->data) {
-                            result.append("检查失败 ");
-                            phy = false;
-                        }
-                        else {
-                            result.append("检查成功 ");
-                        }
-                    }
-                }
-            }
-
-            ui->LOG->appendPlainText(result);
-        }
-
-        if(phy == false) {
-            ui->Result->appendPlainText("地址: " + QString::number(physical) + " 操作失败");
-        }
-        else {
-            ui->Result->appendPlainText("地址: " + QString::number(physical) + " 操作成功");
-        }
-
-        comm.Close();
-        delete cl;
-    }
-
-    ui->ButtonStart->setEnabled(true);
 }
