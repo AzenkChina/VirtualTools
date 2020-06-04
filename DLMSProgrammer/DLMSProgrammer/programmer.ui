@@ -857,7 +857,7 @@
      </rect>
     </property>
     <property name="text">
-     <string>开始</string>
+     <string>开始运行</string>
     </property>
    </widget>
    <widget class="QCheckBox" name="BoxSet">

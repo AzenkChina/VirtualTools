@@ -3,8 +3,10 @@
 
 #include <QMainWindow>
 #include <QSerialPortInfo>
+#include <QSerialPort>
 #include <QFileDialog>
 #include <QThread>
+#include <QTime>
 
 #include <iostream>
 #include <fstream>
@@ -14,6 +16,8 @@
 #include <queue>
 #include <algorithm>
 
+#include "communication.h"
+#include "include/GXDLMSCommon.h"
 #include "include/GXBytebuffer.h"
 
 struct parameter
@@ -54,13 +58,15 @@ public:
     void init(struct parameter *para, std::vector<struct closure> *closure, bool set, bool get);
 
 signals:
-    void updateMessage(const QString arg);
+    void updateMessage(const QString);
 
-    void updateResult(const QString arg);
+    void updateResult(const QString);
 
     void finishWork();
 
 private:
+    CGXDLMSSecureClient *cl = nullptr;
+    CGXCommunication *comm = nullptr;
     struct parameter para;
     std::vector<struct closure> closure;
     bool set = true;
@@ -85,9 +91,9 @@ private slots:
 
     void on_ButtonStart_pressed();
 
-    void on_updateMessage(const QString arg);
+    void on_updateMessage(const QString);
 
-    void on_updateResult(const QString arg);
+    void on_updateResult(const QString);
 
     void on_finishWork();
 

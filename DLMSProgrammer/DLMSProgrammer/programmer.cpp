@@ -1,17 +1,24 @@
 #include "programmer.h"
 #include "ui_programmer.h"
-#include "communication.h"
-#include "include/GXDLMSCommon.h"
 
 using namespace std;
 
 
 Thread::Thread(QWidget *parent) {
-
+    (void)parent;
 }
 
 Thread::~Thread() {
+    if(this->cl != nullptr) {
+        delete this->cl;
+        this->cl = nullptr;
+    }
 
+    if(this->comm != nullptr) {
+        this->comm->Close();
+        delete this->comm;
+        this->comm = nullptr;
+    }
 }
 
 void Thread::init(struct parameter *para, std::vector<struct closure> *closure, bool set, bool get) {
@@ -23,10 +30,9 @@ void Thread::init(struct parameter *para, std::vector<struct closure> *closure, 
 
 void Thread::run() {
     for (uint16_t physical = this->para.physicalstart; physical <= this->para.physicalstop; physical++) {
-        CGXDLMSSecureClient *cl;
         if(this->para.addressMode == 1) {
             if(this->para.level == DLMS_AUTHENTICATION_LOW) {
-                cl = new CGXDLMSSecureClient(true,
+                this->cl = new CGXDLMSSecureClient(true,
                                              this->para.client,
                                              (1 << 30) | (this->para.logical << 16),
                                              this->para.level,
@@ -34,7 +40,7 @@ void Thread::run() {
                                              DLMS_INTERFACE_TYPE_HDLC);
             }
             else {
-                cl = new CGXDLMSSecureClient(true,
+                this->cl = new CGXDLMSSecureClient(true,
                                              this->para.client,
                                              (1 << 30) | (this->para.logical << 16),
                                              this->para.level,
@@ -44,7 +50,7 @@ void Thread::run() {
         }
         else if (this->para.addressMode == 2) {
             if(this->para.level == DLMS_AUTHENTICATION_LOW) {
-                cl = new CGXDLMSSecureClient(true,
+                this->cl = new CGXDLMSSecureClient(true,
                                              this->para.client,
                                              (2 << 30) | (this->para.logical << 16) | (physical % 100),
                                              this->para.level,
@@ -52,7 +58,7 @@ void Thread::run() {
                                              DLMS_INTERFACE_TYPE_HDLC);
             }
             else {
-                cl = new CGXDLMSSecureClient(true,
+                this->cl = new CGXDLMSSecureClient(true,
                                              this->para.client,
                                              (2 << 30) | (this->para.logical << 16) | (physical % 100),
                                              this->para.level,
@@ -62,7 +68,7 @@ void Thread::run() {
         }
         else {
             if(this->para.level == DLMS_AUTHENTICATION_LOW) {
-                cl = new CGXDLMSSecureClient(true,
+                this->cl = new CGXDLMSSecureClient(true,
                                              this->para.client,
                                              (3 << 30) | (this->para.logical << 16) | (physical % 10000),
                                              this->para.level,
@@ -70,7 +76,7 @@ void Thread::run() {
                                              DLMS_INTERFACE_TYPE_HDLC);
             }
             else {
-                cl = new CGXDLMSSecureClient(true, this->para.client,
+                this->cl = new CGXDLMSSecureClient(true, this->para.client,
                                              (3 << 30) | (this->para.logical << 16) | (physical % 10000),
                                              this->para.level,
                                              nullptr,
@@ -80,13 +86,13 @@ void Thread::run() {
 
 
         if(this->para.level == DLMS_AUTHENTICATION_HIGH_GMAC) {
-            cl->GetCiphering()->SetSecurity(DLMS_SECURITY_AUTHENTICATION_ENCRYPTION);
+            this->cl->GetCiphering()->SetSecurity(DLMS_SECURITY_AUTHENTICATION_ENCRYPTION);
         }
         else {
-            cl->GetCiphering()->SetSecurity(DLMS_SECURITY_NONE);
+            this->cl->GetCiphering()->SetSecurity(DLMS_SECURITY_NONE);
         }
 
-        cl->SetProposedConformance(static_cast<DLMS_CONFORMANCE>(\
+        this->cl->SetProposedConformance(static_cast<DLMS_CONFORMANCE>(\
                                        DLMS_CONFORMANCE_GENERAL_PROTECTION | \
                                        DLMS_CONFORMANCE_GENERAL_BLOCK_TRANSFER | \
                                        DLMS_CONFORMANCE_READ | \
@@ -110,38 +116,40 @@ void Thread::run() {
                                        DLMS_CONFORMANCE_ACTION\
                                        ));
 
-        cl->SetAutoIncreaseInvokeID(true);
+        this->cl->SetAutoIncreaseInvokeID(true);
 
         CGXByteBuffer bb;
 
         bb.Clear();
         bb.SetHexString(QString::fromLocal8Bit("4446534552564552").toStdString());
-        cl->GetCiphering()->SetSystemTitle(bb);
+        this->cl->GetCiphering()->SetSystemTitle(bb);
 
         bb.Clear();
         bb.SetHexString(QString::fromLocal8Bit("30313233343536373839303132333435").toStdString());
-        cl->GetCiphering()->SetDedicatedKey(bb);
+        this->cl->GetCiphering()->SetDedicatedKey(bb);
 
-        cl->GetCiphering()->SetAuthenticationKey(para.akey);
-        cl->GetCiphering()->SetBlockCipherKey(para.ekey);
+        this->cl->GetCiphering()->SetAuthenticationKey(para.akey);
+        this->cl->GetCiphering()->SetBlockCipherKey(para.ekey);
 
-        CGXCommunication comm(cl, 6000, GX_TRACE_LEVEL_OFF, nullptr);
+        this->comm = new class CGXCommunication(this->cl, 6000, GX_TRACE_LEVEL_OFF, nullptr);
 
         emit updateMessage("地址: " + QString::number(physical));
 
         int ret;
-        if ((ret = comm.Open(para.comm.toStdString().data(), false, 115200)) != 0) {
-            delete cl;
+        if ((ret = this->comm->Open(para.comm.toStdString().data(), false, 115200)) != 0) {
+            delete this->cl;
+            delete this->comm;
             emit updateMessage("打开串口出错");
             emit updateResult("地址: " + QString::number(physical) + " 操作失败");
             emit finishWork();
             return;
         }
 
-        if ((ret = comm.InitializeConnection()) != 0) {
-            comm.Close();
+        if ((ret = this->comm->InitializeConnection()) != 0) {
+            this->comm->Close();
 
-            delete cl;
+            delete this->cl;
+            delete this->comm;
             emit updateMessage("初始化出错");
             emit updateResult("地址: " + QString::number(physical) + " 操作失败");
             emit finishWork();
@@ -161,11 +169,115 @@ void Thread::run() {
             reply.Clear();
             value.clear();
 
-            data.SetHexString(iter->data.toStdString());
+            if(iter->data == "DATE") {
+                QDateTime dt;
+                QString val;
+                QString date;
+
+                date.append("0905");
+
+                val.clear();
+                val.sprintf("%02x", static_cast<unsigned char>(dt.currentDateTime().date().year() / 256));
+                date.append(val);
+
+                val.clear();
+                val.sprintf("%02x", static_cast<unsigned char>(dt.currentDateTime().date().year() % 256));
+                date.append(val);
+
+                val.clear();
+                val.sprintf("%02x", static_cast<unsigned char>(dt.currentDateTime().date().month()));
+                date.append(val);
+
+                val.clear();
+                val.sprintf("%02x", static_cast<unsigned char>(dt.currentDateTime().date().day()));
+                date.append(val);
+
+                val.clear();
+                val.sprintf("%02x", static_cast<unsigned char>(dt.currentDateTime().date().dayOfWeek()));
+                date.append(val);
+
+                data.SetHexString(date.toStdString());
+            }
+            else if(iter->data == "TIME") {
+                QDateTime dt;
+                QString val;
+                QString time;
+
+                time.append("0904");
+
+                val.clear();
+                val.sprintf("%02x", static_cast<unsigned char>(dt.currentDateTime().time().hour()));
+                time.append(val);
+
+                val.clear();
+                val.sprintf("%02x", static_cast<unsigned char>(dt.currentDateTime().time().minute()));
+                time.append(val);
+
+                val.clear();
+                val.sprintf("%02x", static_cast<unsigned char>(dt.currentDateTime().time().second()));
+                time.append(val);
+
+                val.clear();
+                val.sprintf("%02x", static_cast<unsigned char>(0));
+                time.append(val);
+
+                data.SetHexString(time.toStdString());
+            }
+            else if(iter->data == "DATETIME") {
+                QDateTime dt;
+                QString val;
+                QString datetime;
+
+                datetime.append("090C");
+
+                val.clear();
+                val.sprintf("%02x", static_cast<unsigned char>(dt.currentDateTime().date().year() / 256));
+                datetime.append(val);
+
+                val.clear();
+                val.sprintf("%02x", static_cast<unsigned char>(dt.currentDateTime().date().year() % 256));
+                datetime.append(val);
+
+                val.clear();
+                val.sprintf("%02x", static_cast<unsigned char>(dt.currentDateTime().date().month()));
+                datetime.append(val);
+
+                val.clear();
+                val.sprintf("%02x", static_cast<unsigned char>(dt.currentDateTime().date().day()));
+                datetime.append(val);
+
+                val.clear();
+                val.sprintf("%02x", static_cast<unsigned char>(dt.currentDateTime().date().dayOfWeek()));
+                datetime.append(val);
+
+                val.clear();
+                val.sprintf("%02x", static_cast<unsigned char>(dt.currentDateTime().time().hour()));
+                datetime.append(val);
+
+                val.clear();
+                val.sprintf("%02x", static_cast<unsigned char>(dt.currentDateTime().time().minute()));
+                datetime.append(val);
+
+                val.clear();
+                val.sprintf("%02x", static_cast<unsigned char>(dt.currentDateTime().time().second()));
+                datetime.append(val);
+
+                val.clear();
+                val.sprintf("%02x", static_cast<unsigned char>(0));
+                datetime.append(val);
+
+                datetime.append("800000");
+
+                data.SetHexString(datetime.toStdString());
+            }
+            else {
+                data.SetHexString(iter->data.toStdString());
+            }
+
             result.append(iter->name + ": ");
 
             if(iter->method) {
-                if(comm.Method(&Object, iter->index, data, reply) != DLMS_ERROR_CODE_OK) {
+                if(this->comm->Method(&Object, iter->index, data, reply) != DLMS_ERROR_CODE_OK) {
                     result.append("执行失败 ");
                     phy = false;
                 }
@@ -175,7 +287,7 @@ void Thread::run() {
             }
             else {
                 if(this->set == true) {
-                    if(comm.Write(&Object, iter->index, data, reply) != DLMS_ERROR_CODE_OK) {
+                    if(this->comm->Write(&Object, iter->index, data, reply) != DLMS_ERROR_CODE_OK) {
                         result.append("设置失败 ");
                         phy = false;
                     }
@@ -184,7 +296,7 @@ void Thread::run() {
                     }
                 }
                 if(this->get == true) {
-                    if(comm.Read(&Object, iter->index, value) != DLMS_ERROR_CODE_OK) {
+                    if(this->comm->Read(&Object, iter->index, value) != DLMS_ERROR_CODE_OK) {
                         result.append("读取失败 ");
                         phy = false;
                     }
@@ -195,12 +307,42 @@ void Thread::run() {
                             val.sprintf("%02x", static_cast<unsigned char>(value.data()[n]));
                             str.append(val);
                         }
-                        if(str != iter->data) {
-                            result.append("检查失败 ");
-                            phy = false;
+
+                        if(iter->data == "DATE") {
+                            if(str.size() != 7*2) {
+                                result.append("检查失败 ");
+                                phy = false;
+                            }
+                            else {
+                                result.append("检查成功 ");
+                            }
+                        }
+                        else if(iter->data == "TIME") {
+                            if(str.size() != 6*2) {
+                                result.append("检查失败 ");
+                                phy = false;
+                            }
+                            else {
+                                result.append("检查成功 ");
+                            }
+                        }
+                        else if(iter->data == "DATETIME") {
+                            if(str.size() != 14*2) {
+                                result.append("检查失败 ");
+                                phy = false;
+                            }
+                            else {
+                                result.append("检查成功 ");
+                            }
                         }
                         else {
-                            result.append("检查成功 ");
+                            if(str != iter->data) {
+                                result.append("检查失败 ");
+                                phy = false;
+                            }
+                            else {
+                                result.append("检查成功 ");
+                            }
                         }
                     }
                 }
@@ -216,11 +358,15 @@ void Thread::run() {
             emit updateResult("地址: " + QString::number(physical) + " 操作成功");
         }
 
-        comm.Close();
-        delete cl;
+        delete this->cl;
+        this->comm->Close();
+        delete this->comm;
     }
 
     emit finishWork();
+
+    this->cl = nullptr;
+    this->comm = nullptr;
 }
 
 
@@ -342,8 +488,22 @@ void Programmer::on_ButtonStart_pressed() {
         return;
     }
 
-    if(!ui->ButtonStart->isEnabled()) {
-        return;
+    if(this->Thread) {
+        if(this->Thread->isRunning()) {
+            disconnect(this->Thread, SIGNAL(updateMessage(const QString)), this, SLOT(on_updateMessage(const QString)));
+            disconnect(this->Thread, SIGNAL(updateResult(const QString)), this, SLOT(on_updateResult(const QString)));
+            disconnect(this->Thread, SIGNAL(finishWork()), this, SLOT(on_finishWork()));
+            this->Thread->terminate();
+            this->Thread->wait();
+            delete this->Thread;
+            this->Thread = nullptr;
+
+            ui->ButtonStart->setText(QString::fromStdString("开始运行"));
+            return;
+        }
+
+        delete this->Thread;
+        this->Thread = nullptr;
     }
 
     struct parameter para;
@@ -351,17 +511,15 @@ void Programmer::on_ButtonStart_pressed() {
         return;
     }
 
-    if(this->Thread) {
-        delete this->Thread;
-    }
-
-    this->Thread = new class Thread;
+    this->Thread = new class Thread();
     this->Thread->init(&para, &this->closure, ui->BoxSet->isChecked(), ui->BoxGet->isChecked());
-    connect(this->Thread, SIGNAL(updateMessage(const QString arg)), this, SLOT(on_updateMessage(const QString arg)));
-    connect(this->Thread, SIGNAL(updateResult(const QString arg)), this, SLOT(on_updateResult(const QString arg)));
+
+    connect(this->Thread, SIGNAL(updateMessage(const QString)), this, SLOT(on_updateMessage(const QString)));
+    connect(this->Thread, SIGNAL(updateResult(const QString)), this, SLOT(on_updateResult(const QString)));
     connect(this->Thread, SIGNAL(finishWork()), this, SLOT(on_finishWork()));
 
-    ui->ButtonStart->setEnabled(false);
+    ui->ButtonStart->setText(QString::fromStdString("正在运行"));
+
     ui->LOG->clear();
     this->Thread->start();
 }
@@ -375,7 +533,11 @@ void Programmer::on_updateResult(const QString arg) {
 }
 
 void Programmer::on_finishWork() {
-    ui->ButtonStart->setEnabled(true);
+    disconnect(this->Thread, SIGNAL(updateMessage(const QString)), this, SLOT(on_updateMessage(const QString)));
+    disconnect(this->Thread, SIGNAL(updateResult(const QString)), this, SLOT(on_updateResult(const QString)));
+    disconnect(this->Thread, SIGNAL(finishWork()), this, SLOT(on_finishWork()));
+
+    ui->ButtonStart->setText(QString::fromStdString("开始运行"));
 }
 
 void Programmer::getAvaliableSerials() {
@@ -595,22 +757,40 @@ void Programmer::on_ButtonLoad_pressed() {
         }
         else {
             //DATA
-            QStringList lst = QString::fromLocal8Bit(iter->data()).split("");
-            for (int i = 1; i < (lst.size() - 2); ++i) {
-                if( ((lst.at(i) < '0') || (lst.at(i) > '9')) &&
-                    ((lst.at(i) < 'a') || (lst.at(i) > 'f')) &&
-                    ((lst.at(i) < 'A') || (lst.at(i) > 'F'))) {
-                    ui->ButtonLoad->setText(QString::fromStdString("未加载"));
-                    if(element.name.size()) {
-                        ui->LOG->appendPlainText("错误的数据，在：" + element.name);
-                    }
-                    else {
-                        ui->LOG->appendPlainText("错误的数据");
-                    }
-                    return;
-                }
+            if(*iter == "DATE") {
+                element.data.clear();
+                element.data.append("DATE");
             }
-            element.data.append(QString::fromLocal8Bit(iter->data()));
+            else if (*iter == "TIME") {
+                element.data.clear();
+                element.data.append("TIME");
+            }
+            else if (*iter == "DATETIME") {
+                element.data.clear();
+                element.data.append("DATETIME");
+            }
+            else {
+                if((element.data == "DATE") || (element.data == "TIME") || (element.data == "DATETIME")) {
+                    continue;
+                }
+
+                QStringList lst = QString::fromLocal8Bit(iter->data()).split("");
+                for (int i = 1; i < (lst.size() - 2); ++i) {
+                    if( ((lst.at(i) < '0') || (lst.at(i) > '9')) &&
+                        ((lst.at(i) < 'a') || (lst.at(i) > 'f')) &&
+                        ((lst.at(i) < 'A') || (lst.at(i) > 'F'))) {
+                        ui->ButtonLoad->setText(QString::fromStdString("未加载"));
+                        if(element.name.size()) {
+                            ui->LOG->appendPlainText("错误的数据，在：" + element.name);
+                        }
+                        else {
+                            ui->LOG->appendPlainText("错误的数据");
+                        }
+                        return;
+                    }
+                }
+                element.data.append(QString::fromLocal8Bit(iter->data()));
+            }
         }
 
         line += 1;
