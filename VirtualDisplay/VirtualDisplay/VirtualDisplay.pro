@@ -17,6 +17,7 @@ win32 {
 unix {
     LIBS += -lpthread
     QMAKE_RPATHDIR=$ORIGIN/lib
+    QMAKE_LFLAGS += -fno-pie -no-pie
 }
 
 # The following define makes your compiler emit warnings if you use

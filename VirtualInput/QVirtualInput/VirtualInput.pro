@@ -40,6 +40,7 @@ win32 {
 
 unix {
     QMAKE_RPATHDIR=$ORIGIN/lib
+    QMAKE_LFLAGS += -fno-pie -no-pie
 }
 
 win32 {

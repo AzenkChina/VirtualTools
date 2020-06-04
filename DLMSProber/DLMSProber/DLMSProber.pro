@@ -17,6 +17,7 @@ win32 {
 unix {
     LIBS += -lpthread -lrt
     QMAKE_RPATHDIR=$ORIGIN/lib
+    QMAKE_LFLAGS += -fno-pie -no-pie
 }
 
 VERSION = 1.0.0.0
