@@ -139,10 +139,11 @@ void Thread::run() {
         if ((ret = this->comm->Open(para.comm.toStdString().data(), false, 115200)) != 0) {
             delete this->cl;
             delete this->comm;
+            this->cl = nullptr;
+            this->comm = nullptr;
             emit updateMessage("打开串口出错");
             emit updateResult("地址: " + QString::number(physical) + " 操作失败");
-            emit finishWork();
-            return;
+            continue;
         }
 
         if ((ret = this->comm->InitializeConnection()) != 0) {
@@ -150,10 +151,11 @@ void Thread::run() {
 
             delete this->cl;
             delete this->comm;
+            this->cl = nullptr;
+            this->comm = nullptr;
             emit updateMessage("初始化出错");
             emit updateResult("地址: " + QString::number(physical) + " 操作失败");
-            emit finishWork();
-            return;
+            continue;
         }
 
         bool phy = true;
@@ -361,12 +363,11 @@ void Thread::run() {
         delete this->cl;
         this->comm->Close();
         delete this->comm;
+        this->cl = nullptr;
+        this->comm = nullptr;
     }
 
     emit finishWork();
-
-    this->cl = nullptr;
-    this->comm = nullptr;
 }
 
 
