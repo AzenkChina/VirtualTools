@@ -406,7 +406,11 @@ bool Programmer::praseParameter(struct parameter &para) {
         para.level = DLMS_AUTHENTICATION_NONE;
     }
 
+#if defined(Q_OS_WIN32)
     para.comm.append(ui->SerialNo->currentText());
+#else
+    para.comm.append(QString::fromStdString("/dev/") + ui->SerialNo->currentText());
+#endif
     para.comm.append(":");
     switch(ui->Baudrate->currentIndex()) {
         case 0:para.comm.append("1200");break;
