@@ -2,13 +2,17 @@
 #define PROBER_H
 
 #include <QMainWindow>
+#include <QThread>
 #include <QSerialPort>
 #include <QSerialPortInfo>
 #include <QTimer>
 #include "include/GXBytebuffer.h"
+#include "include/GXDLMSCommon.h"
+#include "communication.h"
 
 struct parameter
 {
+    uint8_t motion;
     uint8_t client;
     uint16_t logical;
     uint16_t physical;
@@ -27,6 +31,28 @@ namespace Ui {
 class Prober;
 }
 
+class Thread : public QThread
+{
+    Q_OBJECT
+
+public:
+    explicit Thread(QWidget *parent = nullptr);
+    ~Thread();
+    void init(struct parameter *para, QString data);
+
+signals:
+    void updateMessage(const QString);
+
+    void finishWork();
+
+private:
+    CGXDLMSSecureClient *cl = nullptr;
+    CGXCommunication *comm = nullptr;
+    struct parameter para;
+    QString data;
+    void run();
+};
+
 class Prober : public QMainWindow
 {
     Q_OBJECT
@@ -41,6 +67,10 @@ private slots:
     void on_ButtonWrite_pressed();
 
     void on_ButtonExecute_pressed();
+
+    void on_updateMessage(const QString);
+
+    void on_finishWork();
 
     void on_Button2Text_pressed();
 
@@ -62,6 +92,7 @@ private:
     Ui::Prober *ui;
     QSerialPort *Port = nullptr;
     QTimer *Timer = nullptr;
+    class Thread *Thread = nullptr;
     QByteArray recv;
 
     void getAvaliableSerials();

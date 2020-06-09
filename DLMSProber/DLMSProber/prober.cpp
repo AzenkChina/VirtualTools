@@ -1,7 +1,246 @@
 #include "prober.h"
 #include "ui_prober.h"
-#include "communication.h"
-#include "include/GXDLMSCommon.h"
+
+Thread::Thread(QWidget *parent) {
+    (void)parent;
+}
+
+Thread::~Thread() {
+    if(this->cl != nullptr) {
+        delete this->cl;
+        this->cl = nullptr;
+    }
+
+    if(this->comm != nullptr) {
+        this->comm->Close();
+        delete this->comm;
+        this->comm = nullptr;
+    }
+}
+
+void Thread::init(struct parameter *para, QString data) {
+    this->para = *para;
+    this->data = data;
+}
+
+void Thread::run() {
+    if(para.addressMode == 1) {
+        if(para.level == DLMS_AUTHENTICATION_LOW) {
+            this->cl = new CGXDLMSSecureClient(true,
+                                         para.client,
+                                         (1 << 30) | (para.logical << 16),
+                                         para.level,
+                                         para.password.ToString().data(),
+                                         DLMS_INTERFACE_TYPE_HDLC);
+        }
+        else {
+            this->cl = new CGXDLMSSecureClient(true,
+                                         para.client,
+                                         (1 << 30) | (para.logical << 16),
+                                         para.level,
+                                         nullptr,
+                                         DLMS_INTERFACE_TYPE_HDLC);
+        }
+    }
+    else if (para.addressMode == 2) {
+        if(para.level == DLMS_AUTHENTICATION_LOW) {
+            this->cl = new CGXDLMSSecureClient(true,
+                                         para.client,
+                                         (2 << 30) | (para.logical << 16) | (para.physical % 100),
+                                         para.level,
+                                         para.password.ToString().data(),
+                                         DLMS_INTERFACE_TYPE_HDLC);
+        }
+        else {
+            this->cl = new CGXDLMSSecureClient(true,
+                                         para.client,
+                                         (2 << 30) | (para.logical << 16) | (para.physical % 100),
+                                         para.level,
+                                         nullptr,
+                                         DLMS_INTERFACE_TYPE_HDLC);
+        }
+    }
+    else {
+        if(para.level == DLMS_AUTHENTICATION_LOW) {
+            this->cl = new CGXDLMSSecureClient(true,
+                                         para.client,
+                                         (3 << 30) | (para.logical << 16) | (para.physical % 10000),
+                                         para.level,
+                                         para.password.ToString().data(),
+                                         DLMS_INTERFACE_TYPE_HDLC);
+        }
+        else {
+            this->cl = new CGXDLMSSecureClient(true, para.client,
+                                         (3 << 30) | (para.logical << 16) | (para.physical % 10000),
+                                         para.level,
+                                         nullptr,
+                                         DLMS_INTERFACE_TYPE_HDLC);
+        }
+    }
+
+
+    if(para.level == DLMS_AUTHENTICATION_HIGH_GMAC) {
+        this->cl->GetCiphering()->SetSecurity(DLMS_SECURITY_AUTHENTICATION_ENCRYPTION);
+    }
+    else {
+        this->cl->GetCiphering()->SetSecurity(DLMS_SECURITY_NONE);
+    }
+
+    this->cl->SetProposedConformance(static_cast<DLMS_CONFORMANCE>(\
+                                   DLMS_CONFORMANCE_GENERAL_PROTECTION | \
+                                   DLMS_CONFORMANCE_GENERAL_BLOCK_TRANSFER | \
+                                   DLMS_CONFORMANCE_READ | \
+                                   DLMS_CONFORMANCE_WRITE | \
+                                   DLMS_CONFORMANCE_UN_CONFIRMED_WRITE | \
+                                   DLMS_CONFORMANCE_ATTRIBUTE_0_SUPPORTED_WITH_SET | \
+                                   DLMS_CONFORMANCE_PRIORITY_MGMT_SUPPORTED | \
+                                   DLMS_CONFORMANCE_ATTRIBUTE_0_SUPPORTED_WITH_GET | \
+                                   DLMS_CONFORMANCE_BLOCK_TRANSFER_WITH_GET_OR_READ | \
+                                   DLMS_CONFORMANCE_BLOCK_TRANSFER_WITH_SET_OR_WRITE | \
+                                   DLMS_CONFORMANCE_BLOCK_TRANSFER_WITH_ACTION | \
+                                   DLMS_CONFORMANCE_MULTIPLE_REFERENCES | \
+                                   DLMS_CONFORMANCE_INFORMATION_REPORT | \
+                                   DLMS_CONFORMANCE_DATA_NOTIFICATION | \
+                                   DLMS_CONFORMANCE_ACCESS | \
+                                   DLMS_CONFORMANCE_PARAMETERIZED_ACCESS | \
+                                   DLMS_CONFORMANCE_GET | \
+                                   DLMS_CONFORMANCE_SET | \
+                                   DLMS_CONFORMANCE_SELECTIVE_ACCESS | \
+                                   DLMS_CONFORMANCE_EVENT_NOTIFICATION | \
+                                   DLMS_CONFORMANCE_ACTION\
+                                   ));
+
+    this->cl->SetAutoIncreaseInvokeID(true);
+
+    CGXByteBuffer bb;
+
+    bb.Clear();
+    bb.SetHexString(QString::fromLocal8Bit("4446534552564552").toStdString());
+    this->cl->GetCiphering()->SetSystemTitle(bb);
+
+    bb.Clear();
+    bb.SetHexString(QString::fromLocal8Bit("30313233343536373839303132333435").toStdString());
+    this->cl->GetCiphering()->SetDedicatedKey(bb);
+
+    this->cl->GetCiphering()->SetAuthenticationKey(para.akey);
+    this->cl->GetCiphering()->SetBlockCipherKey(para.ekey);
+
+    this->comm = new CGXCommunication(cl, 6000, GX_TRACE_LEVEL_OFF, nullptr);
+
+    int ret;
+    if ((ret = this->comm->Open(para.comm.toStdString().data(), false, 115200)) != 0) {
+        delete this->comm;
+        this->comm = nullptr;
+        delete this->cl;
+        this->cl = nullptr;
+        emit updateMessage("打开串口出错");
+        emit finishWork();
+        return;
+    }
+
+    if ((ret = this->comm->InitializeConnection()) != 0) {
+        this->comm->Close();
+        delete this->comm;
+        this->comm = nullptr;
+        delete this->cl;
+        this->cl = nullptr;
+        emit updateMessage("链路初始化出错");
+        emit finishWork();
+        return;
+    }
+
+    CGXDLMSCommon Object(para.classID, para.obis.toStdString());
+
+    if(this->para.motion == 1) {
+        std::string value;
+        if(this->comm->Read(&Object, para.index, value) != DLMS_ERROR_CODE_OK) {
+            emit updateMessage("读取失败");
+        }
+        else {
+            QString str;
+            for (unsigned int n = 0; n < value.size(); n++) {
+                QString val;
+                val.sprintf("%02x", static_cast<unsigned char>(value.data()[n]));
+                str.append(val);
+            }
+
+            QString mark;
+            mark.append("读取成功");
+            mark.append("[");
+            mark.append(QDateTime::currentDateTime().toString("hh:mm:ss"));
+            mark.append("]");
+
+            emit updateMessage(mark);
+            emit updateMessage(str);
+        }
+    }
+    else if(this->para.motion == 2) {
+        bb.Clear();
+        bb.SetHexString(this->data.toStdString());
+        CGXReplyData reply;
+
+        if(this->comm->Write(&Object, para.index, bb, reply) != DLMS_ERROR_CODE_OK) {
+            emit updateMessage("设置失败");
+        }
+        else {
+            CGXByteBuffer rep;
+            rep = reply.GetData();
+            QString str;
+            for (unsigned int n = 0; n < rep.GetSize(); n++) {
+                QString val;
+                val.sprintf("%02x", static_cast<unsigned char>(rep.GetData()[n]));
+                str.append(val);
+            }
+
+            QString mark;
+            mark.append("设置成功");
+            mark.append("[");
+            mark.append(QDateTime::currentDateTime().toString("hh:mm:ss"));
+            mark.append("]");
+
+            emit updateMessage(mark);
+            emit updateMessage(str);
+        }
+    }
+    else {
+        bb.Clear();
+        bb.SetHexString(this->data.toStdString());
+        CGXReplyData reply;
+
+        if(this->comm->Method(&Object, para.index, bb, reply) != DLMS_ERROR_CODE_OK) {
+            emit updateMessage("执行失败");
+        }
+        else {
+            CGXByteBuffer rep;
+            rep = reply.GetData();
+            QString str;
+            for (unsigned int n = 0; n < rep.GetSize(); n++) {
+                QString val;
+                val.sprintf("%02x", static_cast<unsigned char>(rep.GetData()[n]));
+                str.append(val);
+            }
+
+            QString mark;
+            mark.append("执行成功");
+            mark.append("[");
+            mark.append(QDateTime::currentDateTime().toString("hh:mm:ss"));
+            mark.append("]");
+
+            emit updateMessage(mark);
+            emit updateMessage(str);
+        }
+    }
+
+    this->comm->Close();
+    delete this->comm;
+    this->comm = nullptr;
+    delete this->cl;
+    this->cl = nullptr;
+
+    emit finishWork();
+}
+
+
 
 Prober::Prober(QWidget *parent) :
     QMainWindow(parent),
@@ -164,8 +403,29 @@ void Prober::on_ButtonRead_pressed() {
     ui->ButtonExecute->setEnabled(false);
     ui->LOG->clear();
 
+    if((ui->Plain->toPlainText().remove(' ').remove('\n').remove('\r').size() % 2) != 0) {
+        ui->ButtonRead->setEnabled(true);
+        ui->ButtonWrite->setEnabled(true);
+        ui->ButtonExecute->setEnabled(true);
+        ui->LOG->appendPlainText("输入框内数据不正确");
+        return;
+    }
+
+    if(this->Thread) {
+        if(this->Thread->isRunning()) {
+            disconnect(this->Thread, SIGNAL(updateMessage(const QString)), this, SLOT(on_updateMessage(const QString)));
+            disconnect(this->Thread, SIGNAL(finishWork()), this, SLOT(on_finishWork()));
+            this->Thread->terminate();
+            this->Thread->wait();
+            delete this->Thread;
+            this->Thread = nullptr;
+        }
+
+        delete this->Thread;
+        this->Thread = nullptr;
+    }
+
     struct parameter para;
-    CGXDLMSSecureClient *cl;
 
     if(this->praseParameter(para) != true) {
         ui->ButtonRead->setEnabled(true);
@@ -174,159 +434,15 @@ void Prober::on_ButtonRead_pressed() {
         return;
     }
 
-    if(para.addressMode == 1) {
-        if(para.level == DLMS_AUTHENTICATION_LOW) {
-            cl = new CGXDLMSSecureClient(true,
-                                         para.client,
-                                         (1 << 30) | (para.logical << 16),
-                                         para.level,
-                                         para.password.ToString().data(),
-                                         DLMS_INTERFACE_TYPE_HDLC);
-        }
-        else {
-            cl = new CGXDLMSSecureClient(true,
-                                         para.client,
-                                         (1 << 30) | (para.logical << 16),
-                                         para.level,
-                                         nullptr,
-                                         DLMS_INTERFACE_TYPE_HDLC);
-        }
-    }
-    else if (para.addressMode == 2) {
-        if(para.level == DLMS_AUTHENTICATION_LOW) {
-            cl = new CGXDLMSSecureClient(true,
-                                         para.client,
-                                         (2 << 30) | (para.logical << 16) | (para.physical % 100),
-                                         para.level,
-                                         para.password.ToString().data(),
-                                         DLMS_INTERFACE_TYPE_HDLC);
-        }
-        else {
-            cl = new CGXDLMSSecureClient(true,
-                                         para.client,
-                                         (2 << 30) | (para.logical << 16) | (para.physical % 100),
-                                         para.level,
-                                         nullptr,
-                                         DLMS_INTERFACE_TYPE_HDLC);
-        }
-    }
-    else {
-        if(para.level == DLMS_AUTHENTICATION_LOW) {
-            cl = new CGXDLMSSecureClient(true,
-                                         para.client,
-                                         (3 << 30) | (para.logical << 16) | (para.physical % 10000),
-                                         para.level,
-                                         para.password.ToString().data(),
-                                         DLMS_INTERFACE_TYPE_HDLC);
-        }
-        else {
-            cl = new CGXDLMSSecureClient(true, para.client,
-                                         (3 << 30) | (para.logical << 16) | (para.physical % 10000),
-                                         para.level,
-                                         nullptr,
-                                         DLMS_INTERFACE_TYPE_HDLC);
-        }
-    }
+    para.motion = 1;
 
+    this->Thread = new class Thread();
+    this->Thread->init(&para, ui->Plain->toPlainText().remove(' ').remove('\n').remove('\r'));
 
-    if(para.level == DLMS_AUTHENTICATION_HIGH_GMAC) {
-        cl->GetCiphering()->SetSecurity(DLMS_SECURITY_AUTHENTICATION_ENCRYPTION);
-    }
-    else {
-        cl->GetCiphering()->SetSecurity(DLMS_SECURITY_NONE);
-    }
+    connect(this->Thread, SIGNAL(updateMessage(const QString)), this, SLOT(on_updateMessage(const QString)));
+    connect(this->Thread, SIGNAL(finishWork()), this, SLOT(on_finishWork()));
 
-    cl->SetProposedConformance(static_cast<DLMS_CONFORMANCE>(\
-                                   DLMS_CONFORMANCE_GENERAL_PROTECTION | \
-                                   DLMS_CONFORMANCE_GENERAL_BLOCK_TRANSFER | \
-                                   DLMS_CONFORMANCE_READ | \
-                                   DLMS_CONFORMANCE_WRITE | \
-                                   DLMS_CONFORMANCE_UN_CONFIRMED_WRITE | \
-                                   DLMS_CONFORMANCE_ATTRIBUTE_0_SUPPORTED_WITH_SET | \
-                                   DLMS_CONFORMANCE_PRIORITY_MGMT_SUPPORTED | \
-                                   DLMS_CONFORMANCE_ATTRIBUTE_0_SUPPORTED_WITH_GET | \
-                                   DLMS_CONFORMANCE_BLOCK_TRANSFER_WITH_GET_OR_READ | \
-                                   DLMS_CONFORMANCE_BLOCK_TRANSFER_WITH_SET_OR_WRITE | \
-                                   DLMS_CONFORMANCE_BLOCK_TRANSFER_WITH_ACTION | \
-                                   DLMS_CONFORMANCE_MULTIPLE_REFERENCES | \
-                                   DLMS_CONFORMANCE_INFORMATION_REPORT | \
-                                   DLMS_CONFORMANCE_DATA_NOTIFICATION | \
-                                   DLMS_CONFORMANCE_ACCESS | \
-                                   DLMS_CONFORMANCE_PARAMETERIZED_ACCESS | \
-                                   DLMS_CONFORMANCE_GET | \
-                                   DLMS_CONFORMANCE_SET | \
-                                   DLMS_CONFORMANCE_SELECTIVE_ACCESS | \
-                                   DLMS_CONFORMANCE_EVENT_NOTIFICATION | \
-                                   DLMS_CONFORMANCE_ACTION\
-                                   ));
-
-    cl->SetAutoIncreaseInvokeID(true);
-
-    CGXByteBuffer bb;
-
-    bb.Clear();
-    bb.SetHexString(QString::fromLocal8Bit("4446534552564552").toStdString());
-    cl->GetCiphering()->SetSystemTitle(bb);
-
-    bb.Clear();
-    bb.SetHexString(QString::fromLocal8Bit("30313233343536373839303132333435").toStdString());
-    cl->GetCiphering()->SetDedicatedKey(bb);
-
-    cl->GetCiphering()->SetAuthenticationKey(para.akey);
-    cl->GetCiphering()->SetBlockCipherKey(para.ekey);
-
-    CGXCommunication comm(cl, 6000, GX_TRACE_LEVEL_OFF, nullptr);
-
-    int ret;
-    if ((ret = comm.Open(para.comm.toStdString().data(), false, 115200)) != 0) {
-        delete cl;
-        ui->ButtonRead->setEnabled(true);
-        ui->ButtonWrite->setEnabled(true);
-        ui->ButtonExecute->setEnabled(true);
-        ui->LOG->appendPlainText("打开串口出错");
-        return;
-    }
-
-    if ((ret = comm.InitializeConnection()) != 0) {
-        comm.Close();
-
-        delete cl;
-        ui->ButtonRead->setEnabled(true);
-        ui->ButtonWrite->setEnabled(true);
-        ui->ButtonExecute->setEnabled(true);
-        ui->LOG->appendPlainText("读取出错");
-        return;
-    }
-
-    CGXDLMSCommon Object(para.classID, para.obis.toStdString());
-
-    std::string value;
-    if(comm.Read(&Object, para.index, value) != DLMS_ERROR_CODE_OK) {
-        ui->LOG->appendPlainText("读取失败");
-    }
-    else {
-        QString str;
-        for (unsigned int n = 0; n < value.size(); n++) {
-            QString val;
-            val.sprintf("%02x", static_cast<unsigned char>(value.data()[n]));
-            str.append(val);
-        }
-
-        QString mark;
-        mark.append("读取成功");
-        mark.append("[");
-        mark.append(QDateTime::currentDateTime().toString("hh:mm:ss"));
-        mark.append("]");
-
-        ui->LOG->appendPlainText(mark);
-        ui->LOG->appendPlainText(str);
-    }
-
-    comm.Close();
-    ui->ButtonRead->setEnabled(true);
-    ui->ButtonWrite->setEnabled(true);
-    ui->ButtonExecute->setEnabled(true);
-    delete cl;
+    this->Thread->start();
 }
 
 void Prober::on_ButtonWrite_pressed() {
@@ -335,8 +451,29 @@ void Prober::on_ButtonWrite_pressed() {
     ui->ButtonExecute->setEnabled(false);
     ui->LOG->clear();
 
+    if((ui->Plain->toPlainText().remove(' ').remove('\n').remove('\r').size() % 2) != 0) {
+        ui->ButtonRead->setEnabled(true);
+        ui->ButtonWrite->setEnabled(true);
+        ui->ButtonExecute->setEnabled(true);
+        ui->LOG->appendPlainText("输入框内数据不正确");
+        return;
+    }
+
+    if(this->Thread) {
+        if(this->Thread->isRunning()) {
+            disconnect(this->Thread, SIGNAL(updateMessage(const QString)), this, SLOT(on_updateMessage(const QString)));
+            disconnect(this->Thread, SIGNAL(finishWork()), this, SLOT(on_finishWork()));
+            this->Thread->terminate();
+            this->Thread->wait();
+            delete this->Thread;
+            this->Thread = nullptr;
+        }
+
+        delete this->Thread;
+        this->Thread = nullptr;
+    }
+
     struct parameter para;
-    CGXDLMSSecureClient *cl;
 
     if(this->praseParameter(para) != true) {
         ui->ButtonRead->setEnabled(true);
@@ -345,177 +482,15 @@ void Prober::on_ButtonWrite_pressed() {
         return;
     }
 
-    if(para.addressMode == 1) {
-        if(para.level == DLMS_AUTHENTICATION_LOW) {
-            cl = new CGXDLMSSecureClient(true,
-                                         para.client,
-                                         (1 << 30) | (para.logical << 16),
-                                         para.level,
-                                         para.password.ToString().data(),
-                                         DLMS_INTERFACE_TYPE_HDLC);
-        }
-        else {
-            cl = new CGXDLMSSecureClient(true,
-                                         para.client,
-                                         (1 << 30) | (para.logical << 16),
-                                         para.level,
-                                         nullptr,
-                                         DLMS_INTERFACE_TYPE_HDLC);
-        }
-    }
-    else if (para.addressMode == 2) {
-        if(para.level == DLMS_AUTHENTICATION_LOW) {
-            cl = new CGXDLMSSecureClient(true,
-                                         para.client,
-                                         (2 << 30) | (para.logical << 16) | (para.physical % 100),
-                                         para.level,
-                                         para.password.ToString().data(),
-                                         DLMS_INTERFACE_TYPE_HDLC);
-        }
-        else {
-            cl = new CGXDLMSSecureClient(true,
-                                         para.client,
-                                         (2 << 30) | (para.logical << 16) | (para.physical % 100),
-                                         para.level,
-                                         nullptr,
-                                         DLMS_INTERFACE_TYPE_HDLC);
-        }
-    }
-    else {
-        if(para.level == DLMS_AUTHENTICATION_LOW) {
-            cl = new CGXDLMSSecureClient(true,
-                                         para.client,
-                                         (3 << 30) | (para.logical << 16) | (para.physical % 10000),
-                                         para.level,
-                                         para.password.ToString().data(),
-                                         DLMS_INTERFACE_TYPE_HDLC);
-        }
-        else {
-            cl = new CGXDLMSSecureClient(true, para.client,
-                                         (3 << 30) | (para.logical << 16) | (para.physical % 10000),
-                                         para.level,
-                                         nullptr,
-                                         DLMS_INTERFACE_TYPE_HDLC);
-        }
-    }
+    para.motion = 2;
 
-    if(para.level == DLMS_AUTHENTICATION_HIGH_GMAC) {
-        cl->GetCiphering()->SetSecurity(DLMS_SECURITY_AUTHENTICATION_ENCRYPTION);
-    }
-    else {
-        cl->GetCiphering()->SetSecurity(DLMS_SECURITY_NONE);
-    }
+    this->Thread = new class Thread();
+    this->Thread->init(&para, ui->Plain->toPlainText().remove(' ').remove('\n').remove('\r'));
 
-    cl->SetProposedConformance(static_cast<DLMS_CONFORMANCE>(\
-                                   DLMS_CONFORMANCE_GENERAL_PROTECTION | \
-                                   DLMS_CONFORMANCE_GENERAL_BLOCK_TRANSFER | \
-                                   DLMS_CONFORMANCE_READ | \
-                                   DLMS_CONFORMANCE_WRITE | \
-                                   DLMS_CONFORMANCE_UN_CONFIRMED_WRITE | \
-                                   DLMS_CONFORMANCE_ATTRIBUTE_0_SUPPORTED_WITH_SET | \
-                                   DLMS_CONFORMANCE_PRIORITY_MGMT_SUPPORTED | \
-                                   DLMS_CONFORMANCE_ATTRIBUTE_0_SUPPORTED_WITH_GET | \
-                                   DLMS_CONFORMANCE_BLOCK_TRANSFER_WITH_GET_OR_READ | \
-                                   DLMS_CONFORMANCE_BLOCK_TRANSFER_WITH_SET_OR_WRITE | \
-                                   DLMS_CONFORMANCE_BLOCK_TRANSFER_WITH_ACTION | \
-                                   DLMS_CONFORMANCE_MULTIPLE_REFERENCES | \
-                                   DLMS_CONFORMANCE_INFORMATION_REPORT | \
-                                   DLMS_CONFORMANCE_DATA_NOTIFICATION | \
-                                   DLMS_CONFORMANCE_ACCESS | \
-                                   DLMS_CONFORMANCE_PARAMETERIZED_ACCESS | \
-                                   DLMS_CONFORMANCE_GET | \
-                                   DLMS_CONFORMANCE_SET | \
-                                   DLMS_CONFORMANCE_SELECTIVE_ACCESS | \
-                                   DLMS_CONFORMANCE_EVENT_NOTIFICATION | \
-                                   DLMS_CONFORMANCE_ACTION\
-                                   ));
+    connect(this->Thread, SIGNAL(updateMessage(const QString)), this, SLOT(on_updateMessage(const QString)));
+    connect(this->Thread, SIGNAL(finishWork()), this, SLOT(on_finishWork()));
 
-    cl->SetAutoIncreaseInvokeID(true);
-
-    CGXByteBuffer bb;
-
-    bb.Clear();
-    bb.SetHexString(QString::fromLocal8Bit("4446534552564552").toStdString());
-    cl->GetCiphering()->SetSystemTitle(bb);
-
-    bb.Clear();
-    bb.SetHexString(QString::fromLocal8Bit("30313233343536373839303132333435").toStdString());
-    cl->GetCiphering()->SetDedicatedKey(bb);
-
-    cl->GetCiphering()->SetAuthenticationKey(para.akey);
-    cl->GetCiphering()->SetBlockCipherKey(para.ekey);
-
-    CGXCommunication comm(cl, 6000, GX_TRACE_LEVEL_OFF, nullptr);
-
-    int ret;
-    if ((ret = comm.Open(para.comm.toStdString().data(), false, 115200)) != 0)
-    {
-        delete cl;
-        ui->ButtonRead->setEnabled(true);
-        ui->ButtonWrite->setEnabled(true);
-        ui->ButtonExecute->setEnabled(true);
-        ui->LOG->appendPlainText("打开串口出错");
-        return;
-    }
-
-    if ((ret = comm.InitializeConnection()) != 0)
-    {
-        comm.Close();
-
-        delete cl;
-        ui->ButtonRead->setEnabled(true);
-        ui->ButtonWrite->setEnabled(true);
-        ui->ButtonExecute->setEnabled(true);
-        ui->LOG->appendPlainText("设置出错");
-        return;
-    }
-
-    CGXDLMSCommon Object(para.classID, para.obis.toStdString());
-
-
-    bb.Clear();
-    if((ui->Plain->toPlainText().remove(' ').remove('\n').remove('\r').size() % 2) != 0) {
-        comm.Close();
-
-        delete cl;
-        ui->ButtonRead->setEnabled(true);
-        ui->ButtonWrite->setEnabled(true);
-        ui->ButtonExecute->setEnabled(true);
-        return;
-    }
-
-    bb.SetHexString(ui->Plain->toPlainText().remove(' ').remove('\n').remove('\r').toStdString());
-    CGXReplyData reply;
-
-    if(comm.Write(&Object, para.index, bb, reply) != DLMS_ERROR_CODE_OK) {
-        ui->LOG->appendPlainText("设置失败");
-    }
-    else {
-        CGXByteBuffer rep;
-        rep = reply.GetData();
-        QString str;
-        for (unsigned int n = 0; n < rep.GetSize(); n++) {
-            QString val;
-            val.sprintf("%02x", static_cast<unsigned char>(rep.GetData()[n]));
-            str.append(val);
-        }
-
-        QString mark;
-        mark.append("设置成功");
-        mark.append("[");
-        mark.append(QDateTime::currentDateTime().toString("hh:mm:ss"));
-        mark.append("]");
-
-        ui->LOG->appendPlainText(mark);
-        ui->LOG->appendPlainText(str);
-    }
-
-    comm.Close();
-
-    ui->ButtonRead->setEnabled(true);
-    ui->ButtonWrite->setEnabled(true);
-    ui->ButtonExecute->setEnabled(true);
-    delete cl;
+    this->Thread->start();
 }
 
 void Prober::on_ButtonExecute_pressed() {
@@ -524,8 +499,29 @@ void Prober::on_ButtonExecute_pressed() {
     ui->ButtonExecute->setEnabled(false);
     ui->LOG->clear();
 
+    if((ui->Plain->toPlainText().remove(' ').remove('\n').remove('\r').size() % 2) != 0) {
+        ui->ButtonRead->setEnabled(true);
+        ui->ButtonWrite->setEnabled(true);
+        ui->ButtonExecute->setEnabled(true);
+        ui->LOG->appendPlainText("输入框内数据不正确");
+        return;
+    }
+
+    if(this->Thread) {
+        if(this->Thread->isRunning()) {
+            disconnect(this->Thread, SIGNAL(updateMessage(const QString)), this, SLOT(on_updateMessage(const QString)));
+            disconnect(this->Thread, SIGNAL(finishWork()), this, SLOT(on_finishWork()));
+            this->Thread->terminate();
+            this->Thread->wait();
+            delete this->Thread;
+            this->Thread = nullptr;
+        }
+
+        delete this->Thread;
+        this->Thread = nullptr;
+    }
+
     struct parameter para;
-    CGXDLMSSecureClient *cl;
 
     if(this->praseParameter(para) != true) {
         ui->ButtonRead->setEnabled(true);
@@ -534,178 +530,30 @@ void Prober::on_ButtonExecute_pressed() {
         return;
     }
 
-    if(para.addressMode == 1) {
-        if(para.level == DLMS_AUTHENTICATION_LOW) {
-            cl = new CGXDLMSSecureClient(true,
-                                         para.client,
-                                         (1 << 30) | (para.logical << 16),
-                                         para.level,
-                                         para.password.ToString().data(),
-                                         DLMS_INTERFACE_TYPE_HDLC);
-        }
-        else {
-            cl = new CGXDLMSSecureClient(true,
-                                         para.client,
-                                         (1 << 30) | (para.logical << 16),
-                                         para.level,
-                                         nullptr,
-                                         DLMS_INTERFACE_TYPE_HDLC);
-        }
-    }
-    else if (para.addressMode == 2) {
-        if(para.level == DLMS_AUTHENTICATION_LOW) {
-            cl = new CGXDLMSSecureClient(true,
-                                         para.client,
-                                         (2 << 30) | (para.logical << 16) | (para.physical % 100),
-                                         para.level,
-                                         para.password.ToString().data(),
-                                         DLMS_INTERFACE_TYPE_HDLC);
-        }
-        else {
-            cl = new CGXDLMSSecureClient(true,
-                                         para.client,
-                                         (2 << 30) | (para.logical << 16) | (para.physical % 100),
-                                         para.level,
-                                         nullptr,
-                                         DLMS_INTERFACE_TYPE_HDLC);
-        }
-    }
-    else {
-        if(para.level == DLMS_AUTHENTICATION_LOW) {
-            cl = new CGXDLMSSecureClient(true,
-                                         para.client,
-                                         (3 << 30) | (para.logical << 16) | (para.physical % 10000),
-                                         para.level,
-                                         para.password.ToString().data(),
-                                         DLMS_INTERFACE_TYPE_HDLC);
-        }
-        else {
-            cl = new CGXDLMSSecureClient(true, para.client,
-                                         (3 << 30) | (para.logical << 16) | (para.physical % 10000),
-                                         para.level,
-                                         nullptr,
-                                         DLMS_INTERFACE_TYPE_HDLC);
-        }
-    }
+    para.motion = 3;
 
-    if(para.level == DLMS_AUTHENTICATION_HIGH_GMAC) {
-        cl->GetCiphering()->SetSecurity(DLMS_SECURITY_AUTHENTICATION_ENCRYPTION);
-    }
-    else {
-        cl->GetCiphering()->SetSecurity(DLMS_SECURITY_NONE);
-    }
+    this->Thread = new class Thread();
+    this->Thread->init(&para, ui->Plain->toPlainText().remove(' ').remove('\n').remove('\r'));
 
-    cl->SetProposedConformance(static_cast<DLMS_CONFORMANCE>(\
-                                   DLMS_CONFORMANCE_GENERAL_PROTECTION | \
-                                   DLMS_CONFORMANCE_GENERAL_BLOCK_TRANSFER | \
-                                   DLMS_CONFORMANCE_READ | \
-                                   DLMS_CONFORMANCE_WRITE | \
-                                   DLMS_CONFORMANCE_UN_CONFIRMED_WRITE | \
-                                   DLMS_CONFORMANCE_ATTRIBUTE_0_SUPPORTED_WITH_SET | \
-                                   DLMS_CONFORMANCE_PRIORITY_MGMT_SUPPORTED | \
-                                   DLMS_CONFORMANCE_ATTRIBUTE_0_SUPPORTED_WITH_GET | \
-                                   DLMS_CONFORMANCE_BLOCK_TRANSFER_WITH_GET_OR_READ | \
-                                   DLMS_CONFORMANCE_BLOCK_TRANSFER_WITH_SET_OR_WRITE | \
-                                   DLMS_CONFORMANCE_BLOCK_TRANSFER_WITH_ACTION | \
-                                   DLMS_CONFORMANCE_MULTIPLE_REFERENCES | \
-                                   DLMS_CONFORMANCE_INFORMATION_REPORT | \
-                                   DLMS_CONFORMANCE_DATA_NOTIFICATION | \
-                                   DLMS_CONFORMANCE_ACCESS | \
-                                   DLMS_CONFORMANCE_PARAMETERIZED_ACCESS | \
-                                   DLMS_CONFORMANCE_GET | \
-                                   DLMS_CONFORMANCE_SET | \
-                                   DLMS_CONFORMANCE_SELECTIVE_ACCESS | \
-                                   DLMS_CONFORMANCE_EVENT_NOTIFICATION | \
-                                   DLMS_CONFORMANCE_ACTION\
-                                   ));
+    connect(this->Thread, SIGNAL(updateMessage(const QString)), this, SLOT(on_updateMessage(const QString)));
+    connect(this->Thread, SIGNAL(finishWork()), this, SLOT(on_finishWork()));
 
-    cl->SetAutoIncreaseInvokeID(true);
+    this->Thread->start();
+}
 
-    CGXByteBuffer bb;
+void Prober::on_updateMessage(const QString arg) {
+    ui->LOG->appendPlainText(arg);
+}
 
-    bb.Clear();
-    bb.SetHexString(QString::fromLocal8Bit("4446534552564552").toStdString());
-    cl->GetCiphering()->SetSystemTitle(bb);
-
-    bb.Clear();
-    bb.SetHexString(QString::fromLocal8Bit("30313233343536373839303132333435").toStdString());
-    cl->GetCiphering()->SetDedicatedKey(bb);
-
-    cl->GetCiphering()->SetAuthenticationKey(para.akey);
-    cl->GetCiphering()->SetBlockCipherKey(para.ekey);
-
-    CGXCommunication comm(cl, 6000, GX_TRACE_LEVEL_OFF, nullptr);
-
-    int ret;
-    if ((ret = comm.Open(para.comm.toStdString().data(), false, 115200)) != 0)
-    {
-        delete cl;
-        ui->ButtonRead->setEnabled(true);
-        ui->ButtonWrite->setEnabled(true);
-        ui->ButtonExecute->setEnabled(true);
-        ui->LOG->appendPlainText("打开串口出错");
-        return;
-    }
-
-    if ((ret = comm.InitializeConnection()) != 0)
-    {
-        comm.Close();
-
-        delete cl;
-        ui->ButtonRead->setEnabled(true);
-        ui->ButtonWrite->setEnabled(true);
-        ui->ButtonExecute->setEnabled(true);
-        ui->LOG->appendPlainText("执行出错");
-        return;
-    }
-
-    CGXDLMSCommon Object(para.classID, para.obis.toStdString());
-
-
-    bb.Clear();
-    if((ui->Plain->toPlainText().remove(' ').remove('\n').remove('\r').size() % 2) != 0) {
-        comm.Close();
-
-        delete cl;
-        ui->ButtonRead->setEnabled(true);
-        ui->ButtonWrite->setEnabled(true);
-        ui->ButtonExecute->setEnabled(true);
-        return;
-    }
-
-    bb.SetHexString(ui->Plain->toPlainText().remove(' ').remove('\n').remove('\r').toStdString());
-    CGXReplyData reply;
-
-    if(comm.Method(&Object, para.index, bb, reply) != DLMS_ERROR_CODE_OK) {
-        ui->LOG->appendPlainText("执行失败");
-    }
-    else {
-        CGXByteBuffer rep;
-        rep = reply.GetData();
-        QString str;
-        for (unsigned int n = 0; n < rep.GetSize(); n++) {
-            QString val;
-            val.sprintf("%02x", static_cast<unsigned char>(rep.GetData()[n]));
-            str.append(val);
-        }
-
-        QString mark;
-        mark.append("执行成功");
-        mark.append("[");
-        mark.append(QDateTime::currentDateTime().toString("hh:mm:ss"));
-        mark.append("]");
-
-        ui->LOG->appendPlainText(mark);
-        ui->LOG->appendPlainText(str);
-    }
-
-    comm.Close();
+void Prober::on_finishWork() {
+    disconnect(this->Thread, SIGNAL(updateMessage(const QString)), this, SLOT(on_updateMessage(const QString)));
+    disconnect(this->Thread, SIGNAL(finishWork()), this, SLOT(on_finishWork()));
 
     ui->ButtonRead->setEnabled(true);
     ui->ButtonWrite->setEnabled(true);
     ui->ButtonExecute->setEnabled(true);
-    delete cl;
 }
+
 
 void Prober::getAvaliableSerials() {
     QString current = ui->SerialNo->currentText();
