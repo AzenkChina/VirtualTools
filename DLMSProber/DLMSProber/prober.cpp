@@ -581,7 +581,7 @@ void Prober::getAvaliableSerials() {
     }
 }
 
-void Prober::on_SerialNo_activated(const QString &arg1) {
+void Prober::on_SerialNo_highlighted(const QString &arg1) {
 #if defined(Q_OS_WIN32)
     ui->SerialNo->clear();
     foreach(const QSerialPortInfo &info, QSerialPortInfo::availablePorts()) {
@@ -598,6 +598,21 @@ void Prober::on_SerialNo_activated(const QString &arg1) {
 }
 
 void Prober::on_ButtonGetAddress_pressed() {
+    if(this->Thread) {
+        if(this->Thread->isRunning()) {
+            disconnect(this->Thread, SIGNAL(updateMessage(const QString)), this, SLOT(on_updateMessage(const QString)));
+            disconnect(this->Thread, SIGNAL(finishWork()), this, SLOT(on_finishWork()));
+            this->Thread->terminate();
+            this->Thread->wait();
+            delete this->Thread;
+            this->Thread = nullptr;
+        }
+        else {
+            delete this->Thread;
+            this->Thread = nullptr;
+        }
+    }
+
     if(Port != nullptr) {
         disconnect(Port, SIGNAL(readyRead()), this, SLOT(on_Serial_receive()));
         Port->close();

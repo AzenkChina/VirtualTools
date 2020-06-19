@@ -78,7 +78,7 @@ private slots:
 
     void on_ButtonHexDec_pressed();
 
-    void on_SerialNo_activated(const QString &arg1);
+    void on_SerialNo_highlighted(const QString &arg1);
 
     void on_ButtonGetAddress_pressed();
 
