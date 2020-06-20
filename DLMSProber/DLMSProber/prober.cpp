@@ -581,7 +581,7 @@ void Prober::getAvaliableSerials() {
     }
 }
 
-void Prober::on_SerialNo_highlighted(const QString &arg1) {
+void Prober::on_SerialNo_activated(const QString &arg1) {
 #if defined(Q_OS_WIN32)
     ui->SerialNo->clear();
     foreach(const QSerialPortInfo &info, QSerialPortInfo::availablePorts()) {
