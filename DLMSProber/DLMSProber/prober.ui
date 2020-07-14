@@ -1561,30 +1561,14 @@
    <widget class="QCheckBox" name="DedKey">
     <property name="geometry">
      <rect>
-      <x>490</x>
-      <y>220</y>
-      <width>40</width>
-      <height>30</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string/>
-    </property>
-   </widget>
-   <widget class="QLabel" name="label_17">
-    <property name="geometry">
-     <rect>
-      <x>470</x>
-      <y>190</y>
-      <width>70</width>
+      <x>350</x>
+      <y>100</y>
+      <width>130</width>
       <height>20</height>
      </rect>
     </property>
-    <property name="frameShadow">
-     <enum>QFrame::Plain</enum>
-    </property>
     <property name="text">
-     <string>临时密钥</string>
+     <string>  协商密钥</string>
     </property>
    </widget>
   </widget>

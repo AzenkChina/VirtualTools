@@ -389,6 +389,7 @@ void Prober::on_Level_currentIndexChanged(int index) {
         ui->EncryptKey->setVisible(false);
         ui->AuthKey->setVisible(false);
         ui->Password->setVisible(false);
+        ui->DedKey->setVisible(false);
     }
     else if (index == 1) {
         ui->label_7->setVisible(false);
@@ -398,6 +399,7 @@ void Prober::on_Level_currentIndexChanged(int index) {
         ui->EncryptKey->setVisible(false);
         ui->AuthKey->setVisible(false);
         ui->Password->setVisible(true);
+        ui->DedKey->setVisible(false);
     }
     else if (index == 2) {
         ui->label_7->setVisible(true);
@@ -407,6 +409,7 @@ void Prober::on_Level_currentIndexChanged(int index) {
         ui->EncryptKey->setVisible(true);
         ui->AuthKey->setVisible(true);
         ui->Password->setVisible(false);
+        ui->DedKey->setVisible(true);
     }
 }
 
