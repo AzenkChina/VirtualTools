@@ -125,7 +125,6 @@ void Thread::run() {
         this->cl->GetCiphering()->SetSystemTitle(bb);
 
         bb.Clear();
-        bb.SetHexString(QString::fromLocal8Bit("30313233343536373839303132333435").toStdString());
         this->cl->GetCiphering()->SetDedicatedKey(bb);
 
         this->cl->GetCiphering()->SetAuthenticationKey(para.akey);

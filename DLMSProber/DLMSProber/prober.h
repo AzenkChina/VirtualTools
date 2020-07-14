@@ -19,6 +19,7 @@ struct parameter
     uint8_t addressMode;
     CGXByteBuffer akey;
     CGXByteBuffer ekey;
+    bool ded;
     CGXByteBuffer password;
     DLMS_AUTHENTICATION level;
     QString comm;

@@ -119,7 +119,9 @@ void Thread::run() {
     this->cl->GetCiphering()->SetSystemTitle(bb);
 
     bb.Clear();
-    bb.SetHexString(QString::fromLocal8Bit("30313233343536373839303132333435").toStdString());
+    if(this->para.ded) {
+        bb.SetHexString(QString::fromLocal8Bit("31323334353637383132333435363738").toStdString());
+    }
     this->cl->GetCiphering()->SetDedicatedKey(bb);
 
     this->cl->GetCiphering()->SetAuthenticationKey(para.akey);
@@ -272,6 +274,13 @@ bool Prober::praseParameter(struct parameter &para) {
     }
     else {
         para.level = DLMS_AUTHENTICATION_NONE;
+    }
+
+    if(ui->DedKey->isChecked()) {
+        para.ded = true;
+    }
+    else {
+        para.ded = false;
     }
 
 #if defined(Q_OS_WIN32)

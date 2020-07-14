@@ -984,6 +984,11 @@ int CGXCommunication::ReadDLMSPacket(CGXByteBuffer& data, CGXReplyData& reply)
             {
                 return DLMS_ERROR_CODE_SEND_FAILED;
             }
+            //Discards old data in the rx buffer.
+            if(!PurgeComm(m_hComPort, PURGE_RXCLEAR | PURGE_RXABORT))
+            {
+                return DLMS_ERROR_CODE_SEND_FAILED;
+            }
         }
 #else //If Linux
         ret = write(m_hComPort, data.GetData(), len);
@@ -992,6 +997,8 @@ int CGXCommunication::ReadDLMSPacket(CGXByteBuffer& data, CGXReplyData& reply)
             printf("write failed %d\n", errno);
             return DLMS_ERROR_CODE_SEND_FAILED;
         }
+        //Discards old data in the rx buffer.
+        tcflush(fd, TCIFLUSH);
 #endif
     }
     else if ((ret = send(m_socket, (const char*)data.GetData(), len, 0)) == -1)
