@@ -33,6 +33,7 @@
 //---------------------------------------------------------------------------
 
 #include "../include/GXDLMSCharge.h"
+#include "../include/GXBitString.h"
 
 //Constructor.
 CGXDLMSCharge::CGXDLMSCharge() :
@@ -79,7 +80,7 @@ void CGXDLMSCharge::GetValues(std::vector<std::string>& values)
     values.push_back(m_UnitChargePassive.ToString());
     values.push_back(m_UnitChargeActivationTime.ToString());
     values.push_back(GXHelpers::IntToString(m_Period));
-    values.push_back(m_ChargeConfiguration);
+    values.push_back(GXHelpers::IntToString(m_ChargeConfiguration));
     values.push_back(m_LastCollectionTime.ToString());
     values.push_back(GXHelpers::IntToString(m_LastCollectionAmount));
     values.push_back(GXHelpers::IntToString(m_TotalAmountRemaining));
@@ -315,7 +316,7 @@ int CGXDLMSCharge::GetValue(CGXDLMSSettings& settings, CGXDLMSValueEventArg& e)
         e.SetValue(m_Period);
         break;
     case 9:
-        e.SetValue(m_ChargeConfiguration);
+        e.SetValue(CGXBitString::ToBitString(m_ChargeConfiguration, 2));
         break;
     case 10:
         e.SetValue(m_LastCollectionTime);
@@ -404,8 +405,11 @@ int CGXDLMSCharge::SetValue(CGXDLMSSettings& settings, CGXDLMSValueEventArg& e)
         m_Period = e.GetValue().ToInteger();
         break;
     case 9:
-        m_ChargeConfiguration = e.GetValue().strVal;
-        break;
+        if (e.GetValue().vt == DLMS_DATA_TYPE_BIT_STRING)
+        {
+            m_ChargeConfiguration = (DLMS_CHARGE_CONFIGURATION)e.GetValue().ToInteger();
+            break;
+        }
     case 10:
         if (e.GetValue().vt == DLMS_DATA_TYPE_OCTET_STRING)
         {

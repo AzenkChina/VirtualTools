@@ -34,6 +34,7 @@
 
 #include "../include/GXDLMSAccount.h"
 #include "../include/GXDLMSClient.h"
+#include "../include/GXBitString.h"
 
 //Constructor.
 CGXDLMSAccount::CGXDLMSAccount() :
@@ -336,7 +337,7 @@ int CGXDLMSAccount::GetValue(CGXDLMSSettings& settings, CGXDLMSValueEventArg& e)
         e.SetValue(m_CurrentCreditInUse);
         break;
     case 4:
-        e.SetValue((unsigned char)m_CurrentCreditStatus);
+        e.SetValue(CGXBitString::ToBitString(m_CurrentCreditStatus, 8));
         break;
     case 5:
         e.SetValue(m_AvailableCredit);
@@ -401,8 +402,7 @@ int CGXDLMSAccount::GetValue(CGXDLMSSettings& settings, CGXDLMSValueEventArg& e)
                 return ret;
             }
             bb.Set(ln, 6);
-            tmp = (unsigned char)it->GetCollectionConfiguration();
-            if ((ret = GXHelpers::SetData(bb, DLMS_DATA_TYPE_BIT_STRING, tmp)) != 0)
+            if ((ret = GXHelpers::SetData2(bb, DLMS_DATA_TYPE_BIT_STRING, CGXBitString::ToBitString(it->GetCollectionConfiguration(), 3))) != 0)
             {
                 return ret;
             }
@@ -521,11 +521,10 @@ int CGXDLMSAccount::Invoke(CGXDLMSSettings& settings, CGXDLMSValueEventArg& e)
 // Set value of given attribute.
 int CGXDLMSAccount::SetValue(CGXDLMSSettings& settings, CGXDLMSValueEventArg& e)
 {
-    int ret;
+    int ret = DLMS_ERROR_CODE_OK;
     CGXDLMSVariant tmp;
-    std::string ln;
     CGXByteBuffer bb;
-    unsigned char v;
+    std::string ln;
     switch (e.GetIndex())
     {
     case 1:
@@ -539,13 +538,14 @@ int CGXDLMSAccount::SetValue(CGXDLMSSettings& settings, CGXDLMSValueEventArg& e)
         m_CurrentCreditInUse = e.GetValue().ToInteger();
         break;
     case 4:
-        bb.Capacity(1);
-        GXHelpers::SetBitString(bb, e.GetValue(), false);
-        if ((ret = bb.GetUInt8(&v)) != 0)
+        if (e.GetValue().vt == DLMS_DATA_TYPE_BIT_STRING)
         {
-            return ret;
+            m_CurrentCreditStatus = (DLMS_ACCOUNT_CREDIT_STATUS)e.GetValue().ToInteger();
         }
-        m_CurrentCreditStatus = (DLMS_ACCOUNT_CREDIT_STATUS)v;
+        else
+        {
+            m_CurrentCreditStatus = DLMS_ACCOUNT_CREDIT_STATUS_NONE;
+        }
         break;
     case 5:
         m_AvailableCredit = e.GetValue().ToInteger();
@@ -584,12 +584,7 @@ int CGXDLMSAccount::SetValue(CGXDLMSSettings& settings, CGXDLMSValueEventArg& e)
             item.SetCreditReference(ln);
             GXHelpers::GetLogicalName(it->Arr[1].byteArr, ln);
             item.SetChargeReference(ln);
-            GXHelpers::SetBitString(bb, it->Arr[2], false);
-            if ((ret = bb.GetUInt8(&v)) != 0)
-            {
-                return ret;
-            }
-            item.SetCollectionConfiguration((DLMS_CREDIT_COLLECTION_CONFIGURATION)v);
+            item.SetCollectionConfiguration((DLMS_CREDIT_COLLECTION_CONFIGURATION)it->Arr[2].ToInteger());
             m_CreditChargeConfigurations.push_back(item);
         }
         break;
@@ -662,7 +657,7 @@ int CGXDLMSAccount::SetValue(CGXDLMSSettings& settings, CGXDLMSValueEventArg& e)
         m_MaxProvisionPeriod = e.GetValue().ToInteger();
         break;
     default:
-        return DLMS_ERROR_CODE_READ_WRITE_DENIED;
+        ret =  DLMS_ERROR_CODE_READ_WRITE_DENIED;
     }
-    return DLMS_ERROR_CODE_OK;
+    return ret;
 }

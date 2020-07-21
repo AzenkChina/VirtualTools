@@ -154,7 +154,6 @@ int CreateEntry(CGXDLMSSettings& settings, std::vector<CGXDLMSVariant>& arr, CGX
     CGXDLMSVariant tmp;
     CGXTime t;
     CGXDate d;
-    unsigned char bv;
     item = new CGXDLMSScheduleEntry();
     item->SetIndex(arr[0].ToInteger());
     item->SetEnable(arr[1].boolVal);
@@ -173,13 +172,7 @@ int CreateEntry(CGXDLMSSettings& settings, std::vector<CGXDLMSVariant>& arr, CGX
     t = tmp.dateTime;
     item->SetSwitchTime(t);
     item->SetValidityWindow(arr[5].ToInteger());
-    CGXBitString bs(arr[6].strVal);
-    if ((ret = bs.ToByte(bv)) != 0)
-    {
-        delete item;
-        return ret;
-    }
-    item->SetExecWeekdays((DLMS_WEEKDAYS)bv);
+    item->SetExecWeekdays((DLMS_WEEKDAYS)arr[6].ToInteger());
     item->SetExecSpecDays(arr[7].strVal);
     if ((ret = CGXDLMSClient::ChangeType(arr[8], DLMS_DATA_TYPE_DATE, tmp)) != 0)
     {
@@ -201,7 +194,6 @@ int CreateEntry(CGXDLMSSettings& settings, std::vector<CGXDLMSVariant>& arr, CGX
 int AddEntry(CGXDLMSSettings& settings, CGXDLMSScheduleEntry* it, CGXByteBuffer& data)
 {
     unsigned char ln[6];
-    CGXBitString bs((unsigned char)it->GetExecWeekdays(), 7);
     int ret;
     if ((ret = data.SetUInt8(DLMS_DATA_TYPE_STRUCTURE)) != 0 ||
         (ret = data.SetUInt8(10)) != 0 ||
@@ -225,7 +217,7 @@ int AddEntry(CGXDLMSSettings& settings, CGXDLMSScheduleEntry* it, CGXByteBuffer&
         (ret = data.SetUInt8(DLMS_DATA_TYPE_UINT16)) != 0 ||
         (ret = data.SetUInt16(it->GetValidityWindow())) != 0 ||
         //Add exec week days.
-        (ret = GXHelpers::SetData2(data, DLMS_DATA_TYPE_BIT_STRING, bs.ToString())) != 0 ||
+        (ret = GXHelpers::SetData2(data, DLMS_DATA_TYPE_BIT_STRING, CGXBitString::ToBitString((unsigned char)it->GetExecWeekdays(), 7))) != 0 ||
         //Add exec spec days.
         (ret = GXHelpers::SetData2(data, DLMS_DATA_TYPE_BIT_STRING, it->GetExecSpecDays())) != 0 ||
         //Add begin date.

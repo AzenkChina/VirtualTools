@@ -51,7 +51,7 @@ class CGXDLMSCharge : public CGXDLMSObject
     CGXUnitCharge m_UnitChargePassive;
     CGXDateTime m_UnitChargeActivationTime;
     unsigned long m_Period;
-    std::string m_ChargeConfiguration;
+    DLMS_CHARGE_CONFIGURATION m_ChargeConfiguration;
     CGXDateTime m_LastCollectionTime;
     long m_LastCollectionAmount;
     long m_TotalAmountRemaining;
@@ -212,7 +212,7 @@ public:
      *
      * @return Charge configuration.
      */
-    std::string GetChargeConfiguration()
+    DLMS_CHARGE_CONFIGURATION GetChargeConfiguration()
     {
         return m_ChargeConfiguration;
     }
@@ -224,7 +224,7 @@ public:
      * @param value
      *            Charge configuration.
      */
-    void SetChargeConfiguration(std::string& value)
+    void SetChargeConfiguration(DLMS_CHARGE_CONFIGURATION value)
     {
         m_ChargeConfiguration = value;
     }

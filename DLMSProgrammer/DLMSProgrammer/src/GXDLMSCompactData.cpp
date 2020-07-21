@@ -58,12 +58,11 @@ CGXDLMSCompactData::CGXDLMSCompactData(std::string ln) :
 
 CGXDLMSCompactData::~CGXDLMSCompactData()
 {
-    for (std::vector<CGXDLMSObject*>::iterator it = m_DynamicColumns.begin();
-        it != m_DynamicColumns.end(); ++it)
+    for (std::vector<std::pair<CGXDLMSObject*, CGXDLMSCaptureObject*> >::iterator it = m_CaptureObjects.begin(); it != m_CaptureObjects.end(); ++it)
     {
-        delete *it;
+        delete it->second;
     }
-    m_DynamicColumns.clear();
+    m_CaptureObjects.clear();
 }
 
 CGXByteBuffer& CGXDLMSCompactData::GetBuffer() {
@@ -296,6 +295,10 @@ int CGXDLMSCompactData::SetValue(CGXDLMSSettings& settings, CGXDLMSValueEventArg
         }
         break;
     case 3:
+        for (std::vector<std::pair<CGXDLMSObject*, CGXDLMSCaptureObject*> >::iterator it = m_CaptureObjects.begin(); it != m_CaptureObjects.end(); ++it)
+        {
+            delete it->second;
+        }
         m_CaptureObjects.clear();
         if (e.GetValue().vt == DLMS_DATA_TYPE_ARRAY)
         {
@@ -312,8 +315,12 @@ int CGXDLMSCompactData::SetValue(CGXDLMSSettings& settings, CGXDLMSValueEventArg
                 CGXDLMSObject* pObj = settings.GetObjects().FindByLN(type, ln);
                 if (pObj == NULL)
                 {
+                    continue;
                     pObj = CGXDLMSObjectFactory::CreateObject(type, ln);
-                    m_DynamicColumns.push_back(pObj);
+                    if (pObj != NULL)
+                    {
+                        settings.AddAllocateObject(pObj);
+                    }
                 }
                 CGXDLMSCaptureObject* pCO = new CGXDLMSCaptureObject(it->Arr[2].ToInteger(), it->Arr[3].ToInteger());
                 m_CaptureObjects.push_back(std::pair<CGXDLMSObject*, CGXDLMSCaptureObject*>(pObj, pCO));

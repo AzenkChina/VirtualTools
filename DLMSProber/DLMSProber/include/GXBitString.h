@@ -52,9 +52,6 @@ public:
     //Constructor.
     CGXBitString(std::string value);
 
-    //Constructor.
-    CGXBitString(unsigned char value, unsigned char count);
-
     //Convert bit string to string.
     std::string& ToString();
 
@@ -63,5 +60,11 @@ public:
 
     //Convert bit string to byte.
     int ToByte(unsigned char& value);
+
+    // Convert integer value to BitString.
+    // value : Value to convert.
+    // count: Amount of bits.
+    // returns: Bitstring.
+    static std::string ToBitString(unsigned int value, unsigned int count);
 };
 #endif //GXBIT_STRING_H

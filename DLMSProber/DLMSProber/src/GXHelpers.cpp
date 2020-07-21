@@ -979,7 +979,7 @@ int GetUtfString(CGXByteBuffer& buff, CGXDataInfo& info, bool knownType, CGXDLMS
 {
     int ret;
     unsigned long len = 0;
-    wchar_t* tmp;
+    char* tmp;
     if (knownType)
     {
         len = buff.GetSize();
@@ -999,10 +999,10 @@ int GetUtfString(CGXByteBuffer& buff, CGXDataInfo& info, bool knownType, CGXDLMS
     }
     if (len > 0)
     {
-
-        tmp = new wchar_t[len];
-        buff.Get((unsigned char*)tmp, 2 * len);
-        value.strUtfVal.append(tmp, len);
+        tmp = new char[len];
+        buff.Get((unsigned char*)tmp, len);
+        value.strVal.append(tmp, len);
+        delete tmp;
     }
     else
     {
@@ -1291,7 +1291,6 @@ static int GetBitString(CGXByteBuffer& buff, CGXDataInfo& info, CGXDLMSVariant& 
         }
         cnt -= 8;
     }
-    value.vt = DLMS_DATA_TYPE_BIT_STRING;
     if (info.GetXml() != NULL)
     {
         std::string str = bb.ToString();
@@ -1299,6 +1298,7 @@ static int GetBitString(CGXByteBuffer& buff, CGXDataInfo& info, CGXDLMSVariant& 
             "", str);
     }
     value = bb.ToString();
+    value.vt = DLMS_DATA_TYPE_BIT_STRING;
     return 0;
 }
 
@@ -2608,4 +2608,15 @@ void GXHelpers::Join(std::string separator, std::vector< std::string >& list, st
         empty = false;
         res.append(*it);
     }
+}
+
+unsigned char GXHelpers::SwapBits(unsigned char value)
+{
+    unsigned char ret = 0, pos;
+    for (pos = 0; pos != 8; ++pos)
+    {
+        ret = (unsigned char)((ret << 1) | (value & 0x01));
+        value = (unsigned char)(value >> 1);
+    }
+    return ret;
 }

@@ -70,6 +70,7 @@ CGXDLMSSettings::CGXDLMSSettings(bool isServer)
 CGXDLMSSettings::~CGXDLMSSettings()
 {
     m_Objects.Free();
+    m_AllocatedObjects.Free();
 }
 
 CGXByteBuffer& CGXDLMSSettings::GetCtoSChallenge()
@@ -598,17 +599,17 @@ void CGXDLMSSettings::SetQualityOfService(unsigned char value)
     m_QualityOfService = value;
 }
 
-/**
- * @return Auto increase Invoke ID.
- */
-bool CGXDLMSSettings::GetAutoIncreaseInvokeID() {
+bool CGXDLMSSettings::GetAutoIncreaseInvokeID()
+{
     return m_AutoIncreaseInvokeID;
 }
 
-/**
- * @param value
- *            Auto increase Invoke ID.
- */
-void CGXDLMSSettings::SetAutoIncreaseInvokeID(bool value) {
+void CGXDLMSSettings::SetAutoIncreaseInvokeID(bool value)
+{
     m_AutoIncreaseInvokeID = value;
+}
+
+void CGXDLMSSettings::AddAllocateObject(CGXDLMSObject* pObj)
+{
+    m_AllocatedObjects.push_back(pObj);
 }

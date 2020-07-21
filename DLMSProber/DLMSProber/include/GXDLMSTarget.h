@@ -61,9 +61,6 @@ class CGXDLMSTarget
      * Data value of COSEM object. All targets don't use this.
      */
     CGXDLMSVariant m_Value;
-
-    bool m_FreeTarget;
-
 public:
     // Constructor.
     CGXDLMSTarget();

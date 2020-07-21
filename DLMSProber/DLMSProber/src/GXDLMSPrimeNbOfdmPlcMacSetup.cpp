@@ -196,6 +196,7 @@ int CGXDLMSPrimeNbOfdmPlcMacSetup::GetDataType(int index, DLMS_DATA_TYPE& type)
     switch (index) {
     case 1:
         type = DLMS_DATA_TYPE_OCTET_STRING;
+        break;
     case 2:
     case 3:
     case 4:
@@ -204,8 +205,10 @@ int CGXDLMSPrimeNbOfdmPlcMacSetup::GetDataType(int index, DLMS_DATA_TYPE& type)
     case 7:
     case 8:
         type = DLMS_DATA_TYPE_UINT8;
+        break;
     default:
         ret = DLMS_ERROR_CODE_INVALID_PARAMETER;
+        break;
     }
     return ret;
 }

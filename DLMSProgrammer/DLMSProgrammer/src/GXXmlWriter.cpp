@@ -1268,9 +1268,14 @@ int SaveLimiter(CGXXmlWriter* writer, CGXDLMSLimiter* obj)
 {
     int ret;
     std::string ln;
-    obj->GetMonitoredValue()->GetLogicalName(ln);
+    DLMS_OBJECT_TYPE ot = DLMS_OBJECT_TYPE_NONE;
+    if (obj->GetMonitoredValue() != NULL)
+    {
+        obj->GetMonitoredValue()->GetLogicalName(ln);
+        ot = obj->GetMonitoredValue()->GetObjectType();
+    }
     if ((ret = writer->WriteStartElement("MonitoredValue")) == 0 &&
-        (ret = writer->WriteElementString("ObjectType", obj->GetMonitoredValue()->GetObjectType())) == 0 &&
+        (ret = writer->WriteElementString("ObjectType", ot)) == 0 &&
         (ret = writer->WriteElementString("LN", ln)) == 0 &&
         (ret = writer->WriteEndElement()) == 0 &&
         (ret = writer->WriteElementObject("ThresholdActive", obj->GetThresholdActive())) == 0 &&

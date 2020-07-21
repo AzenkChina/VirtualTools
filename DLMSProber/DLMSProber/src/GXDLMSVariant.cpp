@@ -34,6 +34,7 @@
 #include "../include/GXDLMSVariant.h"
 #include "../include/errorcodes.h"
 #include "../include/GXHelpers.h"
+#include "../include/GXBitString.h"
 
 int CGXDLMSVariant::Convert(CGXDLMSVariant* item, DLMS_DATA_TYPE type)
 {
@@ -212,8 +213,9 @@ int CGXDLMSVariant::Convert(CGXDLMSVariant* item, DLMS_DATA_TYPE type)
         }
         if (tmp.vt == DLMS_DATA_TYPE_BIT_STRING)
         {
-            //TODO:
-            return DLMS_ERROR_CODE_NOT_IMPLEMENTED;
+            item->strVal = tmp.strVal;
+            item->vt = type;
+            return DLMS_ERROR_CODE_OK;
         }
         if (tmp.vt == DLMS_DATA_TYPE_DATETIME)
         {
@@ -1359,6 +1361,13 @@ int CGXDLMSVariant::ToInteger()
         {
             assert(0);
         }
+        return val;
+    }
+    if (vt == DLMS_DATA_TYPE_BIT_STRING)
+    {
+        int val;
+        CGXBitString bs(strVal);
+        bs.ToInteger(val);
         return val;
     }
     assert(0);

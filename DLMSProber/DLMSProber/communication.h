@@ -46,7 +46,8 @@
 #include <crtdbg.h>
 #endif
 #include <tchar.h>
-#include <Winsock.h> //Add support for sockets
+#include <winsock2.h>//Add support for sockets
+#include <ws2tcpip.h>
 #include <time.h>
 #else //Linux includes.
 #define INVALID_HANDLE_VALUE -1

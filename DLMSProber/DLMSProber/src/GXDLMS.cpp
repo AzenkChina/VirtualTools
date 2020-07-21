@@ -706,8 +706,7 @@ int Cipher0(CGXDLMSLNParameters& p,
             || (p.GetSettings()->GetNegotiatedConformance() & DLMS_CONFORMANCE_GENERAL_PROTECTION) == 0)
         {
             if (p.GetSettings()->GetCipher()->GetDedicatedKey().GetSize() != 0 &&
-                (!p.GetSettings()->IsServer() ||
-                (p.GetSettings()->GetConnected() & DLMS_CONNECTION_STATE_DLMS) != 0))
+                (p.GetSettings()->GetConnected() & DLMS_CONNECTION_STATE_DLMS) != 0)
             {
                 cmd = GetDedMessage(p.GetCommand());
                 key = &p.GetSettings()->GetCipher()->GetDedicatedKey();
@@ -2503,7 +2502,7 @@ int CGXDLMS::HandleGloDedRequest(CGXDLMSSettings& settings,
             unsigned char ch;
             data.GetData().SetPosition(data.GetData().GetPosition() - 1);
             if (settings.GetCipher()->GetDedicatedKey().GetSize() != 0 &&
-                (settings.IsServer() || settings.GetConnected() & DLMS_CONNECTION_STATE_DLMS) != 0)
+                (settings.GetConnected() & DLMS_CONNECTION_STATE_DLMS) != 0)
             {
                 if ((ret = settings.GetCipher()->Decrypt(settings.GetSourceSystemTitle(),
                     settings.GetCipher()->GetDedicatedKey(), data.GetData(), security, suite)) != 0)

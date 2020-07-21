@@ -33,6 +33,7 @@
 //---------------------------------------------------------------------------
 
 #include "../include/GXDLMSCredit.h"
+#include "../include/GXBitString.h"
 
 //Constructor.
 CGXDLMSCredit::CGXDLMSCredit() :
@@ -216,7 +217,7 @@ int CGXDLMSCredit::GetValue(CGXDLMSSettings& settings, CGXDLMSValueEventArg& e)
         e.SetValue(m_Limit);
         break;
     case 7:
-        e.SetValue((unsigned char) m_CreditConfiguration);
+        e.SetValue(CGXBitString::ToBitString(m_CreditConfiguration, 5));
         break;
     case 8:
         e.SetValue(m_Status);
@@ -239,7 +240,6 @@ int CGXDLMSCredit::GetValue(CGXDLMSSettings& settings, CGXDLMSValueEventArg& e)
 // Set value of given attribute.
 int CGXDLMSCredit::SetValue(CGXDLMSSettings& settings, CGXDLMSValueEventArg& e)
 {
-    unsigned char v;
     int ret;
     CGXByteBuffer bb;
     CGXDLMSVariant tmp;
@@ -263,12 +263,7 @@ int CGXDLMSCredit::SetValue(CGXDLMSSettings& settings, CGXDLMSValueEventArg& e)
         m_Limit = e.GetValue().ToInteger();
         break;
     case 7:
-        GXHelpers::SetBitString(bb, e.GetValue(), false);
-        if ((ret = bb.GetUInt8(&v)) != 0)
-        {
-            return ret;
-        }
-        m_CreditConfiguration = (DLMS_CREDIT_CONFIGURATION)v;
+        m_CreditConfiguration = (DLMS_CREDIT_CONFIGURATION)e.GetValue().ToInteger();
         break;
     case 8:
         m_Status = (DLMS_CREDIT_STATUS)e.GetValue().ToInteger();

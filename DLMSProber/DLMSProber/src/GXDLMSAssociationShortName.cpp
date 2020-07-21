@@ -450,6 +450,7 @@ int CGXDLMSAssociationShortName::SetValue(CGXDLMSSettings& settings, CGXDLMSValu
                     pObj = CGXDLMSObjectFactory::CreateObject(type, ln);
                     if (pObj != NULL)
                     {
+                        settings.AddAllocateObject(pObj);
                         pObj->SetShortName(sn);
                         pObj->SetVersion(version);
                     }

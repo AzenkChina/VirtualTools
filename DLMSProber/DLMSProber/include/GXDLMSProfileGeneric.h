@@ -78,9 +78,6 @@ http://www.gurux.fi/Gurux.DLMS.Objects.GXDLMSProfileGeneric
 class CGXDLMSProfileGeneric : public CGXDLMSObject
 {
 private:
-    //List of non exists columns.
-    std::vector<CGXDLMSObject*> m_DynamicColumns;
-
     std::vector< std::vector<CGXDLMSVariant> > m_Buffer;
     std::vector<std::pair<CGXDLMSObject*, CGXDLMSCaptureObject*> > m_CaptureObjects;
     int m_CapturePeriod;

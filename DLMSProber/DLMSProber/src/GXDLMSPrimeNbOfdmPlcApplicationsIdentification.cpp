@@ -141,11 +141,14 @@ int CGXDLMSPrimeNbOfdmPlcApplicationsIdentification::GetDataType(int index, DLMS
     case 1:
     case 2:
         type = DLMS_DATA_TYPE_OCTET_STRING;
+        break;
     case 3:
     case 4:
         type = DLMS_DATA_TYPE_UINT16;
+        break;
     default:
         ret = DLMS_ERROR_CODE_INVALID_PARAMETER;
+        break;
     }
     return ret;
 }

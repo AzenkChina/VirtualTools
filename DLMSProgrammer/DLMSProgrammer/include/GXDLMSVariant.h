@@ -75,7 +75,6 @@ struct dlmsVARIANT
     //Size of byte array.
     unsigned short size;
     std::string strVal;
-    std::basic_string<wchar_t> strUtfVal;
     std::vector<CGXDLMSVariant> Arr;
 };
 

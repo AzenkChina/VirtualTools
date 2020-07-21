@@ -34,7 +34,7 @@
 
 #include "../include/GXDLMSTarget.h"
 
-CGXDLMSTarget::CGXDLMSTarget() : m_Target(NULL), m_AttributeIndex(0), m_DataIndex(0), m_FreeTarget(0)
+CGXDLMSTarget::CGXDLMSTarget() : m_Target(NULL), m_AttributeIndex(0), m_DataIndex(0)
 {
 };
 
@@ -45,14 +45,9 @@ CGXDLMSTarget::~CGXDLMSTarget()
 
 void CGXDLMSTarget::Clear()
 {
-    if (m_FreeTarget && m_Target != NULL)
-    {
-        delete m_Target;
-    }
     m_Target = NULL;
     m_AttributeIndex = 0;
     m_DataIndex = 0;
-    m_FreeTarget = 0;
 }
 
 CGXDLMSObject* CGXDLMSTarget::GetTarget()

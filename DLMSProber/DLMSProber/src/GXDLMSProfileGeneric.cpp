@@ -45,12 +45,6 @@ CGXDLMSProfileGeneric::~CGXDLMSProfileGeneric()
     {
         delete it->second;
     }
-    for (std::vector<CGXDLMSObject*>::iterator it = m_DynamicColumns.begin();
-        it != m_DynamicColumns.end(); ++it)
-    {
-        delete *it;
-    }
-    m_DynamicColumns.clear();
     m_CaptureObjects.clear();
     m_Buffer.clear();
 }
@@ -861,7 +855,8 @@ int CGXDLMSProfileGeneric::SetValue(CGXDLMSSettings& settings, CGXDLMSValueEvent
                         row->Arr[pos] = data;
                     }
                     std::pair<CGXDLMSObject*, CGXDLMSCaptureObject*> item = m_CaptureObjects[pos];
-                    if (item.first->GetObjectType() == DLMS_OBJECT_TYPE_REGISTER && item.second->GetAttributeIndex() == 2)
+                    if ((item.first->GetObjectType() == DLMS_OBJECT_TYPE_REGISTER || item.first->GetObjectType() == DLMS_OBJECT_TYPE_EXTENDED_REGISTER)
+                        && item.second->GetAttributeIndex() == 2)
                     {
                         double scaler = ((CGXDLMSRegister*)item.first)->GetScaler();
                         if (scaler != 1)
@@ -905,7 +900,7 @@ int CGXDLMSProfileGeneric::SetValue(CGXDLMSSettings& settings, CGXDLMSValueEvent
                 if (pObj == NULL)
                 {
                     pObj = CGXDLMSObjectFactory::CreateObject(type, ln);
-                    m_DynamicColumns.push_back(pObj);
+                    settings.AddAllocateObject(pObj);
                 }
                 AddCaptureObject(pObj, (*it).Arr[2].ToInteger(), (*it).Arr[3].ToInteger());
             }
@@ -941,6 +936,7 @@ int CGXDLMSProfileGeneric::SetValue(CGXDLMSSettings& settings, CGXDLMSValueEvent
             if (m_SortObject == NULL)
             {
                 m_SortObject = CGXDLMSObjectFactory::CreateObject(type, ln);
+                settings.AddAllocateObject(m_SortObject);
             }
         }
     }

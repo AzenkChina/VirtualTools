@@ -154,40 +154,70 @@ int CGXCommunication::Close()
     return 0;
 }
 
+bool IsIPv6Address(const char* pAddress)
+{
+    return strstr(pAddress, ":") != NULL;
+}
+
 //Make TCP/IP connection to the meter.
 int CGXCommunication::Connect(const char* pAddress, unsigned short Port)
 {
+    int ret;
     Close();
     //create socket.
-    m_socket = socket(AF_INET, SOCK_STREAM, IPPROTO_IP);
+    int family = IsIPv6Address(pAddress) ? AF_INET6 : AF_INET;
+    m_socket = socket(family, SOCK_STREAM, IPPROTO_IP);
     if (m_socket == -1)
     {
         assert(0);
         return DLMS_ERROR_CODE_INVALID_PARAMETER;
     }
-    sockaddr_in add;
-    add.sin_port = htons(Port);
-    add.sin_family = AF_INET;
-    add.sin_addr.s_addr = inet_addr(pAddress);
-    //If address is give as name
-    if (add.sin_addr.s_addr == INADDR_NONE)
+    sockaddr* add;
+    int addSize;
+    sockaddr_in6 addrIP6;
+    sockaddr_in addIP4;
+    if (family == AF_INET)
     {
-        hostent* Hostent = gethostbyname(pAddress);
-        if (Hostent == NULL)
+        addIP4.sin_port = htons(Port);
+        addIP4.sin_family = AF_INET;
+        addIP4.sin_addr.s_addr = inet_addr(pAddress);
+        //If address is give as name
+        if (addIP4.sin_addr.s_addr == INADDR_NONE)
         {
+            hostent* Hostent = gethostbyname(pAddress);
+            if (Hostent == NULL)
+            {
 #if defined(_WIN32) || defined(_WIN64)//If Windows
-            int err = WSAGetLastError();
+                int err = WSAGetLastError();
 #else
-            int err = errno;
+                int err = errno;
 #endif
-            Close();
-            return err;
+                Close();
+                return err;
+            };
+            addIP4.sin_addr = *(in_addr*)(void*)Hostent->h_addr_list[0];
+            add = (sockaddr*)&addIP4;
+            addSize = sizeof(sockaddr_in);
         };
-        add.sin_addr = *(in_addr*)(void*)Hostent->h_addr_list[0];
-    };
+    }
+    else
+    {
+        memset(&addrIP6, 0, sizeof(sockaddr_in6));
+        addrIP6.sin6_port = htons(Port);
+        addrIP6.sin6_family = AF_INET6;
+//        ret = inet_pton(family, pAddress, &(addrIP6.sin6_addr));
+#warning inet_pton() doesn't support currently.
+        ret = -1;
+        if (ret == -1)
+        {
+            return DLMS_ERROR_CODE_INVALID_PARAMETER;
+        };
+        add = (sockaddr*)&addrIP6;
+        addSize = sizeof(sockaddr_in6);
+    }
 
     //Connect to the meter.
-    int ret = connect(m_socket, (sockaddr*)&add, sizeof(sockaddr_in));
+    ret = connect(m_socket, add, addSize);
     if (ret == -1)
     {
         return DLMS_ERROR_CODE_INVALID_PARAMETER;
@@ -924,7 +954,7 @@ int CGXCommunication::InitializeConnection()
     }
     reply.Clear();
     // Get challenge Is HLS authentication is used.
-    if (m_Parser->IsAuthenticationRequired())
+    if (m_Parser->GetAuthentication() > DLMS_AUTHENTICATION_LOW)
     {
         if ((ret = m_Parser->GetApplicationAssociationRequest(data)) != 0 ||
             (ret = ReadDataBlock(data, reply)) != 0 ||

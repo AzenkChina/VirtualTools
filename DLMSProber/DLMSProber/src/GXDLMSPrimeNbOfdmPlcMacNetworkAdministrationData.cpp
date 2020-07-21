@@ -260,14 +260,17 @@ int CGXDLMSPrimeNbOfdmPlcMacNetworkAdministrationData::GetDataType(int index, DL
     switch (index) {
     case 1:
         type = DLMS_DATA_TYPE_OCTET_STRING;
+        break;
     case 2:
     case 3:
     case 4:
     case 5:
     case 6:
         type = DLMS_DATA_TYPE_ARRAY;
+        break;
     default:
         ret = DLMS_ERROR_CODE_INVALID_PARAMETER;
+        break;
     }
     return ret;
 }

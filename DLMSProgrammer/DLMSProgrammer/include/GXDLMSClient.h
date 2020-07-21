@@ -605,6 +605,25 @@ public:
     int Write(
         CGXDLMSObject* pObject,
         int index,
+        CGXDLMSVariant& data,
+        std::vector<CGXByteBuffer>& reply);
+
+    /**
+     * Generates a write message.
+     *
+     * @param pObject
+     *            COSEM object to write.
+     * @param index
+     *            Attribute index where data is write.
+     * @param data
+     *            Data to Write.
+     * @param reply
+     *            Generated write message(s).
+     * Returns error status.
+     */
+    int Write(
+        CGXDLMSObject* pObject,
+        int index,
         CGXByteBuffer& data,
         std::vector<CGXByteBuffer>& reply);
 

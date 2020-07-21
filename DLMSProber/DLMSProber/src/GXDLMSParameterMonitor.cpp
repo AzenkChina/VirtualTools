@@ -291,8 +291,9 @@ int CGXDLMSParameterMonitor::SetValue(CGXDLMSSettings& settings, CGXDLMSValueEve
         m_ChangedParameter.SetTarget(settings.GetObjects().FindByLN(type, ln));
         if (m_ChangedParameter.GetTarget() == NULL)
         {
-            m_ChangedParameter.m_FreeTarget = true;
-            m_ChangedParameter.SetTarget(CGXDLMSObjectFactory::CreateObject(type));
+            CGXDLMSObject* tmp = CGXDLMSObjectFactory::CreateObject(type);
+            settings.AddAllocateObject(tmp);
+            m_ChangedParameter.SetTarget(tmp);
             CGXDLMSObject::SetLogicalName(m_ChangedParameter.GetTarget(), e.GetValue().Arr[1]);
         }
         m_ChangedParameter.SetAttributeIndex(e.GetValue().Arr[2].ToInteger());
@@ -335,8 +336,9 @@ int CGXDLMSParameterMonitor::SetValue(CGXDLMSSettings& settings, CGXDLMSValueEve
             pObj->SetTarget(settings.GetObjects().FindByLN(type, ln));
             if (pObj->GetTarget() == NULL)
             {
-                pObj->m_FreeTarget = true;
-                pObj->SetTarget(CGXDLMSObjectFactory::CreateObject(type));
+                CGXDLMSObject* tmp = CGXDLMSObjectFactory::CreateObject(type);
+                settings.AddAllocateObject(tmp);
+                pObj->SetTarget(tmp);
                 CGXDLMSObject::SetLogicalName(pObj->GetTarget(), it->Arr[1]);
             }
             pObj->SetAttributeIndex(it->Arr[2].ToInteger());

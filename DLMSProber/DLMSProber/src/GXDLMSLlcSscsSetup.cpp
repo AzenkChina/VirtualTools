@@ -143,11 +143,14 @@ int CGXDLMSLlcSscsSetup::GetDataType(int index, DLMS_DATA_TYPE& type)
     switch (index) {
     case 1:
         type = DLMS_DATA_TYPE_OCTET_STRING;
+        break;
     case 2:
     case 3:
         type = DLMS_DATA_TYPE_UINT16;
+        break;
     default:
         ret = DLMS_ERROR_CODE_INVALID_PARAMETER;
+        break;
     }
     return ret;
 }

@@ -1587,7 +1587,7 @@ int CGXDLMSClient::Write(
 
 int CGXDLMSClient::Write(CGXDLMSObject* pObject,
     int index,
-    CGXByteBuffer& data,
+    CGXDLMSVariant& data,
     std::vector<CGXByteBuffer>& reply)
 {
     CGXDLMSVariant name = pObject->GetName();
@@ -1689,6 +1689,15 @@ int CGXDLMSClient::Write(CGXDLMSVariant& name, DLMS_OBJECT_TYPE objectType,
         ret = CGXDLMS::GetSnMessages(p, reply);
     }
     return ret;
+}
+
+int CGXDLMSClient::Write(CGXDLMSObject* pObject,
+    int index,
+    CGXByteBuffer& data,
+    std::vector<CGXByteBuffer>& reply)
+{
+    CGXDLMSVariant name = pObject->GetName();
+    return Write(name, pObject->GetObjectType(), index, data, reply);
 }
 
 /**

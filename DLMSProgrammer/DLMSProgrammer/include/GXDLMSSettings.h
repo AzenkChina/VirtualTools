@@ -60,6 +60,8 @@ const unsigned short MAX_RECEIVE_PDU_SIZE = 0xFFFF;
 // This class includes DLMS communication Settings.
 class CGXDLMSSettings
 {
+    // List of server or client objects that are dynamically allocated.
+    CGXDLMSObjectCollection m_AllocatedObjects;
     //Is connection made for the server.
     DLMS_CONNECTION_STATE m_Connected;
 
@@ -540,6 +542,10 @@ public:
     void SetCommandType(unsigned char value) {
         m_CommandType = value;
     }
+
+    //Add dynamically allocated objects here so they are released.
+    //This is done if object is not in the association view, but might be ex. capture objects.
+    void AddAllocateObject(CGXDLMSObject* pObj);
 };
 
 #endif //GXDLMSSETTINGS_H

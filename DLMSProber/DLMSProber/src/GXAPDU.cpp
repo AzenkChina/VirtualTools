@@ -169,6 +169,36 @@ int GenerateApplicationContextName(
     return 0;
 }
 
+
+// Reserved for internal use.
+int GetConformanceFromArray(CGXByteBuffer& data, unsigned int& value)
+{
+    int ret;
+    unsigned char v1, v2, v3;
+    if ((ret = data.GetUInt8(&v1)) == 0 &&
+        (ret = data.GetUInt8(&v2)) == 0 &&
+        (ret = data.GetUInt8(&v3)) == 0)
+    {
+        value = GXHelpers::SwapBits(v1);
+        value |= GXHelpers::SwapBits(v2) << 8;
+        value |= GXHelpers::SwapBits(v3) << 16;
+    }
+    return ret;
+}
+
+// Reserved for internal use.
+int SetConformanceToArray(unsigned int value, CGXByteBuffer& data)
+{
+    int ret;
+    if ((ret = data.SetUInt8(GXHelpers::SwapBits((unsigned char)(value & 0xFF)))) != 0 ||
+        (ret = data.SetUInt8(GXHelpers::SwapBits((unsigned char)((value >> 8) & 0xFF)))) != 0 ||
+        (ret = data.SetUInt8(GXHelpers::SwapBits((unsigned char)((value >> 16) & 0xFF)))) != 0)
+    {
+
+    }
+    return ret;
+}
+
 /**
  * Generate User information initiate request.
  *
@@ -219,9 +249,7 @@ int GetInitiateRequest(
     // encoding the number of unused bits in the bit string
     data.SetUInt8(0x00);
     //Add conformance block.
-    CGXByteBuffer bb(4);
-    bb.SetUInt32((unsigned long)settings.GetProposedConformance());
-    data.Set(&bb, 1, 3);
+    SetConformanceToArray((unsigned int)settings.GetProposedConformance(), data);
     data.SetUInt16(settings.GetMaxPduSize());
     return 0;
 }
@@ -583,13 +611,11 @@ int CGXAPDU::Parse(bool initiateRequest,
         return ret;
     }
     unsigned short pduSize;
-    unsigned long v;
-    unsigned char tmp[3];
-    CGXByteBuffer bb(4);
-    data.Get(tmp, 3);
-    bb.SetUInt8(0);
-    bb.Set(tmp, 3);
-    bb.GetUInt32(&v);
+    unsigned int v;
+    if ((ret = GetConformanceFromArray(data, v)) != 0)
+    {
+        return ret;
+    }
     if (settings.IsServer())
     {
         if (xml != NULL)
@@ -1201,9 +1227,7 @@ int CGXAPDU::GetUserInformation(
     data.SetUInt8(0x04);
     // encoding the number of unused bits in the bit string
     data.SetUInt8(0x00);
-    CGXByteBuffer bb(4);
-    bb.SetUInt32((unsigned long)settings.GetNegotiatedConformance());
-    data.Set(&bb, 1, 3);
+    SetConformanceToArray((unsigned int)settings.GetNegotiatedConformance(), data);
     data.SetUInt16(settings.GetMaxPduSize());
     // VAA Name VAA name (0x0007 for LN referencing and 0xFA00 for SN)
     if (settings.GetUseLogicalNameReferencing())

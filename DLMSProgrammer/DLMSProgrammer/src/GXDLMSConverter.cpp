@@ -1316,6 +1316,20 @@ DLMS_OBJECT_TYPE CGXDLMSConverter::ValueOfObjectType(const char* value)
         type = DLMS_OBJECT_TYPE_GSM_DIAGNOSTIC;
     else if (strcmp(value, "GXDLMSCompactData") == 0)
         type = DLMS_OBJECT_TYPE_COMPACT_DATA;
+    else if (strcmp(value, "GXDLMSLlcSscsSetup") == 0)
+        type = DLMS_OBJECT_TYPE_LLC_SSCS_SETUP;
+    else if (strcmp(value, "GXDLMSPrimeNbOfdmPlcPhysicalLayerCounters") == 0)
+        type = DLMS_OBJECT_TYPE_PRIME_NB_OFDM_PLC_PHYSICAL_LAYER_COUNTERS;
+    else if (strcmp(value, "GXDLMSPrimeNbOfdmPlcMacSetup") == 0)
+        type = DLMS_OBJECT_TYPE_PRIME_NB_OFDM_PLC_MAC_SETUP;
+    else if (strcmp(value, "GXDLMSPrimeNbOfdmPlcMacFunctionalParameters") == 0)
+        type = DLMS_OBJECT_TYPE_PRIME_NB_OFDM_PLC_MAC_FUNCTIONAL_PARAMETERS;
+    else if (strcmp(value, "GXDLMSPrimeNbOfdmPlcMacCounters") == 0)
+        type = DLMS_OBJECT_TYPE_PRIME_NB_OFDM_PLC_MAC_COUNTERS;
+    else if (strcmp(value, "GXDLMSPrimeNbOfdmPlcMacNetworkAdministrationData") == 0)
+        type = DLMS_OBJECT_TYPE_PRIME_NB_OFDM_PLC_MAC_NETWORK_ADMINISTRATION_DATA;
+    else if (strcmp(value, "GXDLMSPrimeNbOfdmPlcApplicationsIdentification") == 0)
+        type = DLMS_OBJECT_TYPE_PRIME_NB_OFDM_PLC_APPLICATIONS_IDENTIFICATION;
     else
         type = DLMS_OBJECT_TYPE_NONE;
     return type;

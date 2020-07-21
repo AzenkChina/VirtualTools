@@ -376,6 +376,7 @@ int CGXDLMSPushSetup::SetValue(CGXDLMSSettings& settings, CGXDLMSValueEventArg& 
                     obj = CGXDLMSObjectFactory::CreateObject(type);
                     if (obj != NULL)
                     {
+                        settings.AddAllocateObject(obj);
                         CGXDLMSObject::SetLogicalName(obj, it->Arr[1]);
                     }
                 }

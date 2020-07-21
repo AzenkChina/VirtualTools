@@ -223,5 +223,8 @@ public:
     static std::string IntToString(int value);
     //Join list of strings to one string.
     static void Join(std::string separator, std::vector< std::string >& list, std::string& res);
+
+    // Reserved for internal use.
+    static unsigned char SwapBits(unsigned char value);
 };
 #endif //GXHELPERS_H

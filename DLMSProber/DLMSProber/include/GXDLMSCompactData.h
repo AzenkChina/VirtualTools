@@ -82,9 +82,6 @@ class CGXDLMSCompactData : public CGXDLMSObject
     DLMS_CAPTURE_METHOD m_CaptureMethod;
 
     int GetCaptureObjects(CGXDLMSSettings& settings, CGXDLMSValueEventArg& e);
-
-    //List of non exists capture objects.
-    std::vector<CGXDLMSObject*> m_DynamicColumns;
 public:
     //Constructor.
     CGXDLMSCompactData();
