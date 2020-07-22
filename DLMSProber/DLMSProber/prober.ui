@@ -188,6 +188,11 @@
       <string>115200</string>
      </property>
     </item>
+    <item>
+     <property name="text">
+      <string>自动</string>
+     </property>
+    </item>
    </widget>
    <widget class="QComboBox" name="CheckBit">
     <property name="geometry">

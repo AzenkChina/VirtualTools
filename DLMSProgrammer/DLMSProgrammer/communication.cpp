@@ -985,7 +985,7 @@ int CGXCommunication::ReadDLMSPacket(CGXByteBuffer& data, CGXReplyData& reply)
     {
         printf("%s\r\n", tmp.c_str());
     }
-    GXHelpers::Write("trace.txt", tmp + "\r\n");
+    GXHelpers::Write("traffic.txt", tmp + "\r\n");
     int len = data.GetSize();
     if (m_hComPort != INVALID_HANDLE_VALUE)
     {
@@ -1116,7 +1116,7 @@ int CGXCommunication::ReadDLMSPacket(CGXByteBuffer& data, CGXReplyData& reply)
     {
         printf("%s", tmp.c_str());
     }
-    GXHelpers::Write("trace.txt", tmp);
+    GXHelpers::Write("traffic.txt", tmp);
     if (ret == DLMS_ERROR_CODE_REJECTED)
     {
 #if defined(_WIN32) || defined(_WIN64)//Windows

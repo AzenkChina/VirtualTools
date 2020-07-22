@@ -32,6 +32,7 @@ struct parameter
     CGXByteBuffer password;
     DLMS_AUTHENTICATION level;
     QString comm;
+    bool negotiate = false;
 };
 
 struct closure

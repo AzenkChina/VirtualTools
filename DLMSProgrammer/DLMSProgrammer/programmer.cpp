@@ -135,7 +135,7 @@ void Thread::run() {
         emit updateMessage("地址: " + QString::number(physical));
 
         int ret;
-        if ((ret = this->comm->Open(para.comm.toStdString().data(), false, 115200)) != 0) {
+        if ((ret = this->comm->Open(para.comm.toStdString().data(), para.negotiate, 115200)) != 0) {
             delete this->cl;
             delete this->comm;
             this->cl = nullptr;
@@ -412,15 +412,16 @@ bool Programmer::praseParameter(struct parameter &para) {
 #endif
     para.comm.append(":");
     switch(ui->Baudrate->currentIndex()) {
-        case 0:para.comm.append("1200");break;
-        case 1:para.comm.append("2400");break;
-        case 2:para.comm.append("4800");break;
-        case 3:para.comm.append("9600");break;
-        case 4:para.comm.append("19200");break;
-        case 5:para.comm.append("38400");break;
-        case 6:para.comm.append("57600");break;
-        case 7:para.comm.append("115200");break;
-        default:para.comm.append("9600");break;
+        case 0:para.comm.append("1200");para.negotiate = false;break;
+        case 1:para.comm.append("2400");para.negotiate = false;break;
+        case 2:para.comm.append("4800");para.negotiate = false;break;
+        case 3:para.comm.append("9600");para.negotiate = false;break;
+        case 4:para.comm.append("19200");para.negotiate = false;break;
+        case 5:para.comm.append("38400");para.negotiate = false;break;
+        case 6:para.comm.append("57600");para.negotiate = false;break;
+        case 7:para.comm.append("115200");para.negotiate = false;break;
+        case 8:para.comm.append("300");para.negotiate = true;break;
+        default:para.comm.append("9600");para.negotiate = false;break;
     }
     para.comm.append(":8");
     switch (ui->CheckBit->currentIndex()) {
