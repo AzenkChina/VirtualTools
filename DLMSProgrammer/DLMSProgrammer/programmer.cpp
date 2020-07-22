@@ -807,4 +807,12 @@ void Programmer::on_ButtonLoad_pressed() {
     ui->ButtonLoad->setText(QString::fromStdString("已加载"));
     ui->LOG->clear();
     ui->Result->clear();
+
+    ui->LOG->appendPlainText(QString::fromStdString("数据项总个数：") + QString::number(this->closure.size()));
+
+    int index = 0;
+    for(vector<struct closure>::iterator iter = this->closure.begin(); iter != this->closure.end(); iter++) {
+        index += 1;
+        ui->LOG->appendPlainText(QString::number(index) + " " + iter->name);
+    }
 }
