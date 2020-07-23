@@ -812,18 +812,18 @@ void Programmer::on_ButtonLoad_pressed() {
 
     int index = 0;
     SHA1_CTX ctx;
-    BYTE result[SHA1_BLOCK_SIZE];
+    uint8_t result[SHA1_BLOCK_SIZE];
     sha1_init(&ctx);
     for(vector<struct closure>::iterator iter = this->closure.begin(); iter != this->closure.end(); iter++) {
         index += 1;
         ui->LOG->appendPlainText(QString::number(index) + " " + iter->name);
-        sha1_update(&ctx, (const BYTE *)(iter->name.toStdString().c_str()), iter->name.toStdString().size());
-        sha1_update(&ctx, (const BYTE *)(iter->obis.toStdString().c_str()), iter->obis.toStdString().size());
-        sha1_update(&ctx, (const BYTE *)(iter->data.toStdString().c_str()), iter->data.toStdString().size());
-        sha1_update(&ctx, (const BYTE *)(QString::number(iter->id).toStdString().c_str()), QString::number(iter->id).toStdString().size());
-        sha1_update(&ctx, (const BYTE *)(QString::number(iter->index).toStdString().c_str()), QString::number(iter->index).toStdString().size());
+        sha1_update(&ctx, (const uint8_t *)(iter->name.toStdString().c_str()), iter->name.toStdString().size());
+        sha1_update(&ctx, (const uint8_t *)(iter->obis.toStdString().c_str()), iter->obis.toStdString().size());
+        sha1_update(&ctx, (const uint8_t *)(iter->data.toStdString().c_str()), iter->data.toStdString().size());
+        sha1_update(&ctx, (const uint8_t *)(QString::number(iter->id).toStdString().c_str()), QString::number(iter->id).toStdString().size());
+        sha1_update(&ctx, (const uint8_t *)(QString::number(iter->index).toStdString().c_str()), QString::number(iter->index).toStdString().size());
         if(iter->method) {
-            sha1_update(&ctx, (const BYTE *)("METHOD"), strlen("METHOD"));
+            sha1_update(&ctx, (const uint8_t *)("METHOD"), strlen("METHOD"));
         }
     }
     sha1_final(&ctx, result);

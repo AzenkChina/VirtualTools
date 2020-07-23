@@ -1028,7 +1028,7 @@ int CGXCommunication::ReadDLMSPacket(CGXByteBuffer& data, CGXReplyData& reply)
             return DLMS_ERROR_CODE_SEND_FAILED;
         }
         //Discards old data in the rx buffer.
-        tcflush(fd, TCIFLUSH);
+        tcflush(m_hComPort, TCIFLUSH);
 #endif
     }
     else if ((ret = send(m_socket, (const char*)data.GetData(), len, 0)) == -1)

@@ -823,7 +823,7 @@ void Prober::on_ButtonHexDec_pressed() {
             uint val = ui->HexDec->text().toUInt(&ret, 10);
             ui->HexDec->setMaxLength(4);
             if(ret) {
-                ui->HexDec->setText(QString::number(val, 16));
+                ui->HexDec->setText(QString::number(val, 16).toUpper());
             }
             else {
                 ui->HexDec->setText(QString::fromStdString(""));

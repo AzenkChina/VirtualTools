@@ -893,6 +893,9 @@
     <property name="text">
      <string>是否检查</string>
     </property>
+    <property name="checked">
+     <bool>true</bool>
+    </property>
    </widget>
    <widget class="QPlainTextEdit" name="Result">
     <property name="geometry">
