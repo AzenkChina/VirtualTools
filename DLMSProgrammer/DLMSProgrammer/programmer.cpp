@@ -1,5 +1,6 @@
 #include "programmer.h"
 #include "ui_programmer.h"
+#include "sha1.h"
 
 using namespace std;
 
@@ -178,23 +179,23 @@ void Thread::run() {
                 date.append("0905");
 
                 val.clear();
-                val.sprintf("%02x", static_cast<unsigned char>(dt.currentDateTime().date().year() / 256));
+                val.sprintf("%02X", static_cast<unsigned char>(dt.currentDateTime().date().year() / 256));
                 date.append(val);
 
                 val.clear();
-                val.sprintf("%02x", static_cast<unsigned char>(dt.currentDateTime().date().year() % 256));
+                val.sprintf("%02X", static_cast<unsigned char>(dt.currentDateTime().date().year() % 256));
                 date.append(val);
 
                 val.clear();
-                val.sprintf("%02x", static_cast<unsigned char>(dt.currentDateTime().date().month()));
+                val.sprintf("%02X", static_cast<unsigned char>(dt.currentDateTime().date().month()));
                 date.append(val);
 
                 val.clear();
-                val.sprintf("%02x", static_cast<unsigned char>(dt.currentDateTime().date().day()));
+                val.sprintf("%02X", static_cast<unsigned char>(dt.currentDateTime().date().day()));
                 date.append(val);
 
                 val.clear();
-                val.sprintf("%02x", static_cast<unsigned char>(dt.currentDateTime().date().dayOfWeek()));
+                val.sprintf("%02X", static_cast<unsigned char>(dt.currentDateTime().date().dayOfWeek()));
                 date.append(val);
 
                 data.SetHexString(date.toStdString());
@@ -207,19 +208,19 @@ void Thread::run() {
                 time.append("0904");
 
                 val.clear();
-                val.sprintf("%02x", static_cast<unsigned char>(dt.currentDateTime().time().hour()));
+                val.sprintf("%02X", static_cast<unsigned char>(dt.currentDateTime().time().hour()));
                 time.append(val);
 
                 val.clear();
-                val.sprintf("%02x", static_cast<unsigned char>(dt.currentDateTime().time().minute()));
+                val.sprintf("%02X", static_cast<unsigned char>(dt.currentDateTime().time().minute()));
                 time.append(val);
 
                 val.clear();
-                val.sprintf("%02x", static_cast<unsigned char>(dt.currentDateTime().time().second()));
+                val.sprintf("%02X", static_cast<unsigned char>(dt.currentDateTime().time().second()));
                 time.append(val);
 
                 val.clear();
-                val.sprintf("%02x", static_cast<unsigned char>(0));
+                val.sprintf("%02X", static_cast<unsigned char>(0));
                 time.append(val);
 
                 data.SetHexString(time.toStdString());
@@ -232,39 +233,39 @@ void Thread::run() {
                 datetime.append("090C");
 
                 val.clear();
-                val.sprintf("%02x", static_cast<unsigned char>(dt.currentDateTime().date().year() / 256));
+                val.sprintf("%02X", static_cast<unsigned char>(dt.currentDateTime().date().year() / 256));
                 datetime.append(val);
 
                 val.clear();
-                val.sprintf("%02x", static_cast<unsigned char>(dt.currentDateTime().date().year() % 256));
+                val.sprintf("%02X", static_cast<unsigned char>(dt.currentDateTime().date().year() % 256));
                 datetime.append(val);
 
                 val.clear();
-                val.sprintf("%02x", static_cast<unsigned char>(dt.currentDateTime().date().month()));
+                val.sprintf("%02X", static_cast<unsigned char>(dt.currentDateTime().date().month()));
                 datetime.append(val);
 
                 val.clear();
-                val.sprintf("%02x", static_cast<unsigned char>(dt.currentDateTime().date().day()));
+                val.sprintf("%02X", static_cast<unsigned char>(dt.currentDateTime().date().day()));
                 datetime.append(val);
 
                 val.clear();
-                val.sprintf("%02x", static_cast<unsigned char>(dt.currentDateTime().date().dayOfWeek()));
+                val.sprintf("%02X", static_cast<unsigned char>(dt.currentDateTime().date().dayOfWeek()));
                 datetime.append(val);
 
                 val.clear();
-                val.sprintf("%02x", static_cast<unsigned char>(dt.currentDateTime().time().hour()));
+                val.sprintf("%02X", static_cast<unsigned char>(dt.currentDateTime().time().hour()));
                 datetime.append(val);
 
                 val.clear();
-                val.sprintf("%02x", static_cast<unsigned char>(dt.currentDateTime().time().minute()));
+                val.sprintf("%02X", static_cast<unsigned char>(dt.currentDateTime().time().minute()));
                 datetime.append(val);
 
                 val.clear();
-                val.sprintf("%02x", static_cast<unsigned char>(dt.currentDateTime().time().second()));
+                val.sprintf("%02X", static_cast<unsigned char>(dt.currentDateTime().time().second()));
                 datetime.append(val);
 
                 val.clear();
-                val.sprintf("%02x", static_cast<unsigned char>(0));
+                val.sprintf("%02X", static_cast<unsigned char>(0));
                 datetime.append(val);
 
                 datetime.append("800000");
@@ -305,7 +306,7 @@ void Thread::run() {
                         QString str;
                         for (unsigned int n = 0; n < value.size(); n++) {
                             QString val;
-                            val.sprintf("%02x", static_cast<unsigned char>(value.data()[n]));
+                            val.sprintf("%02X", static_cast<unsigned char>(value.data()[n]));
                             str.append(val);
                         }
 
@@ -809,11 +810,30 @@ void Programmer::on_ButtonLoad_pressed() {
     ui->LOG->clear();
     ui->Result->clear();
 
-    ui->LOG->appendPlainText(QString::fromStdString("数据项总个数：") + QString::number(this->closure.size()));
-
     int index = 0;
+    SHA1_CTX ctx;
+    BYTE result[SHA1_BLOCK_SIZE];
+    sha1_init(&ctx);
     for(vector<struct closure>::iterator iter = this->closure.begin(); iter != this->closure.end(); iter++) {
         index += 1;
         ui->LOG->appendPlainText(QString::number(index) + " " + iter->name);
+        sha1_update(&ctx, (const BYTE *)(iter->name.toStdString().c_str()), iter->name.toStdString().size());
+        sha1_update(&ctx, (const BYTE *)(iter->obis.toStdString().c_str()), iter->obis.toStdString().size());
+        sha1_update(&ctx, (const BYTE *)(iter->data.toStdString().c_str()), iter->data.toStdString().size());
+        sha1_update(&ctx, (const BYTE *)(QString::number(iter->id).toStdString().c_str()), QString::number(iter->id).toStdString().size());
+        sha1_update(&ctx, (const BYTE *)(QString::number(iter->index).toStdString().c_str()), QString::number(iter->index).toStdString().size());
+        if(iter->method) {
+            sha1_update(&ctx, (const BYTE *)("METHOD"), strlen("METHOD"));
+        }
     }
+    sha1_final(&ctx, result);
+
+    QString str;
+    for (unsigned int n = 0; n < sizeof(result); n++) {
+        QString val;
+        val.sprintf("%02X", static_cast<unsigned char>(result[n]));
+        str.append(val);
+    }
+    ui->LOG->appendPlainText(QString::fromStdString(""));
+    ui->LOG->appendPlainText(QString::fromStdString("数据项校验：") + str);
 }

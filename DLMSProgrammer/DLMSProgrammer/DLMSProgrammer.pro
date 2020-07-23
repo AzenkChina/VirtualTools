@@ -166,7 +166,8 @@ SOURCES += \
     src/GXXmlWriter.cpp \
     src/GXXmlWriterSettings.cpp \
     src/GXDLMSCommon.cpp \
-    programmer.cpp
+    programmer.cpp \
+    sha1.c
 
 HEADERS += \
     communication.h \
@@ -317,7 +318,8 @@ HEADERS += \
     include/TranslatorStandardTags.h \
     include/TranslatorTags.h \
     include/GXDLMSCommon.h \
-    programmer.h
+    programmer.h \
+    sha1.h
 
 FORMS += \
     programmer.ui

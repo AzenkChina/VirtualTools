@@ -162,7 +162,7 @@ void Thread::run() {
             QString str;
             for (unsigned int n = 0; n < value.size(); n++) {
                 QString val;
-                val.sprintf("%02x", static_cast<unsigned char>(value.data()[n]));
+                val.sprintf("%02X", static_cast<unsigned char>(value.data()[n]));
                 str.append(val);
             }
 
@@ -190,7 +190,7 @@ void Thread::run() {
             QString str;
             for (unsigned int n = 0; n < rep.GetSize(); n++) {
                 QString val;
-                val.sprintf("%02x", static_cast<unsigned char>(rep.GetData()[n]));
+                val.sprintf("%02X", static_cast<unsigned char>(rep.GetData()[n]));
                 str.append(val);
             }
 
@@ -218,7 +218,7 @@ void Thread::run() {
             QString str;
             for (unsigned int n = 0; n < rep.GetSize(); n++) {
                 QString val;
-                val.sprintf("%02x", static_cast<unsigned char>(rep.GetData()[n]));
+                val.sprintf("%02X", static_cast<unsigned char>(rep.GetData()[n]));
                 str.append(val);
             }
 
@@ -748,29 +748,29 @@ void Prober::on_Button2Text_pressed()
 
     QDateTime DateTime = ui->Time->dateTime();
 
-    str.sprintf("%s%02x", str.toLocal8Bit().data(), 0x09);
-    str.sprintf("%s%02x", str.toLocal8Bit().data(), 0x0c);
+    str.sprintf("%s%02X", str.toLocal8Bit().data(), 0x09);
+    str.sprintf("%s%02X", str.toLocal8Bit().data(), 0x0c);
 
     str.sprintf("%s%c", str.toLocal8Bit().data(), ' ');
 
-    str.sprintf("%s%02x", str.toLocal8Bit().data(), static_cast<uchar>(DateTime.date().year() / 256));
-    str.sprintf("%s%02x", str.toLocal8Bit().data(), static_cast<uchar>(DateTime.date().year() % 256));
-    str.sprintf("%s%02x", str.toLocal8Bit().data(), static_cast<uchar>(DateTime.date().month()));
-    str.sprintf("%s%02x", str.toLocal8Bit().data(), static_cast<uchar>(DateTime.date().day()));
-    str.sprintf("%s%02x", str.toLocal8Bit().data(), static_cast<uchar>(DateTime.date().dayOfWeek()));
+    str.sprintf("%s%02X", str.toLocal8Bit().data(), static_cast<uchar>(DateTime.date().year() / 256));
+    str.sprintf("%s%02X", str.toLocal8Bit().data(), static_cast<uchar>(DateTime.date().year() % 256));
+    str.sprintf("%s%02X", str.toLocal8Bit().data(), static_cast<uchar>(DateTime.date().month()));
+    str.sprintf("%s%02X", str.toLocal8Bit().data(), static_cast<uchar>(DateTime.date().day()));
+    str.sprintf("%s%02X", str.toLocal8Bit().data(), static_cast<uchar>(DateTime.date().dayOfWeek()));
 
     str.sprintf("%s%c", str.toLocal8Bit().data(), ' ');
 
-    str.sprintf("%s%02x", str.toLocal8Bit().data(), static_cast<uchar>(DateTime.time().hour()));
-    str.sprintf("%s%02x", str.toLocal8Bit().data(), static_cast<uchar>(DateTime.time().minute()));
-    str.sprintf("%s%02x", str.toLocal8Bit().data(), 0x00);
-    str.sprintf("%s%02x", str.toLocal8Bit().data(), 0xff);
+    str.sprintf("%s%02X", str.toLocal8Bit().data(), static_cast<uchar>(DateTime.time().hour()));
+    str.sprintf("%s%02X", str.toLocal8Bit().data(), static_cast<uchar>(DateTime.time().minute()));
+    str.sprintf("%s%02X", str.toLocal8Bit().data(), 0x00);
+    str.sprintf("%s%02X", str.toLocal8Bit().data(), 0xff);
 
     str.sprintf("%s%c", str.toLocal8Bit().data(), ' ');
 
-    str.sprintf("%s%02x", str.toLocal8Bit().data(), 0x80);
-    str.sprintf("%s%02x", str.toLocal8Bit().data(), 0x00);
-    str.sprintf("%s%02x", str.toLocal8Bit().data(), 0xff);
+    str.sprintf("%s%02X", str.toLocal8Bit().data(), 0x80);
+    str.sprintf("%s%02X", str.toLocal8Bit().data(), 0x00);
+    str.sprintf("%s%02X", str.toLocal8Bit().data(), 0xff);
 
     ui->Text->setText(str);
 }
