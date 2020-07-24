@@ -434,8 +434,6 @@ void Prober::on_ButtonRead_pressed() {
             disconnect(this->Thread, SIGNAL(finishWork()), this, SLOT(on_finishWork()));
             this->Thread->terminate();
             this->Thread->wait();
-            delete this->Thread;
-            this->Thread = nullptr;
         }
 
         delete this->Thread;
@@ -482,8 +480,6 @@ void Prober::on_ButtonWrite_pressed() {
             disconnect(this->Thread, SIGNAL(finishWork()), this, SLOT(on_finishWork()));
             this->Thread->terminate();
             this->Thread->wait();
-            delete this->Thread;
-            this->Thread = nullptr;
         }
 
         delete this->Thread;
@@ -530,8 +526,6 @@ void Prober::on_ButtonExecute_pressed() {
             disconnect(this->Thread, SIGNAL(finishWork()), this, SLOT(on_finishWork()));
             this->Thread->terminate();
             this->Thread->wait();
-            delete this->Thread;
-            this->Thread = nullptr;
         }
 
         delete this->Thread;
@@ -617,13 +611,9 @@ void Prober::on_ButtonGetAddress_pressed() {
             disconnect(this->Thread, SIGNAL(finishWork()), this, SLOT(on_finishWork()));
             this->Thread->terminate();
             this->Thread->wait();
-            delete this->Thread;
-            this->Thread = nullptr;
         }
-        else {
-            delete this->Thread;
-            this->Thread = nullptr;
-        }
+		delete this->Thread;
+		this->Thread = nullptr;
     }
 
     if(Port != nullptr) {
