@@ -620,12 +620,34 @@ void MainWindow::on_FileButton_pressed() {
     ui->FileButton->setText(QString::fromStdString("已加载"));
 }
 
+void MainWindow::on_SerialNo_activated(const QString &arg1) {
+#if defined(Q_OS_WIN32)
+    ui->SerialNo->clear();
+    foreach(const QSerialPortInfo &info, QSerialPortInfo::availablePorts()) {
+        ui->SerialNo->addItem(info.portName());
+    }
+    if(ui->SerialNo->count() == 0) {
+        ui->SerialNo->addItem(QString::fromStdString("COM1"));
+    }
+    for(int cnt=0; cnt<ui->SerialNo->count(); cnt++) {
+        if(arg1 == ui->SerialNo->itemText(cnt)) {
+            ui->SerialNo->setCurrentIndex(cnt);
+        }
+    }
+#else
+    (void)arg1;
+#endif
+}
+
 void MainWindow::flush_serial() {
     QString current = ui->SerialNo->currentText();
     ui->SerialNo->clear();
 #if defined(Q_OS_WIN32)
     foreach(const QSerialPortInfo &info, QSerialPortInfo::availablePorts()) {
         ui->SerialNo->addItem(info.portName());
+    }
+    if(ui->SerialNo->count() == 0) {
+        ui->SerialNo->addItem(QString::fromStdString("COM1"));
     }
 #elif defined(Q_OS_LINUX)
     ui->SerialNo->addItem(QString::fromStdString("ttyS0"));

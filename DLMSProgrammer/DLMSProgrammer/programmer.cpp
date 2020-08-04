@@ -553,6 +553,9 @@ void Programmer::getAvaliableSerials() {
     foreach(const QSerialPortInfo &info, QSerialPortInfo::availablePorts()) {
         ui->SerialNo->addItem(info.portName());
     }
+    if(ui->SerialNo->count() == 0) {
+        ui->SerialNo->addItem(QString::fromStdString("COM1"));
+    }
 #elif defined(Q_OS_LINUX)
     ui->SerialNo->addItem(QString::fromStdString("ttyS0"));
     ui->SerialNo->addItem(QString::fromStdString("ttyS1"));
@@ -573,6 +576,9 @@ void Programmer::on_SerialNo_activated(const QString &arg1) {
     ui->SerialNo->clear();
     foreach(const QSerialPortInfo &info, QSerialPortInfo::availablePorts()) {
         ui->SerialNo->addItem(info.portName());
+    }
+    if(ui->SerialNo->count() == 0) {
+        ui->SerialNo->addItem(QString::fromStdString("COM1"));
     }
     for(int cnt=0; cnt<ui->SerialNo->count(); cnt++) {
         if(arg1 == ui->SerialNo->itemText(cnt)) {

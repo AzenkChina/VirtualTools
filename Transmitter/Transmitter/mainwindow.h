@@ -51,6 +51,8 @@ private slots:
 
     void on_FileButton_pressed();
 
+    void on_SerialNo_activated(const QString &arg1);
+
 private:
     Ui::MainWindow *ui;
     QTimer *Timer = nullptr;
