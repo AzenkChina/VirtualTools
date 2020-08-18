@@ -252,6 +252,10 @@ Prober::Prober(QWidget *parent) :
     this->getAvaliableSerials();
 
     this->on_Level_currentIndexChanged(ui->Level->currentIndex());
+
+    QTime Time(12,0,0,0);
+    QDateTime DateTime(QDate::currentDate(), Time);
+    ui->Time->setDateTime(DateTime);
 }
 
 Prober::~Prober() {
