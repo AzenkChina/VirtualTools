@@ -519,6 +519,19 @@ p, li { white-space: pre-wrap; }
   </widget>
  </widget>
  <layoutdefault spacing="6" margin="11"/>
+ <tabstops>
+  <tabstop>SerialNo</tabstop>
+  <tabstop>Baudrate</tabstop>
+  <tabstop>CheckBit</tabstop>
+  <tabstop>StopBit</tabstop>
+  <tabstop>AddressStart</tabstop>
+  <tabstop>AddressStop</tabstop>
+  <tabstop>Password</tabstop>
+  <tabstop>AddressCurrent</tabstop>
+  <tabstop>FileButton</tabstop>
+  <tabstop>StartButton</tabstop>
+  <tabstop>LogBrowser</tabstop>
+ </tabstops>
  <resources/>
  <connections/>
 </ui>

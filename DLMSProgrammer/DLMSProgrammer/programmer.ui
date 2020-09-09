@@ -937,6 +937,27 @@
   </widget>
  </widget>
  <layoutdefault spacing="6" margin="11"/>
+ <tabstops>
+  <tabstop>SerialNo</tabstop>
+  <tabstop>Baudrate</tabstop>
+  <tabstop>CheckBit</tabstop>
+  <tabstop>StopBit</tabstop>
+  <tabstop>AddressClient</tabstop>
+  <tabstop>AddressMode</tabstop>
+  <tabstop>AddressLogic</tabstop>
+  <tabstop>AddressStart</tabstop>
+  <tabstop>AddressEnd</tabstop>
+  <tabstop>Level</tabstop>
+  <tabstop>EncryptKey</tabstop>
+  <tabstop>Password</tabstop>
+  <tabstop>AuthKey</tabstop>
+  <tabstop>BoxSet</tabstop>
+  <tabstop>BoxGet</tabstop>
+  <tabstop>ButtonLoad</tabstop>
+  <tabstop>ButtonStart</tabstop>
+  <tabstop>LOG</tabstop>
+  <tabstop>Result</tabstop>
+ </tabstops>
  <resources/>
  <connections/>
 </ui>

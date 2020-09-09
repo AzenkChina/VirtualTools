@@ -1384,6 +1384,31 @@
   </widget>
  </widget>
  <layoutdefault spacing="6" margin="11"/>
+ <tabstops>
+  <tabstop>VoltagePhaseA</tabstop>
+  <tabstop>VoltagePhaseB</tabstop>
+  <tabstop>VoltagePhaseC</tabstop>
+  <tabstop>VoltageInverse</tabstop>
+  <tabstop>CurrentPhaseA</tabstop>
+  <tabstop>CurrentPhaseB</tabstop>
+  <tabstop>CurrentPhaseC</tabstop>
+  <tabstop>CurrentPhaseN</tabstop>
+  <tabstop>CurrenAngleA</tabstop>
+  <tabstop>CurrenAngleB</tabstop>
+  <tabstop>CurrenAngleC</tabstop>
+  <tabstop>PositivePowerPhaseA</tabstop>
+  <tabstop>PositivePowerPhaseB</tabstop>
+  <tabstop>PositivePowerPhaseC</tabstop>
+  <tabstop>PositivePowerTotal</tabstop>
+  <tabstop>NegitivePowerPhaseA</tabstop>
+  <tabstop>NegitivePowerPhaseB</tabstop>
+  <tabstop>NegitivePowerPhaseC</tabstop>
+  <tabstop>NegitivePowerTotal</tabstop>
+  <tabstop>HFPostive</tabstop>
+  <tabstop>HFNegitive</tabstop>
+  <tabstop>MetringMode</tabstop>
+  <tabstop>StartButton</tabstop>
+ </tabstops>
  <resources/>
  <connections/>
 </ui>

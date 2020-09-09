@@ -445,6 +445,29 @@
   </widget>
  </widget>
  <layoutdefault spacing="6" margin="11"/>
+ <tabstops>
+  <tabstop>KEY_1</tabstop>
+  <tabstop>KEY_2</tabstop>
+  <tabstop>KEY_3</tabstop>
+  <tabstop>KEY_4</tabstop>
+  <tabstop>KEY_5</tabstop>
+  <tabstop>KEY_6</tabstop>
+  <tabstop>KEY_7</tabstop>
+  <tabstop>KEY_8</tabstop>
+  <tabstop>KEY_9</tabstop>
+  <tabstop>KEY_0</tabstop>
+  <tabstop>KEY_DEL</tabstop>
+  <tabstop>KEY_ENTER</tabstop>
+  <tabstop>KEY_UP</tabstop>
+  <tabstop>KEY_DOWN</tabstop>
+  <tabstop>KEY_PROG</tabstop>
+  <tabstop>B_BAT_RTC</tabstop>
+  <tabstop>B_BAT_BACKUP</tabstop>
+  <tabstop>B_MAIN_COVER</tabstop>
+  <tabstop>B_SUB_COVER</tabstop>
+  <tabstop>B_MAGNETIC</tabstop>
+  <tabstop>B_RELAY</tabstop>
+ </tabstops>
  <resources/>
  <connections/>
 </ui>

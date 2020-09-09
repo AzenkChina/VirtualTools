@@ -1579,6 +1579,39 @@
   </widget>
  </widget>
  <layoutdefault spacing="6" margin="11"/>
+ <tabstops>
+  <tabstop>SerialNo</tabstop>
+  <tabstop>Baudrate</tabstop>
+  <tabstop>CheckBit</tabstop>
+  <tabstop>StopBit</tabstop>
+  <tabstop>AddressClient</tabstop>
+  <tabstop>AddressMode</tabstop>
+  <tabstop>AddressLogic</tabstop>
+  <tabstop>AddressReal</tabstop>
+  <tabstop>ButtonGetAddress</tabstop>
+  <tabstop>Level</tabstop>
+  <tabstop>EncryptKey</tabstop>
+  <tabstop>Password</tabstop>
+  <tabstop>AuthKey</tabstop>
+  <tabstop>DedKey</tabstop>
+  <tabstop>ClassID</tabstop>
+  <tabstop>OBIS1</tabstop>
+  <tabstop>OBIS2</tabstop>
+  <tabstop>OBIS3</tabstop>
+  <tabstop>OBIS4</tabstop>
+  <tabstop>OBIS5</tabstop>
+  <tabstop>OBIS6</tabstop>
+  <tabstop>Attribute</tabstop>
+  <tabstop>ButtonRead</tabstop>
+  <tabstop>ButtonWrite</tabstop>
+  <tabstop>ButtonExecute</tabstop>
+  <tabstop>Time</tabstop>
+  <tabstop>Button2Text</tabstop>
+  <tabstop>Text</tabstop>
+  <tabstop>Button2Time</tabstop>
+  <tabstop>HexDec</tabstop>
+  <tabstop>ButtonHexDec</tabstop>
+ </tabstops>
  <resources/>
  <connections/>
 </ui>
