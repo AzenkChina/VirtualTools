@@ -272,6 +272,21 @@ void Thread::run() {
 
                 data.SetHexString(datetime.toStdString());
             }
+            else if(iter->data == "DELAY") {
+                if(iter->index < 1) {
+                    iter->index = 1;
+                }
+                if(iter->index > 10) {
+                    iter->index = 10;
+                }
+                result.append(iter->name + ": ");
+                QString val;
+                val.sprintf("延时%d秒", static_cast<unsigned char>(iter->index));
+                result.append(val);
+                emit updateMessage(result);
+                Thread::sleep(iter->index);
+                continue;
+            }
             else {
                 data.SetHexString(iter->data.toStdString());
             }
@@ -781,8 +796,12 @@ void Programmer::on_ButtonLoad_pressed() {
                 element.data.clear();
                 element.data.append("DATETIME");
             }
+            else if (*iter == "DELAY") {
+                element.data.clear();
+                element.data.append("DELAY");
+            }
             else {
-                if((element.data == "DATE") || (element.data == "TIME") || (element.data == "DATETIME")) {
+                if((element.data == "DATE") || (element.data == "TIME") || (element.data == "DATETIME") || (element.data == "DELAY")) {
                     continue;
                 }
 
