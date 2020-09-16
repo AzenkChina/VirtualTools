@@ -117,7 +117,7 @@ void Thread::run() {
                                        DLMS_CONFORMANCE_ACTION\
                                        ));
 
-        this->cl->SetAutoIncreaseInvokeID(true);
+        this->cl->SetAutoIncreaseInvokeID(false);
 
         CGXByteBuffer bb;
 
