@@ -524,6 +524,25 @@ public:
         std::vector<CGXByteBuffer>& reply);
 
     /**
+    * Generates a read message.
+    *
+    * @param pObject
+    *            COSEM object to write.
+    * @param attributeOrdinal
+    *            Attribute index of the object.
+    * @param data
+    *            Read data parameter.
+    * @param reply
+    *            Generated read message(s).
+    * Returns error status.
+    */
+    int Read(
+        CGXDLMSObject* pObject,
+        int attributeOrdinal,
+        CGXByteBuffer* data,
+        std::vector<CGXByteBuffer>& reply);
+
+    /**
     * Read list of COSEM objects.
     *
     * @param list

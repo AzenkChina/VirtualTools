@@ -1211,6 +1211,25 @@ int CGXCommunication::Read(CGXDLMSObject* pObject, int attributeIndex, std::stri
     return DLMS_ERROR_CODE_OK;
 }
 
+//Read selected object.
+int CGXCommunication::Read(CGXDLMSObject* pObject, int attributeIndex, CGXByteBuffer *param, std::string& value)
+{
+    value.clear();
+    int ret;
+    std::vector<CGXByteBuffer> data;
+    CGXReplyData reply;
+    //Read data from the meter.
+    if ((ret = m_Parser->Read(pObject, attributeIndex, param, data)) != 0 ||
+        (ret = ReadDataBlock(data, reply)) != 0 ||
+        (ret = m_Parser->UpdateValue(*pObject, attributeIndex, reply.GetValue())) != 0)
+    {
+        return ret;
+    }
+
+    value = reply.GetData().ToString();
+    return DLMS_ERROR_CODE_OK;
+}
+
 //Write selected object.
 int CGXCommunication::Write(CGXDLMSObject* pObject, int attributeIndex, CGXByteBuffer& value)
 {

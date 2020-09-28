@@ -140,6 +140,7 @@ public:
 
     //Read selected object.
     int Read(CGXDLMSObject* pObject, int attributeIndex, std::string& value);
+    int Read(CGXDLMSObject* pObject, int attributeIndex, CGXByteBuffer *param, std::string& value);
 
     //Write selected object.
     int Write(

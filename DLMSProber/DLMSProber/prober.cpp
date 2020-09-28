@@ -154,8 +154,10 @@ void Thread::run() {
     CGXDLMSCommon Object(para.classID, para.obis.toStdString());
 
     if(this->para.motion == 1) {
+        bb.Clear();
+        bb.SetHexString(this->data.toStdString());
         std::string value;
-        if(this->comm->Read(&Object, para.index, value) != DLMS_ERROR_CODE_OK) {
+        if(this->comm->Read(&Object, para.index, &bb, value) != DLMS_ERROR_CODE_OK) {
             emit updateMessage("读取失败");
         }
         else {

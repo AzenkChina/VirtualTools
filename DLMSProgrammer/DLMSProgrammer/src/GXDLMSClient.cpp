@@ -1222,6 +1222,13 @@ int CGXDLMSClient::Read(CGXDLMSVariant& name, DLMS_OBJECT_TYPE objectType, int a
     return Read(name, objectType, attributeOrdinal, NULL, reply);
 }
 
+
+int CGXDLMSClient::Read(CGXDLMSObject* pObject, int attributeOrdinal, CGXByteBuffer* data, std::vector<CGXByteBuffer>& reply)
+{
+    CGXDLMSVariant name = pObject->GetName();
+    return Read(name, pObject->GetObjectType(), attributeOrdinal, data, reply);
+}
+
 int CGXDLMSClient::Read(CGXDLMSVariant& name, DLMS_OBJECT_TYPE objectType, int attributeOrdinal, CGXByteBuffer* data,
     std::vector<CGXByteBuffer>& reply)
 {
