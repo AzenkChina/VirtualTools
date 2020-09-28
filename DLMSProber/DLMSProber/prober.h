@@ -23,6 +23,8 @@ struct parameter
     CGXByteBuffer password;
     DLMS_AUTHENTICATION level;
     QString comm;
+    QString ip;
+    uint16_t port;
     bool negotiate = false;
     uint16_t classID;
     QString obis;

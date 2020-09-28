@@ -72,7 +72,7 @@ class CGXCommunication
     GX_TRACE_LEVEL m_Trace;
     CGXDLMSSecureClient* m_Parser;
     int m_socket;
-    static const unsigned int RECEIVE_BUFFER_SIZE = 200;
+    static const unsigned int RECEIVE_BUFFER_SIZE = 2048;
     unsigned char   m_Receivebuff[RECEIVE_BUFFER_SIZE];
     char* m_InvocationCounter;
 #if defined(_WIN32) || defined(_WIN64)//Windows includes

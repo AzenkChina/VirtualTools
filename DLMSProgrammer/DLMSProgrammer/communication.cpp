@@ -146,6 +146,7 @@ int CGXCommunication::Close()
     {
 #if defined(_WIN32) || defined(_WIN64)//Windows includes
         closesocket(m_socket);
+        WSACleanup();
 #else
         close(m_socket);
 #endif
@@ -166,12 +167,33 @@ int CGXCommunication::Connect(const char* pAddress, unsigned short Port)
     Close();
     //create socket.
     int family = IsIPv6Address(pAddress) ? AF_INET6 : AF_INET;
+#if defined ( _WIN32 ) || defined ( _WIN64 )
+    WSADATA wsaData;
+    // Initialize Winsock
+    if (WSAStartup(MAKEWORD(2, 2), &wsaData) != NO_ERROR) {
+        return DLMS_ERROR_CODE_INVALID_PARAMETER;
+    }
+#endif
     m_socket = socket(family, SOCK_STREAM, IPPROTO_IP);
     if (m_socket == -1)
     {
-        assert(0);
+#if defined ( _WIN32 ) || defined ( _WIN64 )
+        WSACleanup();
+#endif
+//        assert(0);
         return DLMS_ERROR_CODE_INVALID_PARAMETER;
     }
+#if defined ( _WIN32 ) || defined ( _WIN64 )
+    int timeout = this->m_WaitTime;
+    setsockopt(m_socket, SOL_SOCKET, SO_RCVTIMEO, (char *)&timeout, sizeof(int));
+    setsockopt(m_socket, SOL_SOCKET, SO_SNDTIMEO, (char *)&timeout, sizeof(int));
+#else
+    struct timeval timeout;
+    timeout.tv_sec = this->m_WaitTime / 1000;
+    timeout.tv_usec = 1000;
+    setsockopt(m_socket, SOL_SOCKET, SO_RCVTIMEO, &timeout, sizeof(timeout));
+    setsockopt(m_socket, SOL_SOCKET, SO_SNDTIMEO, &timeout, sizeof(timeout));
+#endif
     sockaddr* add;
     int addSize;
     sockaddr_in6 addrIP6;

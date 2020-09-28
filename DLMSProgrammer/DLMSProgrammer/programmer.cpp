@@ -136,15 +136,29 @@ void Thread::run() {
         emit updateMessage("地址: " + QString::number(physical));
 
         int ret;
-        if ((ret = this->comm->Open(para.comm.toStdString().data(), para.negotiate, 115200)) != 0) {
-            delete this->cl;
-            delete this->comm;
-            this->cl = nullptr;
-            this->comm = nullptr;
-            emit updateMessage("打开串口出错");
-            emit updateResult("地址: " + QString::number(physical) + " 操作失败");
-            continue;
-        }
+		
+	    if(para.comm == "NET") {
+	        if ((ret = this->comm->Connect(para.ip.toStdString().data(), para.port)) != 0) {
+	            delete this->cl;
+	            delete this->comm;
+	            this->cl = nullptr;
+	            this->comm = nullptr;
+                emit updateMessage("连接网络出错");
+	            emit updateResult("地址: " + QString::number(physical) + " 操作失败");
+	            continue;
+	        }
+	    }
+		else {
+	        if ((ret = this->comm->Open(para.comm.toStdString().data(), para.negotiate, 115200)) != 0) {
+	            delete this->cl;
+	            delete this->comm;
+	            this->cl = nullptr;
+	            this->comm = nullptr;
+	            emit updateMessage("打开串口出错");
+	            emit updateResult("地址: " + QString::number(physical) + " 操作失败");
+	            continue;
+	        }
+		}
 
         if ((ret = this->comm->InitializeConnection()) != 0) {
             this->comm->Close();
@@ -421,37 +435,54 @@ bool Programmer::praseParameter(struct parameter &para) {
         para.level = DLMS_AUTHENTICATION_NONE;
     }
 
+    if(ui->SerialNo->currentText() == "NET") {
+        para.comm.append(ui->SerialNo->currentText());
+        QRegExp reg("((25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9][0-9]|[0-9])[\\.]){3}(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9][0-9]|[0-9])");
+        if(!reg.exactMatch(ui->IPAddress->text())) {
+            ui->LOG->appendPlainText("IP不正确");
+            return false;
+        }
+        para.ip.append(ui->IPAddress->text());
+        bool ret;
+        para.port = ui->Port->text().toUShort(&ret);
+        if(ret != true){
+            ui->LOG->appendPlainText("端口不正确");
+            return false;
+        }
+    }
+    else {
 #if defined(Q_OS_WIN32)
-    para.comm.append(ui->SerialNo->currentText());
+	    para.comm.append(ui->SerialNo->currentText());
 #else
-    para.comm.append(QString::fromStdString("/dev/") + ui->SerialNo->currentText());
+	    para.comm.append(QString::fromStdString("/dev/") + ui->SerialNo->currentText());
 #endif
-    para.comm.append(":");
-    switch(ui->Baudrate->currentIndex()) {
-        case 0:para.comm.append("1200");para.negotiate = false;break;
-        case 1:para.comm.append("2400");para.negotiate = false;break;
-        case 2:para.comm.append("4800");para.negotiate = false;break;
-        case 3:para.comm.append("9600");para.negotiate = false;break;
-        case 4:para.comm.append("19200");para.negotiate = false;break;
-        case 5:para.comm.append("38400");para.negotiate = false;break;
-        case 6:para.comm.append("57600");para.negotiate = false;break;
-        case 7:para.comm.append("115200");para.negotiate = false;break;
-        case 8:para.comm.append("300");para.negotiate = true;break;
-        default:para.comm.append("9600");para.negotiate = false;break;
-    }
-    para.comm.append(":8");
-    switch (ui->CheckBit->currentIndex()) {
-        case 0:para.comm.append("None");break;
-        case 1:para.comm.append("Odd");break;
-        case 2:para.comm.append("Even");break;
-        default:para.comm.append("None");break;
-    }
-    switch (ui->StopBit->currentIndex()) {
-        case 0:para.comm.append("0");break;
-        case 1:para.comm.append("1");break;
-        case 2:para.comm.append("2");break;
-        default:para.comm.append("0");break;
-    }
+	    para.comm.append(":");
+	    switch(ui->Baudrate->currentIndex()) {
+	        case 0:para.comm.append("1200");para.negotiate = false;break;
+	        case 1:para.comm.append("2400");para.negotiate = false;break;
+	        case 2:para.comm.append("4800");para.negotiate = false;break;
+	        case 3:para.comm.append("9600");para.negotiate = false;break;
+	        case 4:para.comm.append("19200");para.negotiate = false;break;
+	        case 5:para.comm.append("38400");para.negotiate = false;break;
+	        case 6:para.comm.append("57600");para.negotiate = false;break;
+	        case 7:para.comm.append("115200");para.negotiate = false;break;
+	        case 8:para.comm.append("300");para.negotiate = true;break;
+	        default:para.comm.append("9600");para.negotiate = false;break;
+	    }
+	    para.comm.append(":8");
+	    switch (ui->CheckBit->currentIndex()) {
+	        case 0:para.comm.append("None");break;
+	        case 1:para.comm.append("Odd");break;
+	        case 2:para.comm.append("Even");break;
+	        default:para.comm.append("None");break;
+	    }
+	    switch (ui->StopBit->currentIndex()) {
+	        case 0:para.comm.append("0");break;
+	        case 1:para.comm.append("1");break;
+	        case 2:para.comm.append("2");break;
+	        default:para.comm.append("0");break;
+	    }
+	}
 
     bool ret;
 
@@ -579,10 +610,33 @@ void Programmer::getAvaliableSerials() {
     ui->SerialNo->addItem(QString::fromStdString("ttyUSB1"));
     ui->SerialNo->addItem(QString::fromStdString("ttyUSB2"));
 #endif
+    ui->SerialNo->addItem(QString::fromStdString("NET"));
     for(int cnt=0; cnt<ui->SerialNo->count(); cnt++) {
         if(current == ui->SerialNo->itemText(cnt)) {
             ui->SerialNo->setCurrentIndex(cnt);
         }
+    }
+    if(ui->SerialNo->currentText() == "NET") {
+        ui->IPAddress->setVisible(true);
+        ui->Port->setVisible(true);
+        ui->label_17->setVisible(true);
+        ui->Baudrate->setVisible(false);
+        ui->StopBit->setVisible(false);
+        ui->CheckBit->setVisible(false);
+        ui->label_4->setVisible(false);
+        ui->label_5->setVisible(false);
+        ui->label_10->setText(QString::fromStdString("   端口"));
+    }
+    else {
+        ui->IPAddress->setVisible(false);
+        ui->Port->setVisible(false);
+        ui->label_17->setVisible(false);
+        ui->Baudrate->setVisible(true);
+        ui->StopBit->setVisible(true);
+        ui->CheckBit->setVisible(true);
+        ui->label_4->setVisible(true);
+        ui->label_5->setVisible(true);
+        ui->label_10->setText(QString::fromStdString("停止位"));
     }
 }
 
@@ -595,6 +649,7 @@ void Programmer::on_SerialNo_activated(const QString &arg1) {
     if(ui->SerialNo->count() == 0) {
         ui->SerialNo->addItem(QString::fromStdString("COM1"));
     }
+    ui->SerialNo->addItem(QString::fromStdString("NET"));
     for(int cnt=0; cnt<ui->SerialNo->count(); cnt++) {
         if(arg1 == ui->SerialNo->itemText(cnt)) {
             ui->SerialNo->setCurrentIndex(cnt);
@@ -603,6 +658,28 @@ void Programmer::on_SerialNo_activated(const QString &arg1) {
 #else
     (void)arg1;
 #endif
+    if(ui->SerialNo->currentText() == "NET") {
+        ui->IPAddress->setVisible(true);
+        ui->Port->setVisible(true);
+        ui->label_17->setVisible(true);
+        ui->Baudrate->setVisible(false);
+        ui->StopBit->setVisible(false);
+        ui->CheckBit->setVisible(false);
+        ui->label_4->setVisible(false);
+        ui->label_5->setVisible(false);
+        ui->label_10->setText(QString::fromStdString("   端口"));
+    }
+    else {
+        ui->IPAddress->setVisible(false);
+        ui->Port->setVisible(false);
+        ui->label_17->setVisible(false);
+        ui->Baudrate->setVisible(true);
+        ui->StopBit->setVisible(true);
+        ui->CheckBit->setVisible(true);
+        ui->label_4->setVisible(true);
+        ui->label_5->setVisible(true);
+        ui->label_10->setText(QString::fromStdString("停止位"));
+    }
 }
 
 void Programmer::on_ButtonLoad_pressed() {
