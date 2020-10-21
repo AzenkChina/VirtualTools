@@ -5,6 +5,7 @@
 #include <QThread>
 #include <QSerialPort>
 #include <QSerialPortInfo>
+#include <QTcpSocket>
 #include <QTimer>
 #include "include/GXBytebuffer.h"
 #include "include/GXDLMSCommon.h"
@@ -88,6 +89,8 @@ private slots:
 
     void on_Serial_receive();
 
+    void on_Sock_receive();
+
     void on_Timer_overflow();
 
     void on_Level_currentIndexChanged(int index);
@@ -95,6 +98,7 @@ private slots:
 private:
     Ui::Prober *ui;
     QSerialPort *Port = nullptr;
+    QTcpSocket *Sock = nullptr;
     QTimer *Timer = nullptr;
     class Thread *Thread = nullptr;
     QByteArray recv;

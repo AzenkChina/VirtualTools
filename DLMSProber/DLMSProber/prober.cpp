@@ -711,19 +711,17 @@ void Prober::on_ButtonGetAddress_pressed() {
         Port = nullptr;
     }
 
+    if(Sock != nullptr) {
+        disconnect(Sock, SIGNAL(readyRead()), this, SLOT(on_Sock_receive()));
+        Sock->close();
+        delete Sock;
+        Sock = nullptr;
+    }
+
     if(Timer != nullptr) {
         disconnect(Timer, SIGNAL(timeout()), this, SLOT(on_Timer_overflow()));
         Timer->stop();
         Timer = nullptr;
-    }
-
-    ui->ButtonRead->setEnabled(true);
-    ui->ButtonWrite->setEnabled(true);
-    ui->ButtonExecute->setEnabled(true);
-    ui->ButtonGetAddress->setEnabled(true);
-
-    if(ui->SerialNo->currentText() == "NET") {
-        return;
     }
 
     ui->ButtonRead->setEnabled(false);
@@ -731,70 +729,120 @@ void Prober::on_ButtonGetAddress_pressed() {
     ui->ButtonExecute->setEnabled(false);
     ui->ButtonGetAddress->setEnabled(false);
 
-    Port = new QSerialPort();
-
-#if defined(Q_OS_WIN32)
-    Port->setPortName(ui->SerialNo->currentText());
-#elif defined(Q_OS_LINUX)
-    Port->setPortName(QString::fromStdString("/dev/") + ui->SerialNo->currentText());
-#endif
-    if(!Port->open(QIODevice::ReadWrite)) {
-        delete Port;
-        Port = nullptr;
-        ui->ButtonRead->setEnabled(true);
-        ui->ButtonWrite->setEnabled(true);
-        ui->ButtonExecute->setEnabled(true);
-        ui->ButtonGetAddress->setEnabled(true);
-        return;
-    }
-
-    Port->setDataBits(QSerialPort::Data8);
-    Port->setFlowControl(QSerialPort::NoFlowControl);
-    switch(ui->Baudrate->currentIndex()) {
-        case 0:Port->setBaudRate(QSerialPort::Baud1200,QSerialPort::AllDirections);break;
-        case 1:Port->setBaudRate(QSerialPort::Baud2400,QSerialPort::AllDirections);break;
-        case 2:Port->setBaudRate(QSerialPort::Baud4800,QSerialPort::AllDirections);break;
-        case 3:Port->setBaudRate(QSerialPort::Baud9600,QSerialPort::AllDirections);break;
-        case 4:Port->setBaudRate(QSerialPort::Baud19200,QSerialPort::AllDirections);break;
-        case 5:Port->setBaudRate(QSerialPort::Baud38400,QSerialPort::AllDirections);break;
-        case 6:Port->setBaudRate(QSerialPort::Baud57600,QSerialPort::AllDirections);break;
-        case 7:Port->setBaudRate(QSerialPort::Baud115200,QSerialPort::AllDirections);break;
-        default:Port->setBaudRate(QSerialPort::Baud9600,QSerialPort::AllDirections);break;
-    }
-    switch (ui->CheckBit->currentIndex()) {
-        case 0:Port->setParity(QSerialPort::NoParity);break;
-        case 1:Port->setParity(QSerialPort::OddParity);break;
-        case 2:Port->setParity(QSerialPort::EvenParity);break;
-        default:Port->setParity(QSerialPort::NoParity);break;
-    }
-    switch (ui->StopBit->currentIndex()) {
-        case 0:Port->setStopBits(QSerialPort::OneStop);break;
-        case 1:Port->setStopBits(QSerialPort::OneAndHalfStop);break;
-        case 2:Port->setStopBits(QSerialPort::TwoStop);break;
-        default:Port->setStopBits(QSerialPort::OneStop);break;
-    }
-
     const unsigned char packet[] = {
         0xfe, 0xfe, 0xfe, 0xfe, 0xfe, 0xfe, 0x68, 0xaa,
         0xaa, 0xaa, 0xaa, 0xaa, 0xaa, 0x68, 0x13, 0x00,
         0xdf, 0x16
     };
 
-    connect(Port, SIGNAL(readyRead()), this, SLOT(on_Serial_receive()));
+    if(ui->SerialNo->currentText() == "NET") {
+        QRegExp reg("((25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9][0-9]|[0-9])[\\.]){3}(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9][0-9]|[0-9])");
+        if(!reg.exactMatch(ui->IPAddress->text())) {
+            ui->ButtonRead->setEnabled(true);
+            ui->ButtonWrite->setEnabled(true);
+            ui->ButtonExecute->setEnabled(true);
+            ui->ButtonGetAddress->setEnabled(true);
+            ui->LOG->appendPlainText("IP不正确");
+            return;
+        }
+        bool ret;
+        ui->Port->text().toUShort(&ret);
+        if(ret != true){
+            ui->ButtonRead->setEnabled(true);
+            ui->ButtonWrite->setEnabled(true);
+            ui->ButtonExecute->setEnabled(true);
+            ui->ButtonGetAddress->setEnabled(true);
+            ui->LOG->appendPlainText("端口不正确");
+            return;
+        }
+        Sock = new QTcpSocket();
+        Sock->abort();
+        Sock->connectToHost(ui->IPAddress->text(), ui->Port->text().toUShort());
+        if(!Sock->waitForConnected(3000)) {
+            ui->ButtonRead->setEnabled(true);
+            ui->ButtonWrite->setEnabled(true);
+            ui->ButtonExecute->setEnabled(true);
+            ui->ButtonGetAddress->setEnabled(true);
+            ui->LOG->appendPlainText("建立连接失败");
+            return;
+        }
 
-    recv.clear();
-    Port->write(reinterpret_cast<const char *>(packet), sizeof(packet));
+        connect(Sock, SIGNAL(readyRead()), this, SLOT(on_Sock_receive()));
 
-    Timer = new QTimer(this);
-    connect(Timer, SIGNAL(timeout()), this, SLOT(on_Timer_overflow()));
-    Timer->start(1500);
+        recv.clear();
+        Sock->write(reinterpret_cast<const char *>(packet), sizeof(packet));
 
-    Port->flush();
-    ui->AddressReal->setText("");
+        Timer = new QTimer(this);
+        connect(Timer, SIGNAL(timeout()), this, SLOT(on_Timer_overflow()));
+        Timer->start(1500);
+
+        Sock->flush();
+        ui->AddressReal->setText("");
+    }
+    else {
+        Port = new QSerialPort();
+    #if defined(Q_OS_WIN32)
+        Port->setPortName(ui->SerialNo->currentText());
+    #elif defined(Q_OS_LINUX)
+        Port->setPortName(QString::fromStdString("/dev/") + ui->SerialNo->currentText());
+    #endif
+        if(!Port->open(QIODevice::ReadWrite)) {
+            delete Port;
+            Port = nullptr;
+            ui->ButtonRead->setEnabled(true);
+            ui->ButtonWrite->setEnabled(true);
+            ui->ButtonExecute->setEnabled(true);
+            ui->ButtonGetAddress->setEnabled(true);
+            return;
+        }
+
+        Port->setDataBits(QSerialPort::Data8);
+        Port->setFlowControl(QSerialPort::NoFlowControl);
+        switch(ui->Baudrate->currentIndex()) {
+            case 0:Port->setBaudRate(QSerialPort::Baud1200,QSerialPort::AllDirections);break;
+            case 1:Port->setBaudRate(QSerialPort::Baud2400,QSerialPort::AllDirections);break;
+            case 2:Port->setBaudRate(QSerialPort::Baud4800,QSerialPort::AllDirections);break;
+            case 3:Port->setBaudRate(QSerialPort::Baud9600,QSerialPort::AllDirections);break;
+            case 4:Port->setBaudRate(QSerialPort::Baud19200,QSerialPort::AllDirections);break;
+            case 5:Port->setBaudRate(QSerialPort::Baud38400,QSerialPort::AllDirections);break;
+            case 6:Port->setBaudRate(QSerialPort::Baud57600,QSerialPort::AllDirections);break;
+            case 7:Port->setBaudRate(QSerialPort::Baud115200,QSerialPort::AllDirections);break;
+            default:Port->setBaudRate(QSerialPort::Baud9600,QSerialPort::AllDirections);break;
+        }
+        switch (ui->CheckBit->currentIndex()) {
+            case 0:Port->setParity(QSerialPort::NoParity);break;
+            case 1:Port->setParity(QSerialPort::OddParity);break;
+            case 2:Port->setParity(QSerialPort::EvenParity);break;
+            default:Port->setParity(QSerialPort::NoParity);break;
+        }
+        switch (ui->StopBit->currentIndex()) {
+            case 0:Port->setStopBits(QSerialPort::OneStop);break;
+            case 1:Port->setStopBits(QSerialPort::OneAndHalfStop);break;
+            case 2:Port->setStopBits(QSerialPort::TwoStop);break;
+            default:Port->setStopBits(QSerialPort::OneStop);break;
+        }
+
+        connect(Port, SIGNAL(readyRead()), this, SLOT(on_Serial_receive()));
+
+        recv.clear();
+        Port->write(reinterpret_cast<const char *>(packet), sizeof(packet));
+
+        Timer = new QTimer(this);
+        connect(Timer, SIGNAL(timeout()), this, SLOT(on_Timer_overflow()));
+        Timer->start(1500);
+
+        Port->flush();
+        ui->AddressReal->setText("");
+    }
 }
 
 void Prober::on_Serial_receive() {
     QByteArray info = Port->readAll();
+    recv.append(info);
+}
+
+void Prober::on_Sock_receive() {
+    QByteArray info = Sock->readAll();
     recv.append(info);
 }
 
@@ -804,6 +852,13 @@ void Prober::on_Timer_overflow() {
         Port->close();
         delete Port;
         Port = nullptr;
+    }
+
+    if(Sock != nullptr) {
+        disconnect(Sock, SIGNAL(readyRead()), this, SLOT(on_Sock_receive()));
+        Sock->close();
+        delete Sock;
+        Sock = nullptr;
     }
 
     if(Timer != nullptr) {
@@ -821,7 +876,6 @@ void Prober::on_Timer_overflow() {
 
         ui->AddressReal->setText(QString::number(add));
     }
-
 
     ui->ButtonRead->setEnabled(true);
     ui->ButtonWrite->setEnabled(true);
