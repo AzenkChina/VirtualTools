@@ -173,6 +173,8 @@ void Thread::run() {
         }
 
         bool phy = true;
+        unsigned int amount = this->closure.size();
+        unsigned int current = 0;
         for(vector<struct closure>::iterator iter = this->closure.begin(); iter != this->closure.end(); iter++) {
             CGXDLMSCommon Object(iter->id, iter->obis.toStdString());
             QString result;
@@ -184,6 +186,9 @@ void Thread::run() {
             data.Clear();
             reply.Clear();
             value.clear();
+
+            current += 1;
+            result.append("[" + QString::number(current) + "/" + QString::number(amount) + "]");
 
             if(iter->data == "DATE") {
                 QDateTime dt;
@@ -382,18 +387,22 @@ void Thread::run() {
             emit updateMessage(result);
         }
 
-        if(phy == false) {
-            emit updateResult("地址: " + QString::number(physical) + " 操作失败");
-        }
-        else {
-            emit updateResult("地址: " + QString::number(physical) + " 操作成功");
-        }
-
         delete this->cl;
         this->comm->Close();
         delete this->comm;
         this->cl = nullptr;
         this->comm = nullptr;
+
+        if(phy == false) {
+            emit updateResult("地址: " + QString::number(physical) + " 操作失败");
+            QString tmp = "========================Failed to operate device: " + QString::number(physical) + "========================\r\n";
+            GXHelpers::Write("traffic.txt", tmp.toStdString());
+        }
+        else {
+            emit updateResult("地址: " + QString::number(physical) + " 操作成功");
+            QString tmp = "========================Succeed to operate device: " + QString::number(physical) + "========================\r\n";
+            GXHelpers::Write("traffic.txt", tmp.toStdString());
+        }
     }
 
     emit finishWork();

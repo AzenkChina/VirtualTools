@@ -19,6 +19,7 @@
 #include "communication.h"
 #include "include/GXDLMSCommon.h"
 #include "include/GXBytebuffer.h"
+#include "include/GXHelpers.h"
 
 struct parameter
 {
