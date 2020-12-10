@@ -1012,6 +1012,7 @@ int CGXCommunication::ReadDLMSPacket(CGXByteBuffer& data, CGXReplyData& reply)
     if (m_hComPort != INVALID_HANDLE_VALUE)
     {
 #if defined(_WIN32) || defined(_WIN64)//If Windows
+        Sleep(50);
         DWORD sendSize = 0;
         BOOL bRes = ::WriteFile(m_hComPort, data.GetData(), len, &sendSize, &m_osWrite);
         if (!bRes)
@@ -1043,6 +1044,7 @@ int CGXCommunication::ReadDLMSPacket(CGXByteBuffer& data, CGXReplyData& reply)
             }
         }
 #else //If Linux
+        usleep(50*1000);
         ret = write(m_hComPort, data.GetData(), len);
         if (ret != len)
         {
