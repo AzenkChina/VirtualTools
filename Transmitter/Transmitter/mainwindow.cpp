@@ -34,9 +34,9 @@ uint16_t MainWindow::getframe(uint16_t size, uint8_t *buff) {
         this->recv_frame_timeout = 0;
     }
     else {
-        if(this->recv_frame_timeout < 30) {
+        if(this->recv_frame_timeout < 200) {
             this->recv_frame_timeout += 10;
-            if(this->recv_frame_timeout >= 30) {
+            if(this->recv_frame_timeout >= 200) {
                 if(this->buff_size) {
                     if(this->buff_size > size) {
                         memcpy(buff, this->buff.data(), size);
