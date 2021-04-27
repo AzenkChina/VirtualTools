@@ -181,6 +181,7 @@ void Thread::run() {
             CGXByteBuffer data;
             CGXReplyData reply;
             std::string value;
+            bool appended = true;
 
             result.clear();
             data.Clear();
@@ -307,12 +308,17 @@ void Thread::run() {
                 continue;
             }
             else {
-                data.SetHexString(iter->data.toStdString());
+                appended = false;
             }
 
             result.append(iter->name + ": ");
 
             if(iter->method) {
+                if(appended == false) {
+                    QString a(iter->data);
+                    replace(a.begin(), a.end(), '*', '0');
+                    data.SetHexString(a.toStdString());
+                }
                 if(this->comm->Method(&Object, iter->index, data, reply) != DLMS_ERROR_CODE_OK) {
                     result.append("执行失败 ");
                     phy = false;
@@ -323,6 +329,11 @@ void Thread::run() {
             }
             else {
                 if(this->set == true) {
+                    if(appended == false) {
+                        QString a(iter->data);
+                        replace(a.begin(), a.end(), '*', '0');
+                        data.SetHexString(a.toStdString());
+                    }
                     if(this->comm->Write(&Object, iter->index, data, reply) != DLMS_ERROR_CODE_OK) {
                         result.append("设置失败 ");
                         phy = false;
@@ -372,12 +383,26 @@ void Thread::run() {
                             }
                         }
                         else {
-                            if(str != iter->data) {
+                            if(str.size() != iter->data.size()) {
                                 result.append("检查失败 ");
                                 phy = false;
                             }
                             else {
-                                result.append("检查成功 ");
+                                for (int i = 0; i < iter->data.size(); i++) {
+                                    if(iter->data.at(i) == '*') {
+                                        continue;
+                                    }
+                                    if(iter->data.at(i) != str.at(i)) {
+                                        phy = false;
+                                    }
+                                }
+
+                                if(phy == false) {
+                                    result.append("检查失败 ");
+                                }
+                                else {
+                                    result.append("检查成功 ");
+                                }
                             }
                         }
                     }
@@ -892,10 +917,21 @@ void Programmer::on_ButtonLoad_pressed() {
                 }
 
                 QStringList lst = QString::fromLocal8Bit(iter->data()).split("");
+                if(lst.size() % 2) {
+                    ui->ButtonLoad->setText(QString::fromStdString("未加载"));
+                    if(element.name.size()) {
+                        ui->LOG->appendPlainText("错误的数据，在：" + element.name);
+                    }
+                    else {
+                        ui->LOG->appendPlainText("错误的数据");
+                    }
+                    return;
+                }
                 for (int i = 1; i < (lst.size() - 2); ++i) {
                     if( ((lst.at(i) < '0') || (lst.at(i) > '9')) &&
                         ((lst.at(i) < 'a') || (lst.at(i) > 'f')) &&
-                        ((lst.at(i) < 'A') || (lst.at(i) > 'F'))) {
+                        ((lst.at(i) < 'A') || (lst.at(i) > 'F')) &&
+                        (lst.at(i) != '*') ) {
                         ui->ButtonLoad->setText(QString::fromStdString("未加载"));
                         if(element.name.size()) {
                             ui->LOG->appendPlainText("错误的数据，在：" + element.name);
